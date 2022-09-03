@@ -8,10 +8,13 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 
 
+import authRouter from './routes/auth';
 import indexRouter from './routes/index';
 import userRouter from './routes/users';
 
 import models from './models';
+
+import { passportAuthenticate } from './helpers/passport'
 
 var app = express();
 
@@ -26,7 +29,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', indexRouter);
-app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', passportAuthenticate,userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
