@@ -29,7 +29,16 @@ const GetCurrentUser = async (req, res, next) => {
 const UpdateUserDetails = async (req, res, next) => {
     try {
         let user = {
-            ...req.body
+            email: req.body.email,
+            avatar_url: req.body.avatar_url,
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
+            address: req.body.address,
+            city: req.body.city,
+            state: req.body.state,
+            state: req.body.country,
+            zip: req.body.zip,
+            phone_number: req.body.phone_number
         };
 
         await User.UPDATE(
