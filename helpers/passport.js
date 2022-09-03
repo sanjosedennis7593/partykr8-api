@@ -57,9 +57,7 @@ passport.use(new JWTStrategy({
             });
             if( user.dataValues) {
                 delete user.dataValues.password;
-                return callback(null, {
-                    user: user && user.dataValues
-                })
+                return callback(null, user.dataValues)
             }
 
             return callback(null, {

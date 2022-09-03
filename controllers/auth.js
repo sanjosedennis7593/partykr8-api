@@ -31,7 +31,9 @@ const SignInController = (req, res, next) => {
                     role: data.user.role
                 }, JWT_SECRET);
                 
-                return res.json({ user: data.user, message: data.message, token });
+                return res.json({ user: {
+                    ...data.user
+                }, message: data.message, token });
             }
             return res.status(400).json({ message: data.message })
             
