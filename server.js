@@ -3,8 +3,10 @@
 /**
  * Module dependencies.
  */
+ require('dotenv').config()
+require("babel-core/register");
 
-var app = require('../app');
+var app = require('./app');
 var debug = require('debug')('partykr8-api:server');
 var http = require('http');
 
@@ -12,7 +14,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.API_PORT || '3000');
 app.set('port', port);
 
 /**
