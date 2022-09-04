@@ -4,6 +4,7 @@ import db from '../models';
 
 import Table from '../helpers/database';
 import { encryptPassword, comparePassword } from '../helpers/password';
+import { ROLES } from '../config/constants';
 
 const User = new Table(db.users);
 
@@ -134,10 +135,51 @@ const UpdateUserPassword = async (req, res, next) => {
 };
 
 
+const UpdateUserStatus = async (req, res, next) => {
+
+    try {
+        const user = await User.GET({
+            where: {
+                id:  req.body.id
+            },
+        });
+
+        if(!user) {
+            return res.status(400).json({ message: 'User not exist!' });
+        }
+
+        if(!ROLES[req.body.role]) {
+            return res.status(400).json({ message: 'Invalid role value' });
+        }
+
+
+        await User.UPDATE(
+            {
+                id: req.body.id
+            },
+            {
+                role: req.body.role,
+            }
+        );
+
+        return res.status(201).json({
+            message: 'User role has been updated successfully!'
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
 
 
 export {
     GetCurrentUser,
     UpdateUserDetails,
-    UpdateUserPassword
+    UpdateUserPassword,
+    UpdateUserStatus
 };
