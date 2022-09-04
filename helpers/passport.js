@@ -2,7 +2,7 @@ import passport from 'passport';
 import passportJWT from 'passport-jwt';
 
 import db from '../models';
-import Table from '../helpers/database';
+import Table from './database';
 import { comparePassword } from './password';
 
 import { JWT_SECRET } from "../config/jwt";
