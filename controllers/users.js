@@ -1,6 +1,8 @@
-import Table from '../helpers/database';
+import { validationResult } from 'express-validator';
+
 import db from '../models';
 
+import Table from '../helpers/database';
 import { encryptPassword, comparePassword } from '../helpers/password';
 
 const User = new Table(db.users);
@@ -28,6 +30,11 @@ const GetCurrentUser = async (req, res, next) => {
 
 const UpdateUserDetails = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+
         let user = {
             email: req.body.email,
             avatar_url: req.body.avatar_url,

@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
+import { validationResult } from 'express-validator';
 
 import { JWT_SECRET } from '../config/jwt';
+import { ROLES } from '../config/constants';
 import Table from '../helpers/database';
 import { encryptPassword } from '../helpers/password';
 import db from '../models';
@@ -46,6 +48,11 @@ const SignInController = (req, res, next) => {
 const SignUpController = async (req, res, next) => {
     try {
 
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+
         const user = await User.GET({
             where: {
                 email:  req.body.email
@@ -57,7 +64,6 @@ const SignUpController = async (req, res, next) => {
                 message: 'User already exist!'
             });
         }
-
 
         const payload = {
             email: req.body.email,
@@ -71,7 +77,7 @@ const SignUpController = async (req, res, next) => {
             state: req.body.country,
             zip: req.body.zip,
             phone_number: req.body.phone_number,
-            role: req.body.role
+            role: ROLES.user
         };
 
         const response = await User.CREATE({
