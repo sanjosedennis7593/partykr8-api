@@ -10,6 +10,7 @@ import logger from 'morgan';
 
 import authRouter from './routes/auth';
 import indexRouter from './routes/index';
+import talentRouter from './routes/talents';
 import userRouter from './routes/users';
 
 import models from './models';
@@ -30,6 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', indexRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/talents', passportAuthenticate,talentRouter);
 app.use('/api/users', passportAuthenticate,userRouter);
 
 // catch 404 and forward to error handler
