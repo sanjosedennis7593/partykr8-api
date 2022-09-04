@@ -6,7 +6,8 @@ const ROLES = {
 
 const TALENT_REGISTRATION_STATUS = {
     pending: 'pending',
-    approved: 'approved'
+    approved: 'approved',
+    rejected: 'rejected'
 };
 
 const TALENT_TYPES = {
