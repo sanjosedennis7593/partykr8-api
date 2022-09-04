@@ -43,6 +43,7 @@ const TalentSignUpController = async (req, res, next) => {
             address: req.body.address,
             phone_number: req.body.phone_number,
             facebook_url: req.body.facebook_url,
+            instagram_url: req.body.instagram_url,
             twitter_url: req.body.twitter_url,
             tiktok_url: req.body.tiktok_url,
             status: TALENT_REGISTRATION_STATUS[req.body.status],

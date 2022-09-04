@@ -28,6 +28,10 @@ module.exports = (sequelize, Sequelize) => {
         facebook_url: {
             type: Sequelize.STRING
         },
+        instagram_url: {
+            type: Sequelize.STRING
+        },
+
 
         twitter_url: {
             type: Sequelize.STRING
