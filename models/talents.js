@@ -14,8 +14,14 @@ module.exports = (sequelize, Sequelize) => {
         genre: {
             type: Sequelize.STRING
         },
+        private_fee: {
+            type: Sequelize.INTEGER
+        },
         service_rate: {
             type: Sequelize.INTEGER
+        },
+        service_rate_type: {
+            type: Sequelize.STRING
         },
 
         address: {
