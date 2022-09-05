@@ -67,7 +67,9 @@ const TalentSignUpController = async (req, res, next) => {
         const payload = {
             type: req.body.type,
             genre: req.body.genre,
+            private_fee: req.body.private_fee,
             service_rate: req.body.service_rate,
+            service_rate_type: req.body.service_rate_type,
             address: req.body.address,
             phone_number: req.body.phone_number,
             facebook_url: req.body.facebook_url,
