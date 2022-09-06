@@ -2,6 +2,8 @@
 
 import { TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
+import { sendMessage } from '../helpers/mail';
+import{ MAIL_USER_TEMPLATE } from '../helpers/templates';
 import db from '../models';
 
 
@@ -58,6 +60,8 @@ const CreateEvents = async (req, res, next) => {
             time: req.body.time,
             message_to_guest: req.body.message_to_guest
         };
+
+
         const response = await Event.CREATE({
             ...event
         });
@@ -80,13 +84,19 @@ const CreateEvents = async (req, res, next) => {
                 ignoreDuplicates: true,
             });
         }
-
-        console.log('talents',talents)
         if (talents.length > 0) {
             await EventTalent.CREATE_MANY(talents);
         }
 
-
+        await sendMessage({
+            to: req.body.guests,
+            subject: `PartyKr8 Event: ${req.body.title}`,
+            html: MAIL_USER_TEMPLATE({
+                title: req.body.title,
+                message_to_guest: req.body.message_to_guest
+            })
+        });
+        
         return res.status(200).json({
             data: response
         });
