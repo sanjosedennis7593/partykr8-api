@@ -44,6 +44,49 @@ const SignInController = (req, res, next) => {
     })(req, res);
 }
 
+const FacebookSignIn = passport.authenticate('facebook', {
+    scope: [ 'email', 'user_location' ]
+});
+
+
+const FacebookSignInCallback =  (req, res, next) => {
+    passport.authenticate('facebook', function (err, data, info) {
+        if (err) {
+            return next(err);
+
+        }
+        if (data && !data.user) {
+            return res.status(200).json({ user: null })
+        }
+
+        const token = jwt.sign({
+            id: data.user.id,
+            email: data.user.email,
+            role: data.user.role
+        }, JWT_SECRET);
+        
+        return res.json({ 
+            user: {
+            ...data.user
+            }, 
+            facebook_access_token: req.query && req.query.code,
+            token
+    });
+     
+    })(req, res, next);
+}
+
+// const FacebookSignInSuccess = (req, res, next) => {
+//     console.log('req.user', req.user)
+//     return res.status(200).json({ message: 'Success' })
+// }
+
+// const FacebookSignInFailed = (req, res, next) => {
+//     return res.status(200).json({ message: 'Failed' })
+// }
+
+
+
 
 const SignUpController = async (req, res, next) => {
     try {
@@ -101,5 +144,9 @@ const SignUpController = async (req, res, next) => {
 
 export {
     SignInController,
-    SignUpController
+    SignUpController,
+    FacebookSignIn,
+    // FacebookSignInFailed,
+    // FacebookSignInSuccess,
+    FacebookSignInCallback
 }

@@ -11,6 +11,12 @@ module.exports = (sequelize, Sequelize) => {
       password: {
         type: Sequelize.STRING,
       },
+      facebook_id:{
+        type: Sequelize.STRING,
+      },
+      google_id:{
+        type: Sequelize.STRING,
+      },
       role: {
         type: Sequelize.STRING,
         defaultValue: "user",

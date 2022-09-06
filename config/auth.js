@@ -1,0 +1,9 @@
+const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID || '';
+const FACEBOOK_SECRET = process.env.FACEBOOK_SECRET  || '';
+const FACEBOOK_CALLBACK_URL = process.env.FACEBOOK_CALLBACK_URL || '';
+
+export {
+    FACEBOOK_APP_ID,
+    FACEBOOK_SECRET,
+    FACEBOOK_CALLBACK_URL
+};
