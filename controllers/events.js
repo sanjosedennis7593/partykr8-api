@@ -3,7 +3,7 @@
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import{ MAIL_USER_TEMPLATE } from '../helpers/templates';
+import { MAIL_USER_TEMPLATE } from '../helpers/templates';
 import db from '../models';
 
 
@@ -58,12 +58,12 @@ const GetEvent = async (req, res, next) => {
     try {
         const { id } = req.params;
         const event = await Event.GET({
-           where:{
-            id
-           },
-           ...WITH_USERS_AND_TALENTS
+            where: {
+                id
+            },
+            ...WITH_USERS_AND_TALENTS
         });
-       
+
         return res.status(200).json({
             data: event
         });
@@ -125,7 +125,7 @@ const CreateEvents = async (req, res, next) => {
                 message_to_guest: req.body.message_to_guest
             })
         });
-        
+
         return res.status(200).json({
             data: response
         });
@@ -139,9 +139,86 @@ const CreateEvents = async (req, res, next) => {
     }
 };
 
+
+const UpdateEventDetails = async (req, res, next) => {
+    try {
+        const guests = req.body.guests || [];
+        const removedGuests = req.body.removed_guests || [];
+        let eventPayload = {
+            event_id: req.body.event_id,
+            user_id: req.user.id,
+            title: req.body.title,
+            location: req.body.location,
+            date: req.body.date,
+            time: req.body.time,
+            message_to_guest: req.body.message_to_guest
+        };
+
+
+        await Event.UPDATE({
+            id: eventPayload.event_id,
+            user_id: req.user.id,
+        }, {
+            title: eventPayload.title,
+            location: eventPayload.location,
+            date: eventPayload.date,
+            time: eventPayload.time,
+            message_to_guest: eventPayload.message_to_guest
+        });
+
+        for(let guest of guests) {
+            await EventGuest.UPSERT(
+                {
+                    email: guest,
+                    event_id: eventPayload.event_id
+                },
+                {
+                    email: guest,
+                    event_id: eventPayload.event_id
+                }
+            )
+        }
+
+        for(let guest of removedGuests) {
+            await EventGuest.DELETE(
+                {
+                    email: guest,
+                    event_id: eventPayload.event_id
+                },
+                db.b
+            )
+        }
+
+        // if (talents.length > 0) {
+        //     await EventTalent.CREATE_MANY(talents);
+        // }
+
+        
+        const event = await Event.GET({
+            where: {
+                id: req.body.event_id,
+                user_id: req.user.id,
+            },
+            ...WITH_USERS_AND_TALENTS
+        });
+
+
+        return res.status(200).json({
+            data: event
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
 const UpdateEventTalentStatus = async (req, res, next) => {
     try {
-        if(!TALENT_STATUS[req.body.status]) {
+        if (!TALENT_STATUS[req.body.status]) {
             return res.status(400).json({ errors: "Invalid Status" });
         }
 
@@ -172,7 +249,7 @@ const UpdateEventTalentStatus = async (req, res, next) => {
 const UpdateEventStatus = async (req, res, next) => {
     try {
 
-        if(!EVENT_STATUS[req.body.status]) {
+        if (!EVENT_STATUS[req.body.status]) {
             return res.status(400).json({ errors: "Invalid Status" });
         }
 
@@ -187,7 +264,7 @@ const UpdateEventStatus = async (req, res, next) => {
         );
 
         const event = await Event.GET({
-            where:{
+            where: {
                 id: req.body.event_id,
                 user_id: req.user.id,
             },
@@ -217,6 +294,7 @@ export {
     CreateEvents,
     GetEvent,
     GetEvents,
+    UpdateEventDetails,
     UpdateEventTalentStatus,
     UpdateEventStatus
 };
