@@ -1,6 +1,6 @@
 // import { validationResult } from 'express-validator';
 
-import { TALENT_STATUS } from '../config/constants';
+import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
 import{ MAIL_USER_TEMPLATE } from '../helpers/templates';
@@ -11,30 +11,35 @@ const Event = new Table(db.events);
 const EventGuest = new Table(db.event_guests);
 const EventTalent = new Table(db.event_talents);
 
+const WITH_USERS_AND_TALENTS = {
+    include: [
+        {
+            model: db.users,
+            attributes: [
+                'email',
+                'lastname',
+                'firstname',
+            ]
+        },
+        {
+            model: db.event_guests
+        },
+        {
+            model: db.event_talents,
+            include: [
+                {
+                    model: db.talents
+                }
+            ]
+        },
+    ]
+};
+
+
 const GetEvents = async (req, res, next) => {
     try {
         const events = await Event.GET_ALL({
-            include: [
-                {
-                    model: db.users,
-                    attributes: [
-                        'email',
-                        'lastname',
-                        'firstname',
-                    ]
-                },
-                {
-                    model: db.event_guests
-                },
-                {
-                    model: db.event_talents,
-                    include: [
-                        {
-                            model: db.talents
-                        }
-                    ]
-                },
-            ]
+            ...WITH_USERS_AND_TALENTS
         })
         return res.status(200).json({
             data: events
@@ -48,6 +53,30 @@ const GetEvents = async (req, res, next) => {
         });
     }
 };
+
+const GetEvent = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const event = await Event.GET({
+           where:{
+            id
+           },
+           ...WITH_USERS_AND_TALENTS
+        });
+       
+        return res.status(200).json({
+            data: event
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
 
 
 const CreateEvents = async (req, res, next) => {
@@ -140,12 +169,54 @@ const UpdateEventTalentStatus = async (req, res, next) => {
     }
 };
 
+const UpdateEventStatus = async (req, res, next) => {
+    try {
+
+        if(!EVENT_STATUS[req.body.status]) {
+            return res.status(400).json({ errors: "Invalid Status" });
+        }
+
+        await Event.UPDATE(
+            {
+                id: req.body.event_id,
+                user_id: req.user.id
+            },
+            {
+                status: req.body.status
+            }
+        );
+
+        const event = await Event.GET({
+            where:{
+                id: req.body.event_id,
+                user_id: req.user.id,
+            },
+            ...WITH_USERS_AND_TALENTS
+        });
+
+        return res.status(200).json({
+            message: "Status has been updated successfully!",
+            data: event
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
 
 
 
 
 export {
     CreateEvents,
+    GetEvent,
     GetEvents,
-    UpdateEventTalentStatus
+    UpdateEventTalentStatus,
+    UpdateEventStatus
 };

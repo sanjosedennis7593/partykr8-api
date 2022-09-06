@@ -10,6 +10,13 @@ const TALENT_STATUS = {
     rejected: 'rejected'
 };
 
+const EVENT_STATUS = {
+    pending: 'pending',
+    cancelled: 'cancelled',
+    ongoing: 'ongoing',
+    finished: 'finished'
+};
+
 const TALENT_TYPES = {
     dj: 'dj',
     singer: 'singer',
@@ -20,6 +27,7 @@ const TALENT_TYPES = {
 
 
 export { 
+    EVENT_STATUS,
     ROLES,
     TALENT_STATUS,
     TALENT_TYPES
