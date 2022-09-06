@@ -4,7 +4,7 @@ const ROLES = {
     user: 'user'
 };
 
-const TALENT_REGISTRATION_STATUS = {
+const TALENT_STATUS = {
     pending: 'pending',
     approved: 'approved',
     rejected: 'rejected'
@@ -21,6 +21,6 @@ const TALENT_TYPES = {
 
 export { 
     ROLES,
-    TALENT_REGISTRATION_STATUS,
+    TALENT_STATUS,
     TALENT_TYPES
 };

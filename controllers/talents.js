@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 
-import { TALENT_REGISTRATION_STATUS, TALENT_TYPES } from '../config/constants';
+import { TALENT_STATUS, TALENT_TYPES } from '../config/constants';
 import Table from '../helpers/database';
 // import { encryptPassword } from '../helpers/password';
 import db from '../models';
@@ -76,9 +76,9 @@ const TalentSignUpController = async (req, res, next) => {
             instagram_url: req.body.instagram_url,
             twitter_url: req.body.twitter_url,
             tiktok_url: req.body.tiktok_url,
-            status: TALENT_REGISTRATION_STATUS[req.body.status],
+            status: TALENT_STATUS[req.body.status],
             user_id: req.user.id,
-            status: TALENT_REGISTRATION_STATUS.pending
+            status: TALENT_STATUS.pending
         };
 
         await Talent.CREATE({
@@ -105,7 +105,7 @@ const TalentUpdateStatus = async (req, res, next) => {
 
     try {
 
-        if(!TALENT_REGISTRATION_STATUS[req.body.status]) {
+        if(!TALENT_STATUS[req.body.status]) {
             return res.status(400).json({ message: 'Invalid Status!' });
         }
         const talent = await Talent.GET({

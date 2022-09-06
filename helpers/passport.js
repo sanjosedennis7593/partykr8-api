@@ -133,7 +133,7 @@ passport.use(new JWTStrategy({
                     id: jwtPayload.id
                 },
             });
-            if (user.dataValues) {
+            if (user && user.dataValues) {
                 delete user.dataValues.password;
                 return callback(null, user.dataValues)
             }
