@@ -1,5 +1,6 @@
 // import { validationResult } from 'express-validator';
 
+import { TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import db from '../models';
 
@@ -99,9 +100,42 @@ const CreateEvents = async (req, res, next) => {
     }
 };
 
+const UpdateEventTalentStatus = async (req, res, next) => {
+    try {
+        if(!TALENT_STATUS[req.body.status]) {
+            return res.status(400).json({ errors: "Invalid Status" });
+        }
+
+        await EventTalent.UPDATE(
+            {
+                event_id: req.body.event_id,
+                talent_id: req.body.talent_id
+            },
+            {
+                status: req.body.status
+            }
+        );
+
+
+        return res.status(200).json({
+            message: "Status has been updated successfully!"
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
+
 
 
 export {
     CreateEvents,
-    GetEvents
+    GetEvents,
+    UpdateEventTalentStatus
 };
