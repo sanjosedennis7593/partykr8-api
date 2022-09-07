@@ -55,9 +55,6 @@ const RESET_PASSWORD_MESSAGE = ({
               <br><br>
                    2022 PartyKr8.
               <br><br>
-  
-              You are receiving this email because a PartyKr8 user invited you to his/her upcoming event..
-              <br><br>
             </td>
           </tr>
         </table>
