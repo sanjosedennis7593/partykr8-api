@@ -1,15 +1,17 @@
 // import { validationResult } from 'express-validator';
+import { Op } from 'sequelize';
 
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { EVENT_INVITE_MESSAGE } from '../helpers/mail_templates';
+import { EVENT_INVITE_MESSAGE, TALENT_INVITATION_MESSAGE } from '../helpers/mail_templates';
 import db from '../models';
 
 
 const Event = new Table(db.events);
 const EventGuest = new Table(db.event_guests);
 const EventTalent = new Table(db.event_talents);
+const Talent = new Table(db.talents);
 const User = new Table(db.users);
 
 const WITH_USERS_AND_TALENTS = {
@@ -112,6 +114,26 @@ const CreateEvents = async (req, res, next) => {
             }
         }) : [];
 
+
+        const talentUsers = await Talent.GET_ALL({
+            where: {
+                id: { [Op.in]: req.body.talents }
+            },
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'id',
+                        'email',
+                        'lastname',
+                        'firstname',
+                    ]
+                },
+            ]
+        });
+
+        const talentEmails = talentUsers ? talentUsers.map(talent => talent.user.email) : [];
+
         if (guests.length > 0) {
             await EventGuest.CREATE_MANY(guests, {
                 ignoreDuplicates: true,
@@ -127,6 +149,18 @@ const CreateEvents = async (req, res, next) => {
             html: EVENT_INVITE_MESSAGE({
                 title: req.body.title,
                 message_to_guest: req.body.message_to_guest,
+                location: req.body.location,
+                date: req.body.date,
+                time: req.body.time,
+                user
+            })
+        });
+
+        await sendMessage({
+            to: talentEmails,
+            subject: `Talent Invitation`,
+            html: TALENT_INVITATION_MESSAGE({
+                title: req.body.title,
                 location: req.body.location,
                 date: req.body.date,
                 time: req.body.time,
@@ -174,7 +208,7 @@ const UpdateEventDetails = async (req, res, next) => {
             message_to_guest: eventPayload.message_to_guest
         });
 
-        for(let guest of guests) {
+        for (let guest of guests) {
             await EventGuest.UPSERT(
                 {
                     email: guest,
@@ -187,7 +221,7 @@ const UpdateEventDetails = async (req, res, next) => {
             )
         }
 
-        for(let guest of removedGuests) {
+        for (let guest of removedGuests) {
             await EventGuest.DELETE(
                 {
                     email: guest,
@@ -201,7 +235,7 @@ const UpdateEventDetails = async (req, res, next) => {
         //     await EventTalent.CREATE_MANY(talents);
         // }
 
-        
+
         const event = await Event.GET({
             where: {
                 id: req.body.event_id,
