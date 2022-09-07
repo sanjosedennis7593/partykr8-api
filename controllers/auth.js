@@ -5,7 +5,9 @@ import { validationResult } from 'express-validator';
 import { JWT_SECRET } from '../config/jwt';
 import { ROLES } from '../config/constants';
 import Table from '../helpers/database';
-import { encryptPassword } from '../helpers/password';
+import { sendMessage } from '../helpers/mail';
+import { encryptPassword, generateCode } from '../helpers/password';
+import { RESET_PASSWORD_MESSAGE } from '../helpers/mail_templates';
 import db from '../models';
 
 const User = new Table(db.users);
@@ -141,6 +143,63 @@ const SignUpController = async (req, res, next) => {
     }
 };
 
+const ResetPassword = async (req, res, next) => {
+    try {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+          return res.status(400).json({ errors: errors.array() });
+        }
+
+        const user = await User.GET({
+            where: {
+                email: req.body.email
+            },
+        });
+
+        if(!user ) {
+            return res.status(400).json({
+                message: 'User not exist!'
+            });
+        }
+
+        const newPassword = generateCode(12);
+        const updatedPassword = encryptPassword(newPassword);
+
+        const isPasswordUpdateSuccess = await User.UPDATE(
+            {
+                id: user.id
+            },
+            {
+                password: updatedPassword
+            }
+        );
+
+        if(isPasswordUpdateSuccess) {
+            await sendMessage({
+                to: user.email,
+                subject: `Reset Password`,
+                html: RESET_PASSWORD_MESSAGE({
+                    password: newPassword,
+                    user
+                })
+            });
+    
+        }
+
+        return res.json({
+            message: 'Your new password has been sent to your email!'
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
 
 export {
     SignInController,
@@ -148,5 +207,6 @@ export {
     FacebookSignIn,
     // FacebookSignInFailed,
     // FacebookSignInSuccess,
-    FacebookSignInCallback
+    FacebookSignInCallback,
+    ResetPassword
 }

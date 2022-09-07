@@ -36,10 +36,14 @@ const TalentSignupValidator = [
     body('tiktok_url').not().isEmpty().isURL().withMessage('TikTok URL must be in URL format'),
 ];
 
+const ResetPasswordValidator = [
+    body('email').isEmail().withMessage('Invalid email format').trim().escape()
+];
 
 export {
     SignupValidator,
     UpdateUserDetailsValidator,
-    TalentSignupValidator
+    TalentSignupValidator,
+    ResetPasswordValidator
 }
 

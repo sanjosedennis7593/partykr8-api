@@ -1,9 +1,9 @@
 import express from 'express';
 
 // CONTROLLERS
-import { FacebookSignIn, FacebookSignInSuccess, FacebookSignInFailed, FacebookSignInCallback, SignInController, SignUpController } from '../controllers/auth';
+import { FacebookSignIn, FacebookSignInCallback, SignInController, SignUpController, ResetPassword } from '../controllers/auth';
 
-import { SignupValidator } from '../helpers/validator';
+import { SignupValidator, ResetPasswordValidator } from '../helpers/validator';
 
 
 const  router = express.Router();
@@ -14,5 +14,6 @@ router.get('/signin/facebook', FacebookSignIn);
 router.get('/signin/facebook/callback', FacebookSignInCallback);
 // router.get('/signin/facebook/success', FacebookSignInSuccess);
 // router.get('/signin/facebook/failed', FacebookSignInFailed);
+router.post('/forgot/password', ...ResetPasswordValidator, ResetPassword);
 
 module.exports = router;
