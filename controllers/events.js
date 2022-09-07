@@ -3,13 +3,14 @@
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { MAIL_USER_TEMPLATE } from '../helpers/templates';
+import { EVENT_INVITE_MESSAGE } from '../helpers/mail_templates';
 import db from '../models';
 
 
 const Event = new Table(db.events);
 const EventGuest = new Table(db.event_guests);
 const EventTalent = new Table(db.event_talents);
+const User = new Table(db.users);
 
 const WITH_USERS_AND_TALENTS = {
     include: [
@@ -90,6 +91,9 @@ const CreateEvents = async (req, res, next) => {
             message_to_guest: req.body.message_to_guest
         };
 
+        const user = await User.GET({
+            id: req.user.id
+        });
 
         const response = await Event.CREATE({
             ...event
@@ -120,9 +124,13 @@ const CreateEvents = async (req, res, next) => {
         await sendMessage({
             to: req.body.guests,
             subject: `PartyKr8 Event: ${req.body.title}`,
-            html: MAIL_USER_TEMPLATE({
+            html: EVENT_INVITE_MESSAGE({
                 title: req.body.title,
-                message_to_guest: req.body.message_to_guest
+                message_to_guest: req.body.message_to_guest,
+                location: req.body.location,
+                date: req.body.date,
+                time: req.body.time,
+                user
             })
         });
 

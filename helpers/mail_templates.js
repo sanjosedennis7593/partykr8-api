@@ -1,9 +1,16 @@
-const MAIL_USER_TEMPLATE = ({
-    title = '',
-    message_to_guest = ''
+import { format } from "date-fns";
+
+const EVENT_INVITE_MESSAGE = ({
+  title = '',
+  // message_to_guest = '',
+  day = 'Monday',
+  location = '',
+  date = '',
+  time = '',
+  user
 }) => {
 
-    return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" 
  xmlns:v="urn:schemas-microsoft-com:vml"
  xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -122,8 +129,32 @@ a[x-apple-data-detectors] {
 <br>
 
 <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
-    ${message_to_guest}
+    ${/* message_to_guest */``}
+
+    Dear Recipient,
   <br><br>
+ 
+  I would like to invite you to join us for an event/party on ${format(new Date(date),'EEEE, MMMM dd, yyyy')} at ${time} in the evening as we celebrate our ${title}.
+  The party will be held at (venue) ${location} .
+  <br><br>
+  I hope to see you in our simple party with the rest of our friends. We are pretty sure that with your presence, our very special day would be perfect. 
+  <br><br>
+  On the other hand, this party is also open to people who you want to be with. We are looking forward to meeting you to the party.
+  <br><br>
+  We have booked this event through PARTYKR8 App available in Appstore and Play store for download. Please click this link to view our booking - LINK
+  If you like to experience hassle free party experience use PARTKR8. 
+  Download the app now and register! Several Party service providers such as lights and sounds provider, DJs, singers, hosts, magicians, bands and many more to choose from to make your event memorable and lively.
+  <br><br><br>
+  
+
+  Best Wishes,
+  <br><br>
+  The Celebrators,
+  <br>
+  ${`${user.firstname} ${user.lastname}`}
+  <br>
+  PartyKr8 user
+  <br>
 </div>
 
           </td>
@@ -154,5 +185,5 @@ a[x-apple-data-detectors] {
 };
 
 export {
-    MAIL_USER_TEMPLATE
+  EVENT_INVITE_MESSAGE
 }
