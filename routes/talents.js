@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get('/', GetTalents);
 router.post('/signup', ...TalentSignupValidator, TalentSignUpController);
-router.put('/update/status', TalentUpdateStatus);
+router.put('/status/update', TalentUpdateStatus);
 
 
 

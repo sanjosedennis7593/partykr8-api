@@ -1,13 +1,17 @@
 import { validationResult } from 'express-validator';
 
 import { TALENT_STATUS, TALENT_TYPES } from '../config/constants';
+
 import Table from '../helpers/database';
+import { sendMessage } from '../helpers/mail';
+import { TALENT_APPROVED_MESSAGE } from '../helpers/mail_templates';
+
 // import { encryptPassword } from '../helpers/password';
 import db from '../models';
 
 
 const Talent = new Table(db.talents);
-
+const User = new Table(db.users);
 
 
 const GetTalents = async (req, res, next) => {
@@ -128,8 +132,26 @@ const TalentUpdateStatus = async (req, res, next) => {
             }
         );
 
+        const talentUser = await User.GET({
+            id: talent.user_id
+        })
+   
+        if(talentUser && talentUser.dataValues && req.body.status === TALENT_STATUS.approved) {
+            await sendMessage({
+                to: talentUser.dataValues.email,
+                subject: `Talent Application Approved`,
+                html: TALENT_APPROVED_MESSAGE({
+                    user: talentUser.dataValues
+                })
+            });
+        }
+
+        console.log('talentUser',talentUser.dataValues)
+        console.log('talentUser talent',talent)
+
         return res.status(201).json({
-            message: 'Talent application has been updated successfully!'
+            message: 'Talent application has been updated successfully! 22',
+            talent: talentUser
         });
     }
     catch (err) {
