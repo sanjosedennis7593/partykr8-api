@@ -2,6 +2,7 @@
 import createError from 'http-errors';
 
 import express from 'express';
+import session from 'express-session';
 
 import path from 'path';
 import cookieParser from 'cookie-parser';
@@ -16,6 +17,8 @@ import userRouter from './routes/users';
 
 import models from './models';
 
+import { SESSION_SECRET } from './config/auth';
+
 import { passportAuthenticate } from './helpers/passport'
 
 var app = express();
@@ -23,6 +26,13 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
+
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }
+}));
 
 app.use(logger('dev'));
 app.use(express.json());

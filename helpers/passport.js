@@ -2,16 +2,25 @@ import passport from 'passport';
 import passportJWT from 'passport-jwt';
 import FacebookStrategy from 'passport-facebook';
 
+
 import db from '../models';
 import Table from './database';
 import { comparePassword } from './password';
 
 import { API_URL } from '../config/api';
-import { FACEBOOK_APP_ID, FACEBOOK_SECRET, FACEBOOK_CALLBACK_URL } from '../config/auth';
+import {
+    FACEBOOK_APP_ID,
+    FACEBOOK_SECRET,
+    FACEBOOK_CALLBACK_URL,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_SECRET,
+    GOOGLE_CALLBACK_URL
+} from '../config/auth';
 import { JWT_SECRET } from "../config/jwt";
 import { ROLES } from "../config/constants";
 
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth2').Strategy;
 
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
@@ -57,6 +66,7 @@ passport.use(new LocalStrategy({
         }
     }
 ));
+
 
 
 passport.use(
@@ -120,6 +130,67 @@ passport.use(
         }
     )
 );
+
+
+
+
+passport.use(
+    new GoogleStrategy({
+        clientID: GOOGLE_CLIENT_ID,
+        clientSecret: GOOGLE_SECRET,
+        callbackURL: `${API_URL}${GOOGLE_CALLBACK_URL}`,
+        passReqToCallback: true
+    },
+        async (request, accessToken, refreshToken, profile, callback) => {
+
+            if (profile) {
+                const { id, email, family_name, given_name } = profile;
+
+                let user = await User.GET({
+                    where: {
+                        email
+                    }
+                });
+
+                if (user && user.dataValues) {
+                    delete user.dataValues.password;
+                    if (!user.dataValues.google_id) {
+                        await User.UPDATE(
+                            {
+                                email
+                            },
+                            {
+                                google_id: id
+                            }
+                        );
+                    }
+
+                    return callback(null, {
+                        user: user && user.dataValues
+                    })
+                }
+                else {
+                    const userPayload = {
+                        email,
+                        firstname: given_name,
+                        lastname: family_name,
+                        type: ROLES.user,
+                        facebook_id: id
+                    };
+
+                    const newUser = await User.CREATE(userPayload)
+
+                    return callback(null, {
+                        user: newUser
+                    })
+                }
+            }
+
+            return callback(null, {
+                user: null
+            })
+        }
+    ));
 
 
 passport.use(new JWTStrategy({

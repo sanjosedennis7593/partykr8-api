@@ -2,8 +2,20 @@ const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID || '';
 const FACEBOOK_SECRET = process.env.FACEBOOK_SECRET  || '';
 const FACEBOOK_CALLBACK_URL = process.env.FACEBOOK_CALLBACK_URL || '';
 
+
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+const GOOGLE_SECRET = process.env.GOOGLE_SECRET  || '';
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || '';
+
+const SESSION_SECRET = process.env.SESSION_SECRET;
+
+
 export {
     FACEBOOK_APP_ID,
     FACEBOOK_SECRET,
-    FACEBOOK_CALLBACK_URL
+    FACEBOOK_CALLBACK_URL,
+    GOOGLE_CLIENT_ID,
+    GOOGLE_SECRET,
+    GOOGLE_CALLBACK_URL,
+    SESSION_SECRET
 };

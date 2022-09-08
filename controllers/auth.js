@@ -27,31 +27,33 @@ const SignInController = (req, res, next) => {
             if (err) {
                 res.send(err);
             }
-            if(data && data.user) {
+            if (data && data.user) {
 
                 const token = jwt.sign({
                     id: data.user.id,
                     email: data.user.email,
                     role: data.user.role
                 }, JWT_SECRET);
-                
-                return res.json({ user: {
-                    ...data.user
-                }, message: data.message, token });
+
+                return res.json({
+                    user: {
+                        ...data.user
+                    }, message: data.message, token
+                });
             }
             return res.status(400).json({ message: data.message })
-            
- 
+
+
         });
     })(req, res);
 }
 
 const FacebookSignIn = passport.authenticate('facebook', {
-    scope: [ 'email', 'user_location' ]
+    scope: ['email', 'user_location']
 });
 
 
-const FacebookSignInCallback =  (req, res, next) => {
+const FacebookSignInCallback = (req, res, next) => {
     passport.authenticate('facebook', function (err, data, info) {
         if (err) {
             return next(err);
@@ -66,28 +68,50 @@ const FacebookSignInCallback =  (req, res, next) => {
             email: data.user.email,
             role: data.user.role
         }, JWT_SECRET);
-        
-        return res.json({ 
+
+        return res.json({
             user: {
-            ...data.user
-            }, 
+                ...data.user
+            },
             facebook_access_token: req.query && req.query.code,
             token
-    });
-     
+        });
+
     })(req, res, next);
 }
 
-// const FacebookSignInSuccess = (req, res, next) => {
-//     console.log('req.user', req.user)
-//     return res.status(200).json({ message: 'Success' })
-// }
 
-// const FacebookSignInFailed = (req, res, next) => {
-//     return res.status(200).json({ message: 'Failed' })
-// }
+const GoogleSignIn = passport.authenticate('google', {
+    scope: ['email', 'profile']
+});
 
 
+const GoogleSignInCallback = (req, res, next) => {
+    passport.authenticate('google', function (err, data, info) {
+        if (err) {
+            return next(err);
+
+        }
+        if (data && !data.user) {
+            return res.status(200).json({ user: null })
+        }
+        const token = jwt.sign({
+            id: data.user.id,
+            email: data.user.email,
+            role: data.user.role
+        }, JWT_SECRET);
+
+        return res.json({
+            user: {
+                ...data.user
+            },
+            google_access_token: req.query && req.query.code,
+            token
+        });
+
+    })(req, res, next);
+
+}
 
 
 const SignUpController = async (req, res, next) => {
@@ -95,16 +119,16 @@ const SignUpController = async (req, res, next) => {
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-          return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ errors: errors.array() });
         }
 
         const user = await User.GET({
             where: {
-                email:  req.body.email
+                email: req.body.email
             },
         });
 
-        if(user && user.dataValues) {
+        if (user && user.dataValues) {
             return res.status(400).json({
                 message: 'User already exist!'
             });
@@ -148,7 +172,7 @@ const ResetPassword = async (req, res, next) => {
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-          return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ errors: errors.array() });
         }
 
         const user = await User.GET({
@@ -157,7 +181,7 @@ const ResetPassword = async (req, res, next) => {
             },
         });
 
-        if(!user ) {
+        if (!user) {
             return res.status(400).json({
                 message: 'User not exist!'
             });
@@ -175,7 +199,7 @@ const ResetPassword = async (req, res, next) => {
             }
         );
 
-        if(isPasswordUpdateSuccess) {
+        if (isPasswordUpdateSuccess) {
             await sendMessage({
                 to: user.email,
                 subject: `Reset Password`,
@@ -184,7 +208,7 @@ const ResetPassword = async (req, res, next) => {
                     user
                 })
             });
-    
+
         }
 
         return res.json({
@@ -205,8 +229,8 @@ export {
     SignInController,
     SignUpController,
     FacebookSignIn,
-    // FacebookSignInFailed,
-    // FacebookSignInSuccess,
     FacebookSignInCallback,
+    GoogleSignIn,
+    GoogleSignInCallback,
     ResetPassword
 }
