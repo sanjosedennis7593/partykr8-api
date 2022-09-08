@@ -143,7 +143,7 @@ const SignUpController = async (req, res, next) => {
             address: req.body.address,
             city: req.body.city,
             state: req.body.state,
-            state: req.body.country,
+            country: req.body.country,
             zip: req.body.zip,
             phone_number: req.body.phone_number,
             role: ROLES.user
