@@ -31,7 +31,17 @@ const WITH_USERS_AND_TALENTS = {
             model: db.event_talents,
             include: [
                 {
-                    model: db.talents
+                    model: db.talents,
+                    include: [
+                        {
+                            model:db.users,
+                            attributes: [
+                                'email',
+                                'lastname',
+                                'firstname',
+                            ]
+                        }
+                    ]
                 }
             ]
         },
