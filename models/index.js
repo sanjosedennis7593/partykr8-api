@@ -23,6 +23,10 @@ models.events.belongsTo(models.users, {
 });
 
 
+models.users.hasMany(models.events, {
+    foreignKey: 'user_id',
+    sourceKey: 'id'
+});
 // models.event_guests.belongsTo(models.events ,{
 //     foreignKey: 'event_id',
 //     sourceKey: 'id'

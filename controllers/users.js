@@ -29,6 +29,35 @@ const GetCurrentUser = async (req, res, next) => {
     }
 };
 
+const GetUser = async (req, res, next) => {
+    try {
+        const { user_id } = req.params;
+
+        let user = await User.GET({
+            where: {
+                id: user_id
+            },
+            include: [
+                {
+                    model: db.events,
+    
+                }
+            ]
+        });
+        delete user.password;
+        return res.status(200).json({
+            data: user
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
 const UpdateUserDetails = async (req, res, next) => {
     try {
         const errors = validationResult(req);
@@ -178,6 +207,7 @@ const UpdateUserStatus = async (req, res, next) => {
 
 
 export {
+    GetUser,
     GetCurrentUser,
     UpdateUserDetails,
     UpdateUserPassword,
