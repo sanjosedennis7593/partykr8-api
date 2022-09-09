@@ -2,11 +2,13 @@ import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { validationResult } from 'express-validator';
 
+import { AWS_S3_BUCKET } from '../config/aws';
 import { JWT_SECRET } from '../config/jwt';
 import { ROLES } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
 import { encryptPassword, generateCode } from '../helpers/password';
+import { uploadFile } from '../helpers/upload';
 import { RESET_PASSWORD_MESSAGE } from '../helpers/mail_templates';
 import db from '../models';
 
@@ -117,10 +119,13 @@ const GoogleSignInCallback = (req, res, next) => {
 const SignUpController = async (req, res, next) => {
     try {
 
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
+        // const errors = validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     return res.status(400).json({ errors: errors.array() });
+        // }
+
+        console.log('req.body',req.body)
+        console.log('req.files',req.file)
 
         const user = await User.GET({
             where: {
@@ -152,6 +157,25 @@ const SignUpController = async (req, res, next) => {
         const response = await User.CREATE({
             ...payload
         });
+
+        if(req.file) {
+            const s3Params = {
+                Key: `user/${response.id}/profile_${response.id}.jpg`,
+                Body: req.file.buffer,
+            };
+    
+            const s3Response = await uploadFile(s3Params);
+            if (s3Response) {
+                await User.UPDATE({
+                    id: response.id
+                }, {
+                    avatar_url: s3Response ? s3Response.Key : ''
+                });
+            }
+    
+        }
+
+
 
         return res.json({
             message: 'Account has been created successfully!',

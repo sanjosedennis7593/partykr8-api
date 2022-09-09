@@ -12,11 +12,15 @@ import {
 
 import { SignupValidator, ResetPasswordValidator } from '../helpers/validator';
 
+const multer = require('multer');
+const storage = multer.memoryStorage()
+const upload = multer({ storage });
+
 
 const  router = express.Router();
 
 router.post('/signin', SignInController);
-router.post('/signup', ...SignupValidator, SignUpController);
+router.post('/signup',[...SignupValidator, upload.single('profile_photo')], SignUpController);
 router.get('/signin/facebook', FacebookSignIn);
 router.get('/signin/facebook/callback', FacebookSignInCallback);
 router.get('/signin/google', GoogleSignIn);
