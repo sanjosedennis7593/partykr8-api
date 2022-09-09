@@ -3,7 +3,6 @@ import createError from 'http-errors';
 
 import express from 'express';
 import session from 'express-session';
-
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
@@ -36,9 +35,10 @@ app.use(session({
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 
 app.use('/api', indexRouter);
 app.use('/api/auth', authRouter);
