@@ -10,7 +10,8 @@ const router = express.Router();
 const signupAvatarRequest = fileRequest.fields([
     { name: 'avatar_url_1', maxCount: 1 }, 
     { name: 'avatar_url_2', maxCount: 1 }, 
-    { name: 'avatar_url_3', maxCount: 1 }
+    { name: 'avatar_url_3', maxCount: 1 },
+    { name: 'valid_ids', maxCount: 3 }
 ]);
 
 router.get('/', GetTalents);

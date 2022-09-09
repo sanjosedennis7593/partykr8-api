@@ -4,6 +4,7 @@ import { TALENT_STATUS, TALENT_TYPES } from '../config/constants';
 
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
+import { uploadFile } from '../helpers/upload';
 import { TALENT_APPROVED_MESSAGE } from '../helpers/mail_templates';
 
 // import { encryptPassword } from '../helpers/password';
@@ -11,6 +12,7 @@ import db from '../models';
 
 
 const Talent = new Table(db.talents);
+const TalentValidIds = new Table(db.talent_valid_ids);
 const User = new Table(db.users);
 
 
@@ -44,6 +46,7 @@ const GetTalents = async (req, res, next) => {
 
 const TalentSignUpController = async (req, res, next) => {
     try {
+
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -85,9 +88,59 @@ const TalentSignUpController = async (req, res, next) => {
             status: TALENT_STATUS.pending
         };
 
-        await Talent.CREATE({
+        const currentTalent = await Talent.CREATE({
             ...payload
         });
+        let avatarUrlKeys = {};
+        if (Object.keys(req.files).length > 0) {
+            for (let key of Object.keys(req.files)) {
+                if (key !== 'valid_ids') {
+                    if (req.files[key] && req.files[key][0]) {
+                        const s3Params = {
+                            Key: `talent/${currentTalent.id}/${key}_${currentTalent.id}.jpg`,
+                            Body: req.files[key][0].buffer,
+                        };
+
+                        const s3Response = await uploadFile(s3Params);
+                        if (s3Response) {
+                            avatarUrlKeys = {
+                                ...avatarUrlKeys,
+                                [key]: s3Response && s3Response.Key
+                            }
+                        }
+                    }
+
+                }
+                else {
+                    if (req.files[key]) {
+                        let idIndex = 1;
+                        for (let item of req.files[key]) {
+                            const s3Params = {
+                                Key: `talent/${currentTalent.id}/valid_ids/${idIndex}_${currentTalent.id}.jpg`,
+                                Body: item.buffer,
+                            };
+
+                            const s3Response = await uploadFile(s3Params);
+                            if (s3Response) {
+                                TalentValidIds.CREATE({
+                                    talent_id: currentTalent.id,
+                                    valid_id_url: s3Response.Key
+                                })
+                            }
+                            idIndex++;
+                        }
+                    }
+                }
+
+            }
+
+            await Talent.UPDATE({
+                id: currentTalent.id
+            }, {
+                ...avatarUrlKeys
+            });
+        }
+
 
         return res.json({
             message: 'Talent application has been sent successfully!',
@@ -109,17 +162,17 @@ const TalentUpdateStatus = async (req, res, next) => {
 
     try {
 
-        if(!TALENT_STATUS[req.body.status]) {
+        if (!TALENT_STATUS[req.body.status]) {
             return res.status(400).json({ message: 'Invalid Status!' });
         }
         const talent = await Talent.GET({
             where: {
-                id:  req.body.id
+                id: req.body.id
             },
         });
 
 
-        if(!talent) {
+        if (!talent) {
             return res.status(400).json({ message: 'Talent not exist!' });
         }
 
@@ -135,8 +188,8 @@ const TalentUpdateStatus = async (req, res, next) => {
         const talentUser = await User.GET({
             id: talent.user_id
         })
-   
-        if(talentUser && talentUser.dataValues && req.body.status === TALENT_STATUS.approved) {
+
+        if (talentUser && talentUser.dataValues && req.body.status === TALENT_STATUS.approved) {
             await sendMessage({
                 to: talentUser.dataValues.email,
                 subject: `Talent Application Approved`,
@@ -146,8 +199,8 @@ const TalentUpdateStatus = async (req, res, next) => {
             });
         }
 
-        console.log('talentUser',talentUser.dataValues)
-        console.log('talentUser talent',talent)
+        console.log('talentUser', talentUser.dataValues)
+        console.log('talentUser talent', talent)
 
         return res.status(201).json({
             message: 'Talent application has been updated successfully! 22',

@@ -5,6 +5,7 @@ const models = {};
 
 models.users = require("./users")(db.connection, db.library);
 models.talents = require("./talents")(db.connection, db.library);
+models.talent_valid_ids = require("./talent_valid_ids")(db.connection, db.library);
 models.events = require("./events")(db.connection, db.library);
 models.event_guests = require("./event_guests")(db.connection, db.library);
 models.event_talents = require("./event_talents")(db.connection, db.library);
@@ -14,6 +15,16 @@ models.sequelize = db.connection;
 
 models.talents.belongsTo(models.users, {
     foreignKey: 'user_id',
+    sourceKey: 'id'
+});
+
+models.talent_valid_ids.belongsTo(models.talents, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+
+models.talents.hasMany(models.talent_valid_ids, {
+    foreignKey: 'talent_id',
     sourceKey: 'id'
 });
 

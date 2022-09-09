@@ -8,6 +8,15 @@ module.exports = (sequelize, Sequelize) => {
         user_id: {
             type: Sequelize.INTEGER
         },
+        avatar_url_1: {
+            type: Sequelize.STRING
+        },
+        avatar_url_2: {
+            type: Sequelize.STRING
+        },
+        avatar_url_3: {
+            type: Sequelize.STRING
+        },
         type: {
             type: Sequelize.STRING
         },
