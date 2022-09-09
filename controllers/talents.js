@@ -28,6 +28,12 @@ const GetTalents = async (req, res, next) => {
                         'firstname',
                     ]
                 },
+                {
+                    model: db.talent_valid_ids,
+                    attributes: [
+                        'valid_id_url'
+                    ]
+                },
             ]
         })
         return res.status(200).json({
@@ -44,7 +50,7 @@ const GetTalents = async (req, res, next) => {
 };
 
 
-const TalentSignUpController = async (req, res, next) => {
+const TalentSignUp = async (req, res, next) => {
     try {
 
 
@@ -199,12 +205,72 @@ const TalentUpdateStatus = async (req, res, next) => {
             });
         }
 
-        console.log('talentUser', talentUser.dataValues)
-        console.log('talentUser talent', talent)
+        return res.status(201).json({
+            message: 'Talent application has been updated successfully!',
+            talent: talentUser
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
+const TalentUpdateAvatar = async (req, res, next) => {
+
+    try {
+
+        if(!req.body.id) {
+            return res.status(400).json({ message: 'ID is required field' });
+        }
+        const talentId = req.body.id;
+
+
+        const talent = await Talent.GET({
+            where: {
+                id: talentId
+            },
+        });
+
+
+        if (!talent) {
+            return res.status(400).json({ message: 'Talent not exist!' });
+        }
+
+        let avatarUrlKeys = {};
+        if (Object.keys(req.files).length > 0) {
+            for (let key of Object.keys(req.files)) {
+
+                if (req.files[key] && req.files[key][0]) {
+                    const s3Params = {
+                        Key: `talent/${talentId}/${key}_${talentId}.jpg`,
+                        Body: req.files[key][0].buffer,
+                    };
+
+                    const s3Response = await uploadFile(s3Params);
+                    if (s3Response) {
+                        avatarUrlKeys = {
+                            ...avatarUrlKeys,
+                            [key]: s3Response && s3Response.Key
+                        }
+                    }
+                }
+
+            }
+
+            await Talent.UPDATE({
+                id: talentId
+            }, {
+                ...avatarUrlKeys
+            });
+        }
 
         return res.status(201).json({
-            message: 'Talent application has been updated successfully! 22',
-            talent: talentUser
+            message: 'Talent profile picture has been updated successfully!'
         });
     }
     catch (err) {
@@ -219,6 +285,8 @@ const TalentUpdateStatus = async (req, res, next) => {
 
 export {
     GetTalents,
-    TalentSignUpController,
-    TalentUpdateStatus
+    TalentSignUp,
+    TalentUpdateStatus,
+    TalentUpdateAvatar
+
 }
