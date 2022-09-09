@@ -20,7 +20,7 @@ const upload = multer({ storage });
 const  router = express.Router();
 
 router.post('/signin', SignInController);
-router.post('/signup',[...SignupValidator, upload.single('profile_photo')], SignUpController);
+router.post('/signup', upload.single('profile_photo'), SignupValidator, SignUpController);
 router.get('/signin/facebook', FacebookSignIn);
 router.get('/signin/facebook/callback', FacebookSignInCallback);
 router.get('/signin/google', GoogleSignIn);

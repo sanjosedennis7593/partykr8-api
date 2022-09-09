@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { validationResult } from 'express-validator';
-
-import { AWS_S3_BUCKET } from '../config/aws';
 import { JWT_SECRET } from '../config/jwt';
 import { ROLES } from '../config/constants';
 import Table from '../helpers/database';
@@ -119,13 +117,10 @@ const GoogleSignInCallback = (req, res, next) => {
 const SignUpController = async (req, res, next) => {
     try {
 
-        // const errors = validationResult(req);
-        // if (!errors.isEmpty()) {
-        //     return res.status(400).json({ errors: errors.array() });
-        // }
-
-        console.log('req.body',req.body)
-        console.log('req.files',req.file)
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
 
         const user = await User.GET({
             where: {
@@ -138,6 +133,7 @@ const SignUpController = async (req, res, next) => {
                 message: 'User already exist!'
             });
         }
+
 
         const payload = {
             email: req.body.email,
@@ -154,32 +150,36 @@ const SignUpController = async (req, res, next) => {
             role: ROLES.user
         };
 
-        const response = await User.CREATE({
+        let newUser = await User.CREATE({
             ...payload
         });
 
         if(req.file) {
-            const s3Params = {
-                Key: `user/${response.id}/profile_${response.id}.jpg`,
+            const fileParams = {
+                Key: `user/${newUser.id}/profile_${newUser.id}.jpg`,
                 Body: req.file.buffer,
             };
     
-            const s3Response = await uploadFile(s3Params);
+            const s3Response = await uploadFile(fileParams);
             if (s3Response) {
                 await User.UPDATE({
-                    id: response.id
+                    id: newUser.id
                 }, {
                     avatar_url: s3Response ? s3Response.Key : ''
                 });
+
+                newUser = {
+                    ...newUser,
+                    avatar_url: s3Response ? s3Response.Key : ''
+                }
             }
     
         }
 
 
-
         return res.json({
             message: 'Account has been created successfully!',
-            data: response
+            data: newUser
         });
     }
     catch (err) {
