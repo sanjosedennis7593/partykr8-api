@@ -6,6 +6,11 @@ import {
 } from '../config/aws';
 const AWS = require("aws-sdk");
 
+const multer = require('multer');
+const storage = multer.memoryStorage()
+const fileRequest = multer({ storage });
+
+
 // const s3 = new AWS.S3();
 
 const s3Bucket = new AWS.S3({
@@ -35,4 +40,4 @@ const uploadFile = (payload) => {
 const base64ToBuffer = base64Strings => {
   return Buffer.from(base64Strings.replace(/^data:image\/\w+;base64,/, ''), 'base64');
 }
-export { base64ToBuffer,uploadFile };
+export { base64ToBuffer, fileRequest, uploadFile };
