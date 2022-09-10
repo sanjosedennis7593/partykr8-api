@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
     const TalentValidIds = sequelize.define("talent_valid_ids", {
-        id: {
+        talent_valid_id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
             primaryKey: true,

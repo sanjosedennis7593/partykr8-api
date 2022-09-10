@@ -26,7 +26,10 @@ module.exports = (sequelize, Sequelize) => {
         date: {
             type: Sequelize.DATE
         },
-        time: {
+        start_time: {
+            type: Sequelize.TIME
+        },
+        end_time: {
             type: Sequelize.TIME
         },
         message_to_guest: {

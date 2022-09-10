@@ -1,5 +1,6 @@
 // import { validationResult } from 'express-validator';
 import { Op } from 'sequelize';
+import { format, isAfter, isBefore, isEqual } from 'date-fns';
 
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
@@ -34,7 +35,7 @@ const WITH_USERS_AND_TALENTS = {
                     model: db.talents,
                     include: [
                         {
-                            model:db.users,
+                            model: db.users,
                             attributes: [
                                 'email',
                                 'lastname',
@@ -99,17 +100,104 @@ const CreateEvents = async (req, res, next) => {
             title: req.body.title,
             location: req.body.location,
             date: req.body.date,
-            time: req.body.time,
+            start_time: req.body.start_time,
+            end_time: req.body.end_time,
             message_to_guest: req.body.message_to_guest
         };
+
+        const createdEventDateTimeStart = new Date(`${event.date} ${event.start_time}`);
+        const createdEventDateTimeEnd = new Date(`${event.date} ${event.end_time}`);
+        
+
 
         const user = await User.GET({
             id: req.user.id
         });
 
+
+        const talentUsers = req.body.talents && req.body.talents.length > 0 ? await Talent.GET_ALL({
+            where: {
+                id: { [Op.in]: req.body.talents }
+            },
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'id',
+                        'email',
+                        'lastname',
+                        'firstname',
+                    ]
+                },
+                {
+                    model: db.event_talents,
+                    include: [
+                        {
+                            model: db.events,
+                            attributes: [
+                                'id',
+                                'title',
+                                'location',
+                                'date',
+                                'start_time',
+                                'end_time',
+                                'status',
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }) : [];
+
+        const hasScheduleConflict = talentUsers ? talentUsers.some(item => {
+
+            return item.event_talents.find(eventTalent => {
+
+
+                const currentEventDateTimeStart = new Date(`${format(eventTalent.event.date, 'yyyy-MM-dd')} ${eventTalent.event.start_time}`);
+                const currentEventDateTimeEnd = new Date(`${format(eventTalent.event.date, 'yyyy-MM-dd')} ${eventTalent.event.end_time}`)
+
+
+                let isConflict = false;
+
+                if (
+                    (isEqual(createdEventDateTimeStart, currentEventDateTimeStart)) ||
+                    (isAfter(createdEventDateTimeStart, currentEventDateTimeStart) && isBefore(createdEventDateTimeStart, currentEventDateTimeEnd))
+                ) {
+                    console.log('start date is between the 2 dates');
+                    isConflict = true;
+                }
+
+                if (
+                    (isEqual(createdEventDateTimeEnd, currentEventDateTimeEnd)) ||
+                    (isAfter(createdEventDateTimeEnd, currentEventDateTimeStart) && isBefore(createdEventDateTimeEnd, currentEventDateTimeEnd))
+
+                ) {
+                    console.log('start end is between the 2 dates');
+                    isConflict = true;
+                }
+      
+                return format(eventTalent.event.date, 'yyyy-MM-dd') === event.date && isConflict
+            })
+        }) : [];
+
+
+        if (hasScheduleConflict) {
+            return res.status(400).json({
+                hasScheduleConflict,
+                message: 'Talent has a conflict schedule'
+            });
+        }
+        // else {
+        //     return res.status(400).json({
+        //         hasScheduleConflict
+        //     });
+        // }
+      
         const response = await Event.CREATE({
             ...event
         });
+
 
         const guests = req.body.guests && response && response.id ? req.body.guests.map(guest => {
             return {
@@ -125,22 +213,6 @@ const CreateEvents = async (req, res, next) => {
         }) : [];
 
 
-        const talentUsers = await Talent.GET_ALL({
-            where: {
-                id: { [Op.in]: req.body.talents }
-            },
-            include: [
-                {
-                    model: db.users,
-                    attributes: [
-                        'id',
-                        'email',
-                        'lastname',
-                        'firstname',
-                    ]
-                },
-            ]
-        });
 
         const talentEmails = talentUsers ? talentUsers.map(talent => talent.user.email) : [];
 
@@ -153,33 +225,36 @@ const CreateEvents = async (req, res, next) => {
             await EventTalent.CREATE_MANY(talents);
         }
 
-        await sendMessage({
-            to: req.body.guests,
-            subject: `PartyKr8 Event: ${req.body.title}`,
-            html: EVENT_INVITE_MESSAGE({
-                title: req.body.title,
-                message_to_guest: req.body.message_to_guest,
-                location: req.body.location,
-                date: req.body.date,
-                time: req.body.time,
-                user
-            })
-        });
+        // await sendMessage({
+        //     to: req.body.guests,
+        //     subject: `PartyKr8 Event: ${req.body.title}`,
+        //     html: EVENT_INVITE_MESSAGE({
+        //         title: req.body.title,
+        //         message_to_guest: req.body.message_to_guest,
+        //         location: req.body.location,
+        //         date: req.body.date,
+        //         start_time: req.body.start_time,
+        //         end_time: req.body.end_time,
+        //         user
+        //     })
+        // });
 
-        await sendMessage({
-            to: talentEmails,
-            subject: `Talent Invitation`,
-            html: TALENT_INVITATION_MESSAGE({
-                title: req.body.title,
-                location: req.body.location,
-                date: req.body.date,
-                time: req.body.time,
-                user
-            })
-        });
+        // await sendMessage({
+        //     to: talentEmails,
+        //     subject: `Talent Invitation`,
+        //     html: TALENT_INVITATION_MESSAGE({
+        //         title: req.body.title,
+        //         location: req.body.location,
+        //         date: req.body.date,
+        //         start_time: req.body.start_time,
+        //         end_time: req.body.end_time,
+        //         user
+        //     })
+        // });
 
         return res.status(200).json({
-            data: response
+            message: 'Event has been created successfully!',
+            data: talentUsers
         });
     }
     catch (err) {
@@ -202,22 +277,23 @@ const UpdateEventDetails = async (req, res, next) => {
             title: req.body.title,
             location: req.body.location,
             date: req.body.date,
-            time: req.body.time,
+            start_time: req.body.start_time,
+            end_time: req.body.end_time,
             message_to_guest: req.body.message_to_guest
         };
 
-
-        await Event.UPDATE({
+        const resss = await Event.UPDATE({
             id: eventPayload.event_id,
             user_id: req.user.id,
         }, {
             title: eventPayload.title,
             location: eventPayload.location,
             date: eventPayload.date,
-            time: eventPayload.time,
+            start_time: eventPayload.start_time,
+            end_time: eventPayload.end_time,
             message_to_guest: eventPayload.message_to_guest
         });
-
+        
         for (let guest of guests) {
             await EventGuest.UPSERT(
                 {
@@ -236,8 +312,7 @@ const UpdateEventDetails = async (req, res, next) => {
                 {
                     email: guest,
                     event_id: eventPayload.event_id
-                },
-                db.b
+                }
             )
         }
 

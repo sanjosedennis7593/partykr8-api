@@ -38,10 +38,7 @@ models.users.hasMany(models.events, {
     foreignKey: 'user_id',
     sourceKey: 'id'
 });
-// models.event_guests.belongsTo(models.events ,{
-//     foreignKey: 'event_id',
-//     sourceKey: 'id'
-// });
+
 
 models.events.hasMany(models.event_guests, {
     foreignKey: 'event_id',
@@ -51,6 +48,18 @@ models.events.hasMany(models.event_guests, {
 models.events.hasMany(models.event_talents, {
     foreignKey: 'event_id',
     sourceKey: 'id'
+
+});
+
+models.event_talents.belongsTo(models.events, {
+    foreignKey: 'event_id',
+    sourceKey: 'id'
+
+});
+
+models.talents.hasMany(models.event_talents, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
 });
 
 models.event_talents.belongsTo(models.talents, {
@@ -58,27 +67,6 @@ models.event_talents.belongsTo(models.talents, {
     sourceKey: 'id'
 });
 
-// models.event_talents.belongsToMany(models.event_talents ,{
-//     foreignKey: 'talent_id',
-//     sourceKey: 'id'
-// });
-
-// models.talents.belongsToMany(models.events, { through: 'event_talents' });
-
-// models.event_talents.belongsTo(models.talents ,{
-//     foreignKey: 'talent_id',
-//     sourceKey: 'id'
-// });
-
-// models.talents.hasMany(models.event_talents ,{
-//     foreignKey: 'talent_id',
-//     sourceKey: 'id'
-// });
-
-// models.event_talents.belongs(models.talents ,{
-//     foreignKey: 'talent_id',
-//     sourceKey: 'id'
-// });
 
 
 

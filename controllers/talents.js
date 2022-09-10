@@ -9,6 +9,7 @@ import { TALENT_APPROVED_MESSAGE } from '../helpers/mail_templates';
 
 // import { encryptPassword } from '../helpers/password';
 import db from '../models';
+import { format } from 'date-fns';
 
 
 const Talent = new Table(db.talents);
@@ -48,6 +49,72 @@ const GetTalents = async (req, res, next) => {
         });
     }
 };
+
+const GetTalent = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        let talent = await Talent.GET({
+            where: {
+                id
+            },
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'email',
+                        'lastname',
+                        'firstname',
+                    ]
+                },
+                {
+                    model: db.talent_valid_ids,
+                    attributes: [
+                        'valid_id_url'
+                    ]
+                },
+                {
+                    model: db.event_talents,
+                    attributes: [
+                        'event_id',
+                        'status'
+                    ],
+                    include: [
+                        {
+                            model: db.events
+                        }
+                    ]
+                },
+            ]
+
+        });
+
+        talent ={
+            ...((talent && talent.dataValues) || {}),
+            schedule: talent.dataValues &&  talent.dataValues.event_talents.map(item => {
+                return {
+                    event_id: item.event_id,
+                    event_name: item.event && item.event.title,
+                    date: item.event && format(item.event.date,'yyyy-MM-dd'),
+                    start_time: item.event && item.event.start_time,
+                    end_time: item.event && item.event.end_time
+                }
+            })
+        };
+
+        
+        return res.status(200).json({
+            data: talent
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
 
 
 const TalentSignUp = async (req, res, next) => {
@@ -284,6 +351,7 @@ const TalentUpdateAvatar = async (req, res, next) => {
 
 
 export {
+    GetTalent,
     GetTalents,
     TalentSignUp,
     TalentUpdateStatus,
