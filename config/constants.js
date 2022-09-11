@@ -1,7 +1,9 @@
 const ROLES = {
     admin: 'admin',
+    super_admin: 'super_admin',
     talent: 'talent',
-    user: 'user'
+    user: 'user',
+    vendor: 'vendor'
 };
 
 const TALENT_STATUS = {
