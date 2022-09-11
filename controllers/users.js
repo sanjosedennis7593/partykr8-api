@@ -4,6 +4,7 @@ import db from '../models';
 
 import Table from '../helpers/database';
 import { encryptPassword, comparePassword } from '../helpers/password';
+import { uploadFile } from '../helpers/upload';
 import { ROLES } from '../config/constants';
 
 const User = new Table(db.users);
@@ -40,7 +41,7 @@ const GetUser = async (req, res, next) => {
             include: [
                 {
                     model: db.events,
-    
+
                 }
             ]
         });
@@ -62,12 +63,11 @@ const UpdateUserDetails = async (req, res, next) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-          return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ errors: errors.array() });
         }
 
         let user = {
             email: req.body.email,
-            avatar_url: req.body.avatar_url,
             firstname: req.body.firstname,
             lastname: req.body.lastname,
             address: req.body.address,
@@ -109,7 +109,7 @@ const UpdateUserPassword = async (req, res, next) => {
         const currentPassword = req.body.current_password || '';
         const newPassword = req.body.new_password || '';
         const repeatNewPassword = req.body.repeat_new_password || '';
-    
+
         if (newPassword && repeatNewPassword && newPassword.length < 8) {
             throw new Error('Password should be at least 8 characters');
         }
@@ -138,7 +138,7 @@ const UpdateUserPassword = async (req, res, next) => {
                     }
                 );
 
-                if(isPasswordUpdateSuccess) {
+                if (isPasswordUpdateSuccess) {
                     return res.status(200).json({
                         message: 'Password has been updated successfully!'
                     });
@@ -146,7 +146,7 @@ const UpdateUserPassword = async (req, res, next) => {
                 return res.status(400).json({
                     message: 'Something went wrong!'
                 });
-              
+
             }
             else {
                 throw new Error('Current password is incorrect!');
@@ -169,15 +169,15 @@ const UpdateUserStatus = async (req, res, next) => {
     try {
         const user = await User.GET({
             where: {
-                id:  req.body.id
+                id: req.body.id
             },
         });
 
-        if(!user) {
+        if (!user) {
             return res.status(400).json({ message: 'User not exist!' });
         }
 
-        if(!ROLES[req.body.role]) {
+        if (!ROLES[req.body.role]) {
             return res.status(400).json({ message: 'Invalid role value' });
         }
 
@@ -205,11 +205,60 @@ const UpdateUserStatus = async (req, res, next) => {
 };
 
 
+const UpdateUserAvatar = async (req, res, next) => {
+
+    try {
+        if (!req.user) {
+            return res.status(400).json({ message: 'User not exist!' });
+        }
+
+        const userId = req.user.id;
+
+        if (req.file) {
+            const fileParams = {
+                Key: `user/${userId}/profile_${userId}.jpg`,
+                Body: req.file.buffer,
+            };
+
+            const s3Response = await uploadFile(fileParams);
+            if (s3Response) {
+                console.log('s3Response', s3Response)
+                await User.UPDATE({
+                    id: userId
+                }, {
+                    avatar_url: s3Response ? s3Response.Key : ''
+                });
+
+            }
+
+        }
+        const user = await User.GET({
+            where: {
+                id: userId
+            },
+        });
+
+        return res.status(201).json({
+            message: 'User profile photo has been updated successfully!',
+            user
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
 
 export {
     GetUser,
     GetCurrentUser,
     UpdateUserDetails,
     UpdateUserPassword,
-    UpdateUserStatus
+    UpdateUserStatus,
+    UpdateUserAvatar
 };
