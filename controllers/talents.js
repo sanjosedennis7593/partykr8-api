@@ -18,38 +18,47 @@ const Talent = new Table(db.talents);
 const TalentValidIds = new Table(db.talent_valid_ids);
 const User = new Table(db.users);
 
+const getDistance = (latitude, longitude, hasDistanceClause = false) => {
 
+    const distance = 30; //  WITHIN 30KM
+    let distanceOptions = {};
+
+    let haversine = `(
+        6371 * acos(
+            cos(radians(${latitude}))
+            * cos(radians(talents.lat))
+            * cos(radians(talents.lng) - radians(${longitude}))
+            + sin(radians(${latitude})) * sin(radians(talents.lat))
+        )
+    )`;
+
+    distanceOptions = {
+        attributes: [
+            'id',
+            'type',
+            'genre',
+            'address',
+            [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
+        ],
+        order: sequelize.col('distance'),
+       
+    };
+
+    if(hasDistanceClause) {
+        distanceOptions = {
+            ...distanceOptions,
+            having: sequelize.literal(`distance <= ${distance}`),
+        }
+    }
+
+    return distanceOptions;
+}
 const GetTalents = async (req, res, next) => {
     try {
 
-        const distance = 30;
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
-        let haversine = null;
-        let distanceOptions = {};
-
-        if (latitude && longitude) {
-            haversine = `(
-                6371 * acos(
-                    cos(radians(${latitude}))
-                    * cos(radians(lat))
-                    * cos(radians(lng) - radians(${longitude}))
-                    + sin(radians(${latitude})) * sin(radians(lat))
-                )
-            )`;
-
-            distanceOptions = {
-                attributes: [
-                    'id',
-                    'type',
-                    'genre',
-                    'address',
-                    [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
-                ],
-                order: sequelize.col('distance'),
-                having: sequelize.literal(`distance <= ${distance}`),
-            }
-        };
+        let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
 
         const talents = await Talent.GET_ALL({
             ...distanceOptions,
@@ -90,10 +99,18 @@ const GetTalents = async (req, res, next) => {
 const GetTalent = async (req, res, next) => {
     try {
         const { id } = req.params;
+        const latitude = req.query.lat || null;
+        const longitude = req.query.lng || null;
+
+        let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude) : {};
+
         let talent = await Talent.GET({
             where: {
-                id
+                id,
+                status: 'approved'
             },
+             ...distanceOptions,
+            
             include: [
                 {
                     model: db.users,
@@ -127,7 +144,7 @@ const GetTalent = async (req, res, next) => {
 
         talent = {
             ...((talent && talent.dataValues) || {}),
-            schedule: talent.dataValues && talent.dataValues.event_talents.map(item => {
+            schedule: talent && talent.dataValues && talent.dataValues.event_talents.map(item => {
                 return {
                     event_id: item.event_id,
                     event_name: item.event && item.event.title,
