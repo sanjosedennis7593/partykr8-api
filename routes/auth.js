@@ -14,11 +14,6 @@ import {
 import { fileRequest } from '../helpers/upload';
 import { SignupValidator, ResetPasswordValidator } from '../helpers/validator';
 
-const multer = require('multer');
-const storage = multer.memoryStorage()
-const upload = multer({ storage });
-
-
 const  router = express.Router();
 
 router.post('/signin', SignInController);
