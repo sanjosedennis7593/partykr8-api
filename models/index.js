@@ -9,6 +9,7 @@ models.talent_valid_ids = require("./talent_valid_ids")(db.connection, db.librar
 models.events = require("./events")(db.connection, db.library);
 models.event_guests = require("./event_guests")(db.connection, db.library);
 models.event_talents = require("./event_talents")(db.connection, db.library);
+models.event_payments = require("./event_payments")(db.connection, db.library);
 
 models.Sequelize = db.library;
 models.sequelize = db.connection;
@@ -67,6 +68,16 @@ models.event_talents.belongsTo(models.talents, {
     sourceKey: 'id'
 });
 
+
+models.events.hasOne(models.event_payments, {
+    foreignKey: 'event_id',
+    sourceKey: 'id'
+});
+
+models.event_payments.belongsTo(models.events, {
+    foreignKey: 'event_id',
+    sourceKey: 'id'
+});
 
 
 
