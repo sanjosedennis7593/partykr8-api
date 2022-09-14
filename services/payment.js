@@ -7,7 +7,8 @@ import {
 } from '../config/paymongo';
 
 
-const PAYMONGO_API = 'https://api.paymongo.com/v1'
+const PAYMONGO_ROOT_URL = 'https://api.paymongo.com';
+const PAYMONGO_API = `${PAYMONGO_ROOT_URL}/v1`
 
 let ENCODED_SECRET_KEY = new Buffer.from(PAYMONGO_SECRET_KEY)
 ENCODED_SECRET_KEY = ENCODED_SECRET_KEY.toString('base64');
@@ -224,13 +225,58 @@ const retrievePaymentById = async id => {
 };
 
 
-// const createRefund = (payment_id, reason) => {
-//     paymongoAuth(PAYMONGO_SECRET_KEY);
-//     // REASON = [duplicate, fraudulent, requested_by_customer, others]
-//     return payMongoInstance.createARefund({
-//         data: { attributes: { payment_id, reason } }
-//     })
-// };
+const createRefund = async ({
+    amount,
+    payment_id,
+    notes,
+    reason
+}) => {
+    const options = {
+        method: 'POST',
+        url: `${PAYMONGO_ROOT_URL}/refunds`,
+        headers: setHeaders(ENCODED_SECRET_KEY),
+        data: {
+            data: {
+                attributes: {
+                    amount,
+                    payment_id,
+                    notes,
+                    reason
+                }
+            }
+        }
+    }
+
+    return await axios
+        .request(options)
+        .then(response => response && response.data)
+};
+
+const retrieveRefundById = async id => {
+    const options = {
+        method: 'GET',
+        url: `${PAYMONGO_ROOT_URL}/refunds/${id}`,
+        headers: setHeaders(ENCODED_SECRET_KEY)
+    };
+
+    return await axios
+        .request(options)
+        .then(response => response && response.data)
+};
+
+const listRefunds = async () => {
+    const options = {
+        method: 'GET',
+        url: `${PAYMONGO_ROOT_URL}/refunds`,
+        headers: setHeaders(ENCODED_SECRET_KEY)
+      };
+      
+      return await axios
+        .request(options)
+        .then(response => response && response.data)
+  
+}
+
 
 
 export {
@@ -241,5 +287,8 @@ export {
     listPayments,
     retrievePaymentById,
     confirmPaymentIntent,
-    rerievePaymentIntentById
+    rerievePaymentIntentById,
+    createRefund,
+    retrieveRefundById,
+    listRefunds
 }

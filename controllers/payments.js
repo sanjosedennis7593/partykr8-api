@@ -3,10 +3,13 @@ import {
     createPaymentIntent,
     createPaymentSource,
     confirmPaymentIntent,
+    createRefund,
     listPayments,
+    listRefunds,
     retrievePaymentById,
     retrievePaymentSource,
-    rerievePaymentIntentById
+    rerievePaymentIntentById,
+    retrieveRefundById
 } from '../services/payment';
 
 import Table from '../helpers/database';
@@ -330,6 +333,84 @@ const AttachPaymentIntent = async (req, res, next) => {
 
 
 
+const CreateRefund = async (req, res, next) => {
+
+    try {
+        const {
+            amount,
+            payment_id,
+            notes,
+            reason,
+            event_id
+        } = req.body;
+
+
+        const refundResponse = await createRefund({
+            amount,
+            payment_id,
+            notes,
+            reason
+        });
+
+
+        return res.status(200).json({
+            message: 'Refund has been made successfully!',
+            data: refundResponse
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response.data
+        });
+    }
+};
+
+
+const GetRefundById = async (req, res, next) => {
+
+    try {
+        const {
+            id
+        } = req.params;
+
+        const refundResponse = await retrieveRefundById(id);
+
+        return res.status(200).json({
+            data: refundResponse
+        });
+    }
+    catch (err) {
+        // console.log('Error ', err.response.data)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response.data
+        });
+    }
+}
+
+
+
+const GetRefunds = async (req, res, next) => {
+
+    try {
+
+        const refundResponse = await listRefunds();
+
+        return res.status(200).json({
+            data: refundResponse
+        });
+    }
+    catch (err) {
+        // console.log('Error ', err.response.data)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response.data
+        });
+    }
+}
+
 
 
 export {
@@ -342,5 +423,8 @@ export {
     PaymentSuccessCallback,
     PaymentFailedCallback,
     CreatePaymentIntent,
-    AttachPaymentIntent
-}
+    AttachPaymentIntent,
+    CreateRefund,
+    GetRefundById,
+    GetRefunds
+};
