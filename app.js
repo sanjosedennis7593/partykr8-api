@@ -13,6 +13,7 @@ import authRouter from './routes/auth';
 import indexRouter from './routes/index';
 import eventRouter from './routes/events';
 import paymentRouter from './routes/payments';
+import publicCallbackRouter from './routes/public_callbacks';
 import talentRouter from './routes/talents';
 import userRouter from './routes/users';
 
@@ -49,6 +50,7 @@ app.use('/api/events', passportAuthenticate,eventRouter);
 app.use('/api/payments', passportAuthenticate,paymentRouter);
 app.use('/api/talents', passportAuthenticate,talentRouter);
 app.use('/api/users', passportAuthenticate,userRouter);
+app.use('/callback', publicCallbackRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

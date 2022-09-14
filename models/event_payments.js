@@ -8,7 +8,7 @@ module.exports = (sequelize, Sequelize) => {
         event_id: {
             type: Sequelize.INTEGER
         },
-        payment_source_id: {
+        ref_id: {
             type: Sequelize.STRING
         },
         payment_type: {

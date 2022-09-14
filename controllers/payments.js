@@ -43,7 +43,7 @@ const CreateSourcePayment = async (req, res, next) => {
             billing_name,
             billing_phone,
             billing_email,
-            type,
+            payment_type,
             event_id
         } = req.body;
 
@@ -53,19 +53,18 @@ const CreateSourcePayment = async (req, res, next) => {
             billing_name,
             billing_phone,
             billing_email,
-            type
+            type: payment_type,
+            event_id
         });
 
-        await EventPayments.UPSERT(
+        await EventPayments.CREATE(
             {
-                event_id
-            },
-            {
-                amount,
                 event_id,
-                payment_source_id: eventPaymentResponse &&  eventPaymentResponse.data && eventPaymentResponse.data.id,
-                payment_type: type,
-                status: eventPaymentResponse &&  eventPaymentResponse.data && eventPaymentResponse.data.attributes &&  eventPaymentResponse.data.attributes.status,
+                amount,
+                type: 'source',
+                ref_id: eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.id,
+                payment_type: payment_type,
+                status: eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.attributes && eventPaymentResponse.data.attributes.status,
             }
         );
 
@@ -112,8 +111,8 @@ const ConfirmSourcePayment = async (req, res, next) => {
             {
                 amount,
                 event_id,
-                payment_id: eventPaymentResponse &&  eventPaymentResponse.data && eventPaymentResponse.data.id,
-                status: eventPaymentResponse &&  eventPaymentResponse.data && eventPaymentResponse.data.attributes && eventPaymentResponse.data.attributes.status
+                payment_id: eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.id,
+                status: eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.attributes && eventPaymentResponse.data.attributes.status
             }
         );
 
@@ -220,6 +219,7 @@ const CreatePaymentIntent = async (req, res, next) => {
         const {
             amount,
             description,
+            event_id,
             currency = 'PHP',
             capture_type = 'automatic',
         } = req.body;
@@ -230,14 +230,23 @@ const CreatePaymentIntent = async (req, res, next) => {
             currency,
             capture_type
         });
-        
+
+
+        await EventPayments.CREATE({
+            event_id,
+            amount,
+            payment_type: 'payment_intent',
+            ref_id: paymentIntentResponse && paymentIntentResponse.data && paymentIntentResponse.data.id,
+            status: paymentIntentResponse && paymentIntentResponse.data && paymentIntentResponse.data.attributes && paymentIntentResponse.data.attributes.status,
+        })
+
         return res.status(200).json({
-            message: 'Success 22',
+            message: 'Success',
             data: paymentIntentResponse
         });
     }
     catch (err) {
-        console.log('Error', err.response.data)
+        console.log('Error', err.response)
         return res.status(400).json({
             error: err.code,
             message: err.message,
@@ -276,12 +285,34 @@ const AttachPaymentIntent = async (req, res, next) => {
             payment_intent_id
         } = req.params;
         const {
+            event_id,
             payment_method_id
         } = req.body;
         const paymentIntentResponse = await confirmPaymentIntent({
             payment_intent_id,
-            payment_method_id
+            payment_method_id,
+            event_id
         });
+
+        await EventPayments.UPSERT(
+            {
+                event_id
+            },
+            {
+                event_id,
+                status: paymentIntentResponse &&
+                    paymentIntentResponse.data &&
+                    paymentIntentResponse.data.attributes &&
+                    paymentIntentResponse.data.attributes.status,
+
+                payment_id: paymentIntentResponse && paymentIntentResponse.data &&
+                    paymentIntentResponse.data.attributes &&
+                    paymentIntentResponse.data.attributes.payments &&
+                    paymentIntentResponse.data.attributes.payments[0] &&
+                    paymentIntentResponse.data.attributes.payments[0].id
+            }
+        );
+
 
         return res.status(200).json({
             message: 'Success',

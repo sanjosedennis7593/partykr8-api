@@ -78,7 +78,8 @@ const rerievePaymentIntentById = async id => {
 
 const confirmPaymentIntent = async ({
     payment_intent_id,
-    payment_method_id
+    payment_method_id,
+    event_id
 }) => {
 
     const options = {
@@ -89,7 +90,7 @@ const confirmPaymentIntent = async ({
             data: {
                 attributes: {
                     payment_method: payment_method_id,
-                    success: `${API_URL}/api/payments/callback/success`,
+                    success: `${API_URL}/callback/payment/success?id=${event_id}`,
                 }
             }
         }
@@ -116,6 +117,7 @@ const confirmPaymentIntent = async ({
 */
 
 const createPaymentSource = async ({
+    event_id,
     amount,
     billing_name,
     billing_phone,
@@ -133,8 +135,8 @@ const createPaymentSource = async ({
                 attributes: {
                     amount,
                     redirect: {
-                        success: `${API_URL}/api/payments/callback/success`,
-                        failed: `${API_URL}/api/payments/callback/failed`,
+                        success: `${API_URL}/callback/payment/success?id=${event_id}`,
+                        failed: `${API_URL}/callback/payment/failed?id=${event_id}`,
                     },
                     billing: {
                         name: billing_name,
