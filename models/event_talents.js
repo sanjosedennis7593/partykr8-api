@@ -15,6 +15,9 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             defaultValue: 'pending'
         },
+        amount: {
+            type: Sequelize.INTEGER,
+        },
         createdAt: {
             type: Sequelize.DATE,
         },
