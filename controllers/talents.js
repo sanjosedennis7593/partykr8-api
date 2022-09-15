@@ -15,6 +15,7 @@ import sequelize from 'sequelize';
 
 
 const Talent = new Table(db.talents);
+const TalentRateRequest = new Table(db.talent_rate_request);
 const TalentValidIds = new Table(db.talent_valid_ids);
 const User = new Table(db.users);
 
@@ -41,10 +42,10 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
             [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
         ],
         order: sequelize.col('distance'),
-       
+
     };
 
-    if(hasDistanceClause) {
+    if (hasDistanceClause) {
         distanceOptions = {
             ...distanceOptions,
             having: sequelize.literal(`distance <= ${distance}`),
@@ -109,8 +110,8 @@ const GetTalent = async (req, res, next) => {
                 id,
                 status: 'approved'
             },
-             ...distanceOptions,
-            
+            ...distanceOptions,
+
             include: [
                 {
                     model: db.users,
@@ -404,11 +405,165 @@ const TalentUpdateAvatar = async (req, res, next) => {
 };
 
 
+
+const GetTalentRateRequest = async (req, res, next) => {
+    try {
+        const status = req.query.status || null;
+
+        const whereClause = status ? {
+            where: {
+                status
+            }
+        } : {};
+        const talentRateRequest = await TalentRateRequest.GET_ALL({
+            ...whereClause,
+            include: [
+                {
+                    model: db.talents,
+                    attributes: [
+                        'type',
+                        'genre',
+                        'avatar_url_1',
+                        'avatar_url_2',
+                        'avatar_url_3',
+                    ],
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: [
+                                'email',
+                                'lastname',
+                                'firstname',
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+
+
+        return res.status(200).json({
+            data: talentRateRequest || []
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
+
+const CreateTalentRateRequest = async (req, res, next) => {
+    try {
+        const { talent_id, rate, rate_type, private_fee } = req.body;
+        const talentRateRequest = await TalentRateRequest.GET({
+            where: {
+                talent_id,
+                status: 'pending'
+            }
+        });
+
+        if (talentRateRequest) {
+            return res.status(400).json({ message: 'You have a pending rate request.' });
+        }
+
+        await TalentRateRequest.CREATE({
+            talent_id,
+            rate,
+            rate_type,
+            private_fee,
+            status: 'pending'
+        });
+
+        return res.status(201).json({
+            message: 'Your rate request has been sent to the admin for approval!'
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
+const UpdateTalentRateRequest = async (req, res, next) => {
+
+    try {
+        const { talent_rate_request_id, talent_id, status } = req.body;
+        const talentRateRequest = await TalentRateRequest.GET({
+            where: {
+                talent_id,
+                status: 'pending',
+                talent_rate_request_id
+            }
+        });
+
+
+
+        if (talentRateRequest) {
+            await TalentRateRequest.UPDATE({
+                talent_id,
+                talent_rate_request_id
+            }, {
+                status
+            });
+
+            await Talent.UPDATE({
+                id: talent_id
+            }, {
+                service_rate: talentRateRequest.rate,
+                service_rate_type: talentRateRequest.rate_type,
+                private_fee: talentRateRequest.private_fee
+            });
+
+
+            let talent = await Talent.GET({
+                where: {
+                    id: talent_id,
+                    status: 'approved'
+                },
+            });
+
+
+            return res.status(201).json({
+                message: 'Talent rate request has been updated successfully!',
+                data: talent
+            });
+
+        };
+
+        return res.status(404).json({
+            message: 'Request not found'
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
+
 export {
     GetTalent,
     GetTalents,
+    GetTalentRateRequest,
     TalentSignUp,
     TalentUpdateStatus,
-    TalentUpdateAvatar
-
+    TalentUpdateAvatar,
+    CreateTalentRateRequest,
+    UpdateTalentRateRequest
 }

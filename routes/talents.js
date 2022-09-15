@@ -1,6 +1,15 @@
 import express from 'express';
 
-import { GetTalent, GetTalents, TalentSignUp, TalentUpdateStatus, TalentUpdateAvatar } from '../controllers/talents';
+import { 
+    GetTalent, 
+    GetTalents, 
+    TalentSignUp,
+    TalentUpdateStatus, 
+    TalentUpdateAvatar,
+    CreateTalentRateRequest,
+    UpdateTalentRateRequest,
+    GetTalentRateRequest
+} from '../controllers/talents';
 
 import { fileRequest } from '../helpers/upload';
 import { TalentSignupValidator } from '../helpers/validator';
@@ -23,9 +32,13 @@ const avatarRequest = fileRequest.fields(avatarUrlRequests);
 
 router.get('/', GetTalents);
 router.get('/:id', GetTalent);
+router.get('/rate/request', GetTalentRateRequest);
 router.post('/signup', signupAvatarRequest, TalentSignupValidator, TalentSignUp);
 router.put('/status/update', TalentUpdateStatus);
 router.put('/avatar/update', avatarRequest, TalentUpdateAvatar);
+router.post('/rate/request', CreateTalentRateRequest);
+router.put('/rate/request/update', UpdateTalentRateRequest);
+
 
 
 module.exports = router;
