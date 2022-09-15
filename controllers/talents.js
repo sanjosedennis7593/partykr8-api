@@ -15,7 +15,7 @@ import sequelize from 'sequelize';
 
 
 const Talent = new Table(db.talents);
-const TalentRateRequest = new Table(db.talent_rate_request);
+const TalentUpdateRequest = new Table(db.talent_update_request);
 const TalentValidIds = new Table(db.talent_valid_ids);
 const User = new Table(db.users);
 
@@ -406,7 +406,7 @@ const TalentUpdateAvatar = async (req, res, next) => {
 
 
 
-const GetTalentRateRequest = async (req, res, next) => {
+const GetTalentDetailsRequest = async (req, res, next) => {
     try {
         const status = req.query.status || null;
 
@@ -415,7 +415,7 @@ const GetTalentRateRequest = async (req, res, next) => {
                 status
             }
         } : {};
-        const talentRateRequest = await TalentRateRequest.GET_ALL({
+        const TalentDetailsRequest = await TalentUpdateRequest.GET_ALL({
             ...whereClause,
             include: [
                 {
@@ -443,7 +443,7 @@ const GetTalentRateRequest = async (req, res, next) => {
 
 
         return res.status(200).json({
-            data: talentRateRequest || []
+            data: TalentDetailsRequest || []
         });
 
     }
@@ -458,22 +458,37 @@ const GetTalentRateRequest = async (req, res, next) => {
 };
 
 
-const CreateTalentRateRequest = async (req, res, next) => {
+const CreateTalentDetailsRequest = async (req, res, next) => {
     try {
-        const { talent_id, rate, rate_type, private_fee } = req.body;
-        const talentRateRequest = await TalentRateRequest.GET({
+        const {
+            talent_id, 
+            rate, 
+            rate_type, 
+            private_fee, 
+            address,
+            lat,
+            lng,
+            type,
+            genre 
+        } = req.body;
+        const curentRequest = await TalentUpdateRequest.GET({
             where: {
                 talent_id,
                 status: 'pending'
             }
         });
 
-        if (talentRateRequest) {
-            return res.status(400).json({ message: 'You have a pending rate request.' });
+        if (curentRequest) {
+            return res.status(400).json({ message: 'You have a pending details request.' });
         }
 
-        await TalentRateRequest.CREATE({
+        await TalentUpdateRequest.CREATE({
             talent_id,
+            address,
+            lat,
+            lng,
+            type,
+            genre,
             rate,
             rate_type,
             private_fee,
@@ -481,7 +496,7 @@ const CreateTalentRateRequest = async (req, res, next) => {
         });
 
         return res.status(201).json({
-            message: 'Your rate request has been sent to the admin for approval!'
+            message: 'Your details request has been sent to the admin for approval!'
         });
 
     }
@@ -495,11 +510,11 @@ const CreateTalentRateRequest = async (req, res, next) => {
 
 };
 
-const UpdateTalentRateRequest = async (req, res, next) => {
+const UpdateTalentDetailsRequest = async (req, res, next) => {
 
     try {
         const { talent_rate_request_id, talent_id, status } = req.body;
-        const talentRateRequest = await TalentRateRequest.GET({
+        const currentRequest = await TalentUpdateRequest.GET({
             where: {
                 talent_id,
                 status: 'pending',
@@ -509,22 +524,30 @@ const UpdateTalentRateRequest = async (req, res, next) => {
 
 
 
-        if (talentRateRequest) {
-            await TalentRateRequest.UPDATE({
+        if (currentRequest) {
+            await TalentUpdateRequest.UPDATE({
                 talent_id,
                 talent_rate_request_id
             }, {
                 status
             });
 
-            await Talent.UPDATE({
-                id: talent_id
-            }, {
-                service_rate: talentRateRequest.rate,
-                service_rate_type: talentRateRequest.rate_type,
-                private_fee: talentRateRequest.private_fee
-            });
-
+            if(status === 'approved') {
+                await Talent.UPDATE({
+                    id: talent_id
+                }, {
+                    type: currentRequest.type,
+                    genre: currentRequest.genre,
+                    private_fee: currentRequest.private_fee,
+                    address: currentRequest.address,
+                    lat: currentRequest.lat,
+                    lng: currentRequest.lng,
+                    service_rate: currentRequest.rate,
+                    service_rate_type: currentRequest.rate_type,
+                    private_fee: currentRequest.private_fee
+                });
+    
+            }
 
             let talent = await Talent.GET({
                 where: {
@@ -535,7 +558,7 @@ const UpdateTalentRateRequest = async (req, res, next) => {
 
 
             return res.status(201).json({
-                message: 'Talent rate request has been updated successfully!',
+                message: 'Talent detail request has been updated successfully!',
                 data: talent
             });
 
@@ -560,10 +583,10 @@ const UpdateTalentRateRequest = async (req, res, next) => {
 export {
     GetTalent,
     GetTalents,
-    GetTalentRateRequest,
+    GetTalentDetailsRequest,
     TalentSignUp,
     TalentUpdateStatus,
     TalentUpdateAvatar,
-    CreateTalentRateRequest,
-    UpdateTalentRateRequest
+    CreateTalentDetailsRequest,
+    UpdateTalentDetailsRequest
 }

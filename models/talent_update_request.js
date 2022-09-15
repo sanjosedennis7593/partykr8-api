@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const TalentRateRequest = sequelize.define("talent_rate_request", {
+    const TalentUpdateRequest = sequelize.define("talent_update_request", {
         talent_rate_request_id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
@@ -7,6 +7,24 @@ module.exports = (sequelize, Sequelize) => {
         },
         talent_id: {
             type: Sequelize.INTEGER
+        },
+        type: {
+            type: Sequelize.STRING
+        },
+        address: {
+            type: Sequelize.STRING
+        },
+        lat: {
+            type: Sequelize.FLOAT(10, 6),
+            defaultValue: null
+        },
+        lng: {
+            type: Sequelize.FLOAT(10, 6),
+            defaultValue: null
+        },
+
+        genre: {
+            type: Sequelize.STRING
         },
         private_fee: {
             type: Sequelize.INTEGER
@@ -17,6 +35,7 @@ module.exports = (sequelize, Sequelize) => {
         rate_type: {
             type: Sequelize.STRING
         },
+
         status: {
             type: Sequelize.STRING
         },
@@ -29,5 +48,5 @@ module.exports = (sequelize, Sequelize) => {
         },
     });
 
-    return TalentRateRequest;
+    return TalentUpdateRequest;
 };

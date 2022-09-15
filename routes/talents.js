@@ -6,9 +6,9 @@ import {
     TalentSignUp,
     TalentUpdateStatus, 
     TalentUpdateAvatar,
-    CreateTalentRateRequest,
-    UpdateTalentRateRequest,
-    GetTalentRateRequest
+    CreateTalentDetailsRequest,
+    UpdateTalentDetailsRequest,
+    GetTalentDetailsRequest
 } from '../controllers/talents';
 
 import { fileRequest } from '../helpers/upload';
@@ -32,12 +32,12 @@ const avatarRequest = fileRequest.fields(avatarUrlRequests);
 
 router.get('/', GetTalents);
 router.get('/:id', GetTalent);
-router.get('/rate/request', GetTalentRateRequest);
+router.get('/details/request', GetTalentDetailsRequest);
 router.post('/signup', signupAvatarRequest, TalentSignupValidator, TalentSignUp);
 router.put('/status/update', TalentUpdateStatus);
 router.put('/avatar/update', avatarRequest, TalentUpdateAvatar);
-router.post('/rate/request', CreateTalentRateRequest);
-router.put('/rate/request/update', UpdateTalentRateRequest);
+router.post('/details/request', CreateTalentDetailsRequest);
+router.put('/details/request/update', UpdateTalentDetailsRequest);
 
 
 
