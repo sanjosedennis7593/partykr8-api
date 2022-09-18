@@ -24,7 +24,7 @@ const avatarUrlRequests = [
 
 const signupAvatarRequest = fileRequest.fields([
     ...avatarUrlRequests,
-    { name: 'valid_ids', maxCount: 3 }
+     { name: 'valid_ids[]', maxCount: 3 }
 ]);
 
 const avatarRequest = fileRequest.fields(avatarUrlRequests);

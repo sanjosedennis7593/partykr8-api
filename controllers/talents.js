@@ -175,8 +175,8 @@ const GetTalent = async (req, res, next) => {
 const TalentSignUp = async (req, res, next) => {
     try {
 
-
         const errors = validationResult(req);
+
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
@@ -222,7 +222,7 @@ const TalentSignUp = async (req, res, next) => {
         let avatarUrlKeys = {};
         if (Object.keys(req.files).length > 0) {
             for (let key of Object.keys(req.files)) {
-                if (key !== 'valid_ids') {
+                if (key !== 'valid_ids[]') {
                     if (req.files[key] && req.files[key][0]) {
                         const s3Params = {
                             Key: `talent/${currentTalent.id}/${key}_${currentTalent.id}.jpg`,
@@ -242,6 +242,7 @@ const TalentSignUp = async (req, res, next) => {
                 else {
                     if (req.files[key]) {
                         let idIndex = 1;
+
                         for (let item of req.files[key]) {
                             const s3Params = {
                                 Key: `talent/${currentTalent.id}/valid_ids/${idIndex}_${currentTalent.id}.jpg`,
