@@ -3,7 +3,7 @@ import express from 'express';
 // CONTROLLERS
 import { 
     FacebookSignIn, 
-    FacebookSignInCallback, 
+    // FacebookSignInCallback, 
     GoogleSignIn, 
     GoogleSignInCallback, 
     SignInController, 
@@ -18,9 +18,9 @@ const  router = express.Router();
 
 router.post('/signin', SignInController);
 router.post('/signup', fileRequest.single('profile_photo'), SignupValidator, SignUpController);
-router.get('/signin/facebook', FacebookSignIn);
-router.get('/signin/facebook/callback', FacebookSignInCallback);
-router.get('/signin/google', GoogleSignIn);
+router.post('/signin/facebook', FacebookSignIn);
+// router.get('/signin/facebook/callback', FacebookSignInCallback);
+router.post('/signin/google', GoogleSignIn);
 router.get('/signin/google/callback', GoogleSignInCallback);
 router.post('/forgot/password', ...ResetPasswordValidator, ResetPassword);
 

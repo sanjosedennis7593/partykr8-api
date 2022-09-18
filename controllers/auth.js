@@ -48,43 +48,211 @@ const SignInController = (req, res, next) => {
     })(req, res);
 }
 
-const FacebookSignIn = passport.authenticate('facebook', {
-    scope: ['email', 'user_location']
-});
+// const FacebookSignIn = passport.authenticate('facebook', {
+//     scope: ['email', 'user_location']
+// });
 
+const FacebookSignIn = async (req, res, next) => {
+    try {
 
-const FacebookSignInCallback = (req, res, next) => {
-    passport.authenticate('facebook', function (err, data, info) {
-        if (err) {
-            return next(err);
+        const { facebook_id, email, firstname, lastname, avatar_url } = req.body;
 
-        }
-        if (data && !data.user) {
-            return res.status(200).json({ user: null })
-        }
-
-        const token = jwt.sign({
-            id: data.user.id,
-            email: data.user.email,
-            role: data.user.role
-        }, JWT_SECRET);
-
-        return res.json({
-            user: {
-                ...data.user
+        let user = await User.GET({
+            where: {
+                email
             },
-            facebook_access_token: req.query && req.query.code,
-            token
+            attributes: {
+                exclude: ['password']
+            }
         });
 
-    })(req, res, next);
+        if (user && user.dataValues) {
+            delete user.dataValues.password;
+            if (!user.dataValues.facebook_id) {
+
+                let updatePayload = {};
+
+                if (!user.dataValues.facebook_id) {
+                    updatePayload = {
+                        ...updatePayload,
+                        facebook_id
+                    }
+                }
+
+                if (!user.dataValues.avatar_url) {
+                    updatePayload = {
+                        ...updatePayload,
+                        avatar_url
+                    }
+                }
+
+                await User.UPDATE(
+                    {
+                        email
+                    },
+                    updatePayload
+                );
+            }
+
+            const token = jwt.sign({
+                id: user.dataValues.id,
+                email: user.dataValues.email,
+                role: user.dataValues.role
+            }, JWT_SECRET);
+
+            return res.json({
+                user: {
+                    ...user.dataValues
+                },
+                token
+            });
+
+        }
+        else {
+            const userPayload = {
+                email,
+                avatar_url,
+                firstname: firstname,
+                lastname: lastname,
+                type: ROLES.user,
+                facebook_id
+            };
+
+            const newUser = await User.CREATE(userPayload)
+
+            const token = jwt.sign({
+                id: newUser.id,
+                email: newUser.email,
+                role: newUser.role
+            }, JWT_SECRET);
+
+            return res.json({
+                user: {
+                    ...newUser
+                },
+                token
+            });
+        }
+    } catch (err) {
+        return res.status(400).json({
+            message:'Invalid Login'
+        });
+    }
 }
 
 
-const GoogleSignIn = passport.authenticate('google', {
-    scope: ['email', 'profile']
-});
+// const FacebookSignInCallback = async (req, res, next) => {
+//     passport.authenticate('facebook', function (err, data, info) {
+//         if (err) {
+//             return next(err);
 
+//         }
+//         if (data && !data.user) {
+//             return res.status(200).json({ user: null })
+//         }
+
+//         const token = jwt.sign({
+//             id: data.user.id,
+//             email: data.user.email,
+//             role: data.user.role
+//         }, JWT_SECRET);
+
+
+//         res.redirect(
+//             `partykr8://app/signin?firstname=${data.user.firstname}/lastname=${data.user.firstname}/email=${data.user.email}`
+//         );
+//         // return res.json({
+//         //     user: {
+//         //         ...data.user
+//         //     },
+//         //     facebook_access_token: req.query && req.query.code,
+//         //     token
+//         // });
+
+//     })(req, res, next);
+// }
+
+
+// const GoogleSignIn = passport.authenticate('google', {
+//     scope: ['email', 'profile']
+// });
+
+
+const GoogleSignIn = async (req, res, next) => {
+    try {
+
+        console.log('Reqqqq.body', req.body)
+        const { google_id, email, firstname, lastname } = req.body;
+
+        let user = await User.GET({
+            where: {
+                email
+            },
+            attributes: {
+                exclude: ['password']
+            }
+        });
+
+        if (user && user.dataValues) {
+            delete user.dataValues.password;
+            if (!user.dataValues.google_id) {
+
+
+
+                await User.UPDATE(
+                    {
+                        email
+                    },
+                    {
+                        google_id
+                    }
+                );
+            }
+
+            const token = jwt.sign({
+                id: user.dataValues.id,
+                email: user.dataValues.email,
+                role: user.dataValues.role
+            }, JWT_SECRET);
+
+            return res.json({
+                user: {
+                    ...user.dataValues
+                },
+                token
+            });
+
+        }
+        else {
+            const userPayload = {
+                email,
+                firstname: firstname,
+                lastname: lastname,
+                type: ROLES.user,
+                google_id
+            };
+
+            const newUser = await User.CREATE(userPayload)
+
+            const token = jwt.sign({
+                id: newUser.id,
+                email: newUser.email,
+                role: newUser.role
+            }, JWT_SECRET);
+
+            return res.json({
+                user: {
+                    ...newUser
+                },
+                token
+            });
+        }
+    } catch (err) {
+        return res.status(400).json({
+            message:'Invalid Login'
+        });
+    }
+}
 
 const GoogleSignInCallback = (req, res, next) => {
     passport.authenticate('google', function (err, data, info) {
@@ -116,6 +284,7 @@ const GoogleSignInCallback = (req, res, next) => {
 
 const SignUpController = async (req, res, next) => {
     try {
+        console.log('req.file', req.file)
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -154,12 +323,12 @@ const SignUpController = async (req, res, next) => {
             ...payload
         });
 
-        if(req.file) {
+        if (req.file) {
             const fileParams = {
                 Key: `user/${newUser.id}/profile_${newUser.id}.jpg`,
                 Body: req.file.buffer,
             };
-    
+
             const s3Response = await uploadFile(fileParams);
             if (s3Response) {
                 await User.UPDATE({
@@ -173,7 +342,7 @@ const SignUpController = async (req, res, next) => {
                     avatar_url: s3Response ? s3Response.Key : ''
                 }
             }
-    
+
         }
 
 
@@ -253,7 +422,7 @@ export {
     SignInController,
     SignUpController,
     FacebookSignIn,
-    FacebookSignInCallback,
+    // FacebookSignInCallback,
     GoogleSignIn,
     GoogleSignInCallback,
     ResetPassword

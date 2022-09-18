@@ -9,9 +9,9 @@ import { comparePassword } from './password';
 
 import { API_URL } from '../config/api';
 import {
-    FACEBOOK_APP_ID,
-    FACEBOOK_SECRET,
-    FACEBOOK_CALLBACK_URL,
+    // FACEBOOK_APP_ID,
+    // FACEBOOK_SECRET,
+    // FACEBOOK_CALLBACK_URL,
     GOOGLE_CLIENT_ID,
     GOOGLE_SECRET,
     GOOGLE_CALLBACK_URL
@@ -69,128 +69,128 @@ passport.use(new LocalStrategy({
 
 
 
-passport.use(
-    new FacebookStrategy(
-        {
-            clientID: FACEBOOK_APP_ID,
-            clientSecret: FACEBOOK_SECRET,
-            callbackURL: `${API_URL}${FACEBOOK_CALLBACK_URL}`,
-            profileFields: ["email", "name"]
-        },
-        async (accessToken, refreshToken, profile, callback) => {
+// passport.use(
+//     new FacebookStrategy(
+//         {
+//             clientID: FACEBOOK_APP_ID,
+//             clientSecret: FACEBOOK_SECRET,
+//             callbackURL: `${API_URL}${FACEBOOK_CALLBACK_URL}`,
+//             profileFields: ["email", "name"]
+//         },
+//         async (accessToken, refreshToken, profile, callback) => {
 
-            if (profile) {
-                const { email, first_name, last_name } = profile._json;
+//             if (profile) {
+//                 const { email, first_name, last_name } = profile._json;
 
-                let user = await User.GET({
-                    where: {
-                        email
-                    }
-                });
-
-
-                if (user && user.dataValues) {
-                    delete user.dataValues.password;
-                    if (!user.dataValues.facebook_id) {
-                        await User.UPDATE(
-                            {
-                                email
-                            },
-                            {
-                                facebook_id: profile.id
-                            }
-                        );
-                    }
-
-                    return callback(null, {
-                        user: user && user.dataValues
-                    })
-                }
-                else {
-                    const userPayload = {
-                        email,
-                        firstname: first_name,
-                        lastname: last_name,
-                        type: ROLES.user,
-                        facebook_id: profile.id
-                    };
-
-                    const newUser = await User.CREATE(userPayload)
-
-                    return callback(null, {
-                        user: newUser
-                    })
-                }
-            }
-
-            return callback(null, {
-                user: null
-            })
-
-        }
-    )
-);
+//                 let user = await User.GET({
+//                     where: {
+//                         email
+//                     }
+//                 });
 
 
+//                 if (user && user.dataValues) {
+//                     delete user.dataValues.password;
+//                     if (!user.dataValues.facebook_id) {
+//                         await User.UPDATE(
+//                             {
+//                                 email
+//                             },
+//                             {
+//                                 facebook_id: profile.id
+//                             }
+//                         );
+//                     }
+
+//                     return callback(null, {
+//                         user: user && user.dataValues
+//                     })
+//                 }
+//                 else {
+//                     const userPayload = {
+//                         email,
+//                         firstname: first_name,
+//                         lastname: last_name,
+//                         type: ROLES.user,
+//                         facebook_id: profile.id
+//                     };
+
+//                     const newUser = await User.CREATE(userPayload)
+
+//                     return callback(null, {
+//                         user: newUser
+//                     })
+//                 }
+//             }
+
+//             return callback(null, {
+//                 user: null
+//             })
+
+//         }
+//     )
+// );
 
 
-passport.use(
-    new GoogleStrategy({
-        clientID: GOOGLE_CLIENT_ID,
-        clientSecret: GOOGLE_SECRET,
-        callbackURL: `${API_URL}${GOOGLE_CALLBACK_URL}`,
-        passReqToCallback: true
-    },
-        async (request, accessToken, refreshToken, profile, callback) => {
 
-            if (profile) {
-                const { id, email, family_name, given_name } = profile;
 
-                let user = await User.GET({
-                    where: {
-                        email
-                    }
-                });
+// passport.use(
+//     new GoogleStrategy({
+//         clientID: GOOGLE_CLIENT_ID,
+//         clientSecret: GOOGLE_SECRET,
+//         callbackURL: `${API_URL}${GOOGLE_CALLBACK_URL}`,
+//         passReqToCallback: true
+//     },
+//         async (request, accessToken, refreshToken, profile, callback) => {
 
-                if (user && user.dataValues) {
-                    delete user.dataValues.password;
-                    if (!user.dataValues.google_id) {
-                        await User.UPDATE(
-                            {
-                                email
-                            },
-                            {
-                                google_id: id
-                            }
-                        );
-                    }
+//             if (profile) {
+//                 const { id, email, family_name, given_name } = profile;
 
-                    return callback(null, {
-                        user: user && user.dataValues
-                    })
-                }
-                else {
-                    const userPayload = {
-                        email,
-                        firstname: given_name,
-                        lastname: family_name,
-                        type: ROLES.user,
-                        facebook_id: id
-                    };
+//                 let user = await User.GET({
+//                     where: {
+//                         email
+//                     }
+//                 });
 
-                    const newUser = await User.CREATE(userPayload)
+//                 if (user && user.dataValues) {
+//                     delete user.dataValues.password;
+//                     if (!user.dataValues.google_id) {
+//                         await User.UPDATE(
+//                             {
+//                                 email
+//                             },
+//                             {
+//                                 google_id: id
+//                             }
+//                         );
+//                     }
 
-                    return callback(null, {
-                        user: newUser
-                    })
-                }
-            }
+//                     return callback(null, {
+//                         user: user && user.dataValues
+//                     })
+//                 }
+//                 else {
+//                     const userPayload = {
+//                         email,
+//                         firstname: given_name,
+//                         lastname: family_name,
+//                         type: ROLES.user,
+//                         facebook_id: id
+//                     };
 
-            return callback(null, {
-                user: null
-            })
-        }
-    ));
+//                     const newUser = await User.CREATE(userPayload)
+
+//                     return callback(null, {
+//                         user: newUser
+//                     })
+//                 }
+//             }
+
+//             return callback(null, {
+//                 user: null
+//             })
+//         }
+//     ));
 
 
 passport.use(new JWTStrategy({
