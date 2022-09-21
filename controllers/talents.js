@@ -597,9 +597,33 @@ const GetTalentEvents = async (req, res, next) => {
                         attributes: {
                             exclude: ['password']
                         }
-                    }
+                    },
+                    {
+                        model: db.event_guests
+                    },
+                    {
+                        model: db.event_talents,
+                        attributes: [
+                            'status',
+                        ],
+                        include: [
+                            {
+                                model: db.talents,
+                                include: [
+                                    {
+                                        model: db.users,
+                                        attributes: [
+                                            'email',
+                                            'lastname',
+                                            'firstname',
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
                 ]
-            },
+            }
         ]
     });
 
