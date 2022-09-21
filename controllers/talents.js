@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import sequelize from 'sequelize';
 
 
+const EventTalent = new Table(db.event_talents);
 const Talent = new Table(db.talents);
 const TalentUpdateRequest = new Table(db.talent_update_request);
 const TalentValidIds = new Table(db.talent_valid_ids);
@@ -580,10 +581,38 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
 
 };
 
+const GetTalentEvents = async (req, res, next) => {
+    const { id } = req.params;
+    const events = await EventTalent.GET_ALL({
+        where:{
+            talent_id: id
+        },
+        include: [
+        
+            {
+                model: db.events,
+                include: [
+                    {
+                        model: db.users,
+                        attributes: {
+                            exclude: ['password']
+                        }
+                    }
+                ]
+            },
+        ]
+    });
+
+    console.log('Get Talent Eventsss', events)
+    return res.status(200).json({
+        data: events
+    });
+}
 
 export {
     GetTalent,
     GetTalents,
+    GetTalentEvents,
     GetTalentDetailsRequest,
     TalentSignUp,
     TalentUpdateStatus,
