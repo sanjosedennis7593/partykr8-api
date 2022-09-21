@@ -98,6 +98,7 @@ const CreateEvents = async (req, res, next) => {
         let event = {
             user_id: req.user.id,
             title: req.body.title,
+            type: req.body.type,
             location: req.body.location,
             date: req.body.date,
             start_time: req.body.start_time,
@@ -254,7 +255,7 @@ const CreateEvents = async (req, res, next) => {
 
         return res.status(200).json({
             message: 'Event has been created successfully!',
-            data: talentUsers
+            data: response
         });
     }
     catch (err) {
