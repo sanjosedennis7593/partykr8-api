@@ -41,6 +41,12 @@ models.users.hasMany(models.events, {
     sourceKey: 'id'
 });
 
+models.users.hasOne(models.talents, {
+    foreignKey: 'user_id',
+    sourceKey: 'id'
+});
+
+
 
 models.events.hasMany(models.event_guests, {
     foreignKey: 'event_id',
