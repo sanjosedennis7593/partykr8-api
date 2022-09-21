@@ -7,25 +7,26 @@ import db from '../models';
 import Table from './database';
 import { comparePassword } from './password';
 
-import { API_URL } from '../config/api';
-import {
-    // FACEBOOK_APP_ID,
-    // FACEBOOK_SECRET,
-    // FACEBOOK_CALLBACK_URL,
-    GOOGLE_CLIENT_ID,
-    GOOGLE_SECRET,
-    GOOGLE_CALLBACK_URL
-} from '../config/auth';
+// import { API_URL } from '../config/api';
+// import {
+//     // FACEBOOK_APP_ID,
+//     // FACEBOOK_SECRET,
+//     // FACEBOOK_CALLBACK_URL,
+//     GOOGLE_CLIENT_ID,
+//     GOOGLE_SECRET,
+//     GOOGLE_CALLBACK_URL
+// } from '../config/auth';
 import { JWT_SECRET } from "../config/jwt";
-import { ROLES } from "../config/constants";
+// import { ROLES } from "../config/constants";
 
 const LocalStrategy = require('passport-local').Strategy;
-const GoogleStrategy = require('passport-google-oauth2').Strategy;
+// const GoogleStrategy = require('passport-google-oauth2').Strategy;
 
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
 
+const Talent = new Table(db.talents);
 const User = new Table(db.users);
 
 passport.serializeUser(function (user, done) {
@@ -50,6 +51,15 @@ passport.use(new LocalStrategy({
                 where: {
                     email,
                 },
+                include: [
+                    {
+                        model: db.talents,
+                        attributes: [
+                            'id',
+                            'status'
+                        ]
+                    }
+                ]
             });
 
             if (user) {
@@ -203,10 +213,26 @@ passport.use(new JWTStrategy({
                 where: {
                     id: jwtPayload.id
                 },
+                attributes: {
+                    exclude: ['password']
+                },
+                include: [
+                    {
+                        model: db.talents,
+                        attributes: [
+                            'id',
+                            'status'
+                        ]
+                    }
+                ]
             });
+
             if (user && user.dataValues) {
-                delete user.dataValues.password;
-                return callback(null, user.dataValues)
+                let currentUser = {
+                    ...user.dataValues
+                }
+
+                return callback(null, currentUser)
             }
 
             return callback(null, {
@@ -215,6 +241,7 @@ passport.use(new JWTStrategy({
 
         }
         catch (err) {
+            console.log('err', err)
             return callback(err, {
                 message: 'Something went wrong!'
             });
