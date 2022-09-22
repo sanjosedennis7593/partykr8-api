@@ -57,16 +57,17 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
 }
 const GetTalents = async (req, res, next) => {
     try {
-
+        console.log('req.query',req.query)
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
+        let status = req.query.status || 'approved';
+
+        let whereClause = status === 'all' ? {} : { where: status }
 
         const talents = await Talent.GET_ALL({
             ...distanceOptions,
-            where: {
-                status: 'approved'
-            },
+            ...whereClause,
             include: [
                 {
                     model: db.users,
@@ -315,16 +316,37 @@ const TalentUpdateStatus = async (req, res, next) => {
             }
         );
 
-        const talentUser = await User.GET({
-            id: talent.user_id
-        })
+        // const talentUser = await User.GET({
+        //     id: talent.user_id
+        // })
 
+        const talentUser = await Talent.GET({
+            where: {
+                id: req.body.id
+            },
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'email',
+                        'lastname',
+                        'firstname',
+                    ]
+                },
+                {
+                    model: db.talent_valid_ids,
+                    attributes: [
+                        'valid_id_url'
+                    ]
+                },
+            ]
+        });
         if (talentUser && talentUser.dataValues && req.body.status === TALENT_STATUS.approved) {
             await sendMessage({
-                to: talentUser.dataValues.email,
+                to: talentUser.dataValues.user.email,
                 subject: `Talent Application Approved`,
                 html: TALENT_APPROVED_MESSAGE({
-                    user: talentUser.dataValues
+                    user: talentUser.dataValues.user
                 })
             });
         }
@@ -463,15 +485,15 @@ const GetTalentDetailsRequest = async (req, res, next) => {
 const CreateTalentDetailsRequest = async (req, res, next) => {
     try {
         const {
-            talent_id, 
-            rate, 
-            rate_type, 
-            private_fee, 
+            talent_id,
+            rate,
+            rate_type,
+            private_fee,
             address,
             lat,
             lng,
             type,
-            genre 
+            genre
         } = req.body;
         const curentRequest = await TalentUpdateRequest.GET({
             where: {
@@ -534,7 +556,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                 status
             });
 
-            if(status === 'approved') {
+            if (status === 'approved') {
                 await Talent.UPDATE({
                     id: talent_id
                 }, {
@@ -548,7 +570,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     service_rate_type: currentRequest.rate_type,
                     private_fee: currentRequest.private_fee
                 });
-    
+
             }
 
             let talent = await Talent.GET({
@@ -584,11 +606,11 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
 const GetTalentEvents = async (req, res, next) => {
     const { id } = req.params;
     const events = await EventTalent.GET_ALL({
-        where:{
+        where: {
             talent_id: id
         },
         include: [
-        
+
             {
                 model: db.events,
                 include: [
