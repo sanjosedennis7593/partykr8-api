@@ -245,14 +245,20 @@ const CreatePaymentIntent = async (req, res, next) => {
 
         return res.status(200).json({
             message: 'Success',
-            data: paymentIntentResponse
+            data: {
+                payment_intent_id: paymentIntentResponse.data &&  paymentIntentResponse.data.id,
+                client_key: paymentIntentResponse.data &&  paymentIntentResponse.data.attributes &&  paymentIntentResponse.data.attributes.client_key,
+                amount: paymentIntentResponse.data &&  paymentIntentResponse.data.attributes &&  paymentIntentResponse.data.attributes.amount,
+                created_at: paymentIntentResponse.data &&  paymentIntentResponse.data.attributes &&  paymentIntentResponse.data.attributes.created_at,
+                status: paymentIntentResponse.data &&  paymentIntentResponse.data.attributes &&   paymentIntentResponse.data.attributes.status
+            }
         });
     }
     catch (err) {
-        console.log('Error', err.response)
+        console.log('Error', err.response.data)
         return res.status(400).json({
             error: err.code,
-            message: err.message,
+            message:  err.response.data
         });
     }
 };
@@ -291,6 +297,7 @@ const AttachPaymentIntent = async (req, res, next) => {
             event_id,
             payment_method_id
         } = req.body;
+
         const paymentIntentResponse = await confirmPaymentIntent({
             payment_intent_id,
             payment_method_id,
@@ -319,7 +326,7 @@ const AttachPaymentIntent = async (req, res, next) => {
 
         return res.status(200).json({
             message: 'Success',
-            data: paymentIntentResponse
+            data: paymentIntentResponse && paymentIntentResponse.data
         });
     }
     catch (err) {
