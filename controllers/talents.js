@@ -83,6 +83,25 @@ const GetTalents = async (req, res, next) => {
                         'valid_id_url'
                     ]
                 },
+                {
+                    model: db.event_talents,
+                    attributes: [
+                        'event_id',
+                        'status',
+                        'id'
+                    ],
+                    include: [
+                       {
+                        model: db.events,
+                        attributes: [
+                            'title',
+                            'date',
+                            'start_time',
+                            'end_time',
+                        ]
+                       }
+                    ]
+                },
             ]
 
         })
