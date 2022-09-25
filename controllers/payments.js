@@ -50,7 +50,7 @@ const CreateSourcePayment = async (req, res, next) => {
             event_id
         } = req.body;
 
-
+        
         const eventPaymentResponse = await createPaymentSource({
             amount,
             billing_name,
@@ -72,12 +72,12 @@ const CreateSourcePayment = async (req, res, next) => {
         );
 
         return res.status(201).json({
-            message: 'Payment has been sent successfully!',
-            data: eventPaymentResponse
+            message: 'Payment source has been created successfully!',
+            data: eventPaymentResponse && eventPaymentResponse.data
         });
     }
     catch (err) {
-        console.log('Error', err)
+        console.log('Error ', err.response.data)
         return res.status(400).json({
             error: err.code,
             message: err.response.data
