@@ -72,6 +72,7 @@ const WITH_USERS_AND_TALENTS = {
 const GetEvents = async (req, res, next) => {
     try {
         const events = await Event.GET_ALL({
+            order: [['date','desc']],
             ...WITH_USERS_AND_TALENTS
         })
         return res.status(200).json({
