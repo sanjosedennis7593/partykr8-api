@@ -1,5 +1,5 @@
 // import { validationResult } from 'express-validator';
-import { Op } from 'sequelize';
+import sequelize, { Op } from 'sequelize';
 import { format, isAfter, isBefore, isEqual } from 'date-fns';
 
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
@@ -71,7 +71,11 @@ const WITH_USERS_AND_TALENTS = {
 
 const GetEvents = async (req, res, next) => {
     try {
+        
         const events = await Event.GET_ALL({
+            where:{
+                user_id: req.user.id,
+            },
             order: [['date', 'desc']],
             ...WITH_USERS_AND_TALENTS
         })
@@ -451,7 +455,7 @@ const SendEventInvite = async (req, res, next) => {
             await EventGuest.UPSERT(
                 {
                     email: guest,
-                    event_id:event_id
+                    event_id: event_id
                 },
                 {
                     email: guest,
@@ -480,11 +484,11 @@ const SendEventInvite = async (req, res, next) => {
                         'email'
                     ]
                 }
-                
+
             ]
         });
-        
-        if(send_invite) {
+
+        if (send_invite) {
             await sendMessage({
                 to: guests,
                 subject: `PartyKr8 Event: ${event.title}`,
@@ -498,16 +502,71 @@ const SendEventInvite = async (req, res, next) => {
                     user
                 })
             });
-            
+
         }
- 
+
 
         // EventGuest
         return res.status(200).json({
             message: "Guest has been updated successfully",
-             guests,
+            guests,
             custom_message
         });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
+const GetJoinedEvents = async (req, res, next) => {
+    try {
+        console.log('response email', email)
+        if (!req.query.email) {
+            return res.status(400).json({
+                message: 'Email parameter is required'
+            });
+        }
+        const { email } = req.query;
+        console.log('response email', email)
+
+        const response = await EventGuest.GET_ALL({
+            where: {
+                email
+            } ,
+            // attributes: [[sequelize.fn('DISTINCT', sequelize.col('event_guests.event_id')), 'alias_name']],
+            distinct: true,
+            attributes: ['event_id'],
+            include: [
+                {
+                    model: db.events,
+                    attributes: [
+                        'id',
+                        'title',
+                        'location',
+                        'date',
+                        'start_time',
+                        'end_time',
+                        'status',
+                    ],
+                    ...WITH_USERS_AND_TALENTS
+                }
+
+            ]
+        });
+
+        console.log('response', response)
+
+
+        return res.status(200).json({
+            events: response
+
+        });
+
     }
     catch (err) {
         console.log('Error', err)
@@ -522,7 +581,6 @@ const SendEventInvite = async (req, res, next) => {
 
 
 
-
 export {
     CreateEvents,
     GetEvent,
@@ -530,5 +588,6 @@ export {
     UpdateEventDetails,
     UpdateEventTalentStatus,
     UpdateEventStatus,
-    SendEventInvite
+    SendEventInvite,
+    GetJoinedEvents
 };
