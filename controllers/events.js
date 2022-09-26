@@ -50,15 +50,15 @@ const WITH_USERS_AND_TALENTS = {
                                 'id'
                             ],
                             include: [
-                               {
-                                model: db.events,
-                                attributes: [
-                                    'title',
-                                    'date',
-                                    'start_time',
-                                    'end_time',
-                                ]
-                               }
+                                {
+                                    model: db.events,
+                                    attributes: [
+                                        'title',
+                                        'date',
+                                        'start_time',
+                                        'end_time',
+                                    ]
+                                }
                             ]
                         },
                     ]
@@ -72,7 +72,7 @@ const WITH_USERS_AND_TALENTS = {
 const GetEvents = async (req, res, next) => {
     try {
         const events = await Event.GET_ALL({
-            order: [['date','desc']],
+            order: [['date', 'desc']],
             ...WITH_USERS_AND_TALENTS
         })
         return res.status(200).json({
@@ -128,7 +128,7 @@ const CreateEvents = async (req, res, next) => {
 
         const createdEventDateTimeStart = new Date(`${event.date} ${event.start_time}`);
         const createdEventDateTimeEnd = new Date(`${event.date} ${event.end_time}`);
-        
+
 
 
         const user = await User.GET({
@@ -197,7 +197,7 @@ const CreateEvents = async (req, res, next) => {
                     console.log('start end is between the 2 dates');
                     isConflict = true;
                 }
-      
+
                 return format(eventTalent.event.date, 'yyyy-MM-dd') === event.date && isConflict
             })
         }) : [];
@@ -214,7 +214,7 @@ const CreateEvents = async (req, res, next) => {
         //         hasScheduleConflict
         //     });
         // }
-      
+
         const response = await Event.CREATE({
             ...event
         });
@@ -290,12 +290,13 @@ const CreateEvents = async (req, res, next) => {
 
 const UpdateEventDetails = async (req, res, next) => {
     try {
-        const guests = req.body.guests || [];
-        const removedGuests = req.body.removed_guests || [];
+        // const guests = req.body.guests || [];
+        // const removedGuests = req.body.removed_guests || [];
         let eventPayload = {
             event_id: req.body.event_id,
             user_id: req.user.id,
             title: req.body.title,
+            type: req.body.type,
             location: req.body.location,
             date: req.body.date,
             start_time: req.body.start_time,
@@ -303,39 +304,40 @@ const UpdateEventDetails = async (req, res, next) => {
             message_to_guest: req.body.message_to_guest
         };
 
-        const resss = await Event.UPDATE({
+        await Event.UPDATE({
             id: eventPayload.event_id,
             user_id: req.user.id,
         }, {
             title: eventPayload.title,
+            type: eventPayload.type,
             location: eventPayload.location,
             date: eventPayload.date,
             start_time: eventPayload.start_time,
             end_time: eventPayload.end_time,
-            message_to_guest: eventPayload.message_to_guest
+            // message_to_guest: eventPayload.message_to_guest
         });
-        
-        for (let guest of guests) {
-            await EventGuest.UPSERT(
-                {
-                    email: guest,
-                    event_id: eventPayload.event_id
-                },
-                {
-                    email: guest,
-                    event_id: eventPayload.event_id
-                }
-            )
-        }
 
-        for (let guest of removedGuests) {
-            await EventGuest.DELETE(
-                {
-                    email: guest,
-                    event_id: eventPayload.event_id
-                }
-            )
-        }
+        // for (let guest of guests) {
+        //     await EventGuest.UPSERT(
+        //         {
+        //             email: guest,
+        //             event_id: eventPayload.event_id
+        //         },
+        //         {
+        //             email: guest,
+        //             event_id: eventPayload.event_id
+        //         }
+        //     )
+        // }
+
+        // for (let guest of removedGuests) {
+        //     await EventGuest.DELETE(
+        //         {
+        //             email: guest,
+        //             event_id: eventPayload.event_id
+        //         }
+        //     )
+        // }
 
         // if (talents.length > 0) {
         //     await EventTalent.CREATE_MANY(talents);
@@ -435,6 +437,89 @@ const UpdateEventStatus = async (req, res, next) => {
 
 
 
+const SendEventInvite = async (req, res, next) => {
+    try {
+
+        const { event_id, custom_message, guests, removed_guests, send_invite = false } = req.body;
+        const user = await User.GET({
+            id: req.user.id
+        });
+
+        console.log('Guestssss', guests)
+
+        for (let guest of guests) {
+            await EventGuest.UPSERT(
+                {
+                    email: guest,
+                    event_id:event_id
+                },
+                {
+                    email: guest,
+                    event_id: event_id
+                }
+            )
+        }
+
+        for (let guest of removed_guests) {
+            await EventGuest.DELETE(
+                {
+                    email: guest,
+                    event_id: event_id
+                }
+            )
+        }
+
+        const event = await Event.GET({
+            where: {
+                id: event_id
+            },
+            include: [
+                {
+                    model: db.event_guests,
+                    attributes: [
+                        'email'
+                    ]
+                }
+                
+            ]
+        });
+        
+        if(send_invite) {
+            await sendMessage({
+                to: guests,
+                subject: `PartyKr8 Event: ${event.title}`,
+                html: EVENT_INVITE_MESSAGE({
+                    title: event.title,
+                    message_to_guest: custom_message || req.body.message_to_guest,
+                    location: event.location,
+                    date: event.date,
+                    start_time: event.start_time,
+                    end_time: event.end_time,
+                    user
+                })
+            });
+            
+        }
+ 
+
+        // EventGuest
+        return res.status(200).json({
+            message: "Guest has been updated successfully",
+             guests,
+            custom_message
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
+
 
 
 
@@ -444,5 +529,6 @@ export {
     GetEvents,
     UpdateEventDetails,
     UpdateEventTalentStatus,
-    UpdateEventStatus
+    UpdateEventStatus,
+    SendEventInvite
 };
