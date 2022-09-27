@@ -57,7 +57,7 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
 }
 const GetTalents = async (req, res, next) => {
     try {
-        console.log('req.query',req.query)
+    
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
@@ -452,7 +452,7 @@ const TalentUpdateAvatar = async (req, res, next) => {
 const GetTalentDetailsRequest = async (req, res, next) => {
     try {
         const status = req.query.status || null;
-
+ 
         const whereClause = status ? {
             where: {
                 status
@@ -463,13 +463,6 @@ const GetTalentDetailsRequest = async (req, res, next) => {
             include: [
                 {
                     model: db.talents,
-                    attributes: [
-                        'type',
-                        'genre',
-                        'avatar_url_1',
-                        'avatar_url_2',
-                        'avatar_url_3',
-                    ],
                     include: [
                         {
                             model: db.users,
@@ -486,7 +479,7 @@ const GetTalentDetailsRequest = async (req, res, next) => {
 
 
         return res.status(200).json({
-            data: TalentDetailsRequest || []
+            talent_request: TalentDetailsRequest || []
         });
 
     }
@@ -505,14 +498,15 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
     try {
         const {
             talent_id,
-            rate,
-            rate_type,
+            service_rate,
+            service_rate_type,
             private_fee,
             address,
             lat,
             lng,
             type,
-            genre
+            genre,
+            gcash_no
         } = req.body;
         const curentRequest = await TalentUpdateRequest.GET({
             where: {
@@ -532,9 +526,10 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             lng,
             type,
             genre,
-            rate,
-            rate_type,
+            service_rate,
+            service_rate_type,
             private_fee,
+            gcash_no,
             status: 'pending'
         });
 
@@ -556,12 +551,12 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
 const UpdateTalentDetailsRequest = async (req, res, next) => {
 
     try {
-        const { talent_rate_request_id, talent_id, status } = req.body;
+        const { talent_request_id, talent_id, status, gcash_no } = req.body;
         const currentRequest = await TalentUpdateRequest.GET({
             where: {
                 talent_id,
                 status: 'pending',
-                talent_rate_request_id
+                talent_request_id
             }
         });
 
@@ -570,7 +565,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
         if (currentRequest) {
             await TalentUpdateRequest.UPDATE({
                 talent_id,
-                talent_rate_request_id
+                talent_request_id
             }, {
                 status
             });
@@ -585,9 +580,10 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     address: currentRequest.address,
                     lat: currentRequest.lat,
                     lng: currentRequest.lng,
-                    service_rate: currentRequest.rate,
-                    service_rate_type: currentRequest.rate_type,
-                    private_fee: currentRequest.private_fee
+                    service_rate: currentRequest.service_rate,
+                    service_rate_type: currentRequest.service_rate_type,
+                    private_fee: currentRequest.private_fee,
+                    gcash_no: currentRequest.gcash_no
                 });
 
             }
@@ -668,7 +664,7 @@ const GetTalentEvents = async (req, res, next) => {
         ]
     });
 
-    console.log('Get Talent Eventsss', events)
+
     return res.status(200).json({
         data: events
     });

@@ -54,10 +54,10 @@ passport.use(new LocalStrategy({
                 include: [
                     {
                         model: db.talents,
-                        attributes: [
-                            'id',
-                            'status'
-                        ]
+                        // attributes: [
+                        //     'id',
+                        //     'status'
+                        // ]
                     }
                 ]
             });
@@ -218,11 +218,7 @@ passport.use(new JWTStrategy({
                 },
                 include: [
                     {
-                        model: db.talents,
-                        attributes: [
-                            'id',
-                            'status'
-                        ]
+                        model: db.talents
                     }
                 ]
             });

@@ -63,6 +63,9 @@ module.exports = (sequelize, Sequelize) => {
         tiktok_url: {
             type: Sequelize.STRING
         },
+        gcash_no: {
+            type: Sequelize.STRING
+        },
         status: {
             type: Sequelize.STRING,
             defaultValue: 'pending'

@@ -20,6 +20,7 @@ const WITH_USERS_AND_TALENTS = {
         {
             model: db.users,
             attributes: [
+                'id',
                 'email',
                 'lastname',
                 'firstname',
@@ -547,6 +548,7 @@ const GetJoinedEvents = async (req, res, next) => {
                     attributes: [
                         'id',
                         'title',
+                        'type',
                         'location',
                         'date',
                         'start_time',
