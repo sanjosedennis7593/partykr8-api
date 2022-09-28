@@ -8,6 +8,7 @@ import { uploadFile } from '../helpers/upload';
 import { ROLES } from '../config/constants';
 
 const User = new Table(db.users);
+const UserRatings = new Table(db.user_ratings);
 
 
 const GetCurrentUser = async (req, res, next) => {
@@ -253,6 +254,98 @@ const UpdateUserAvatar = async (req, res, next) => {
 };
 
 
+const CreateUserRatings = async (req, res, next) => {
+    try {
+
+        const {
+            ratings
+        } = req.body;
+
+
+        if (ratings.length === 0) {
+            return res.status(400).json({ message: 'Invalid Request' });
+        }
+
+        const userRatings = await UserRatings.CREATE(ratings);
+
+        return res.status(201).json({
+            ratings: userRatings
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
+const GetUserRatings = async (req, res, next) => {
+    try {
+
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                message: 'Invalid Request'
+            });
+        };
+
+        const userRatings = await UserRatings.GET_ALL({
+            where: {
+                user_id: id
+            },
+
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'email',
+                        'lastname',
+                        'firstname',
+                        'avatar_url'
+                    ]
+                },
+                {
+                    model: db.talents,
+                    attributes: [
+                        'id',
+                        'type',
+                        'avatar_url_1'
+                    ],
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: [
+                                'email',
+                                'lastname',
+                                'firstname',
+                                'avatar_url'
+                            ]
+                        }
+                    ]
+                },
+            ]
+        });
+
+        return res.status(201).json({
+            ratings: userRatings
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
 
 export {
     GetUser,
@@ -260,5 +353,7 @@ export {
     UpdateUserDetails,
     UpdateUserPassword,
     UpdateUserStatus,
-    UpdateUserAvatar
+    UpdateUserAvatar,
+    CreateUserRatings,
+    GetUserRatings
 };
