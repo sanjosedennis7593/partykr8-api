@@ -23,6 +23,10 @@ module.exports = (sequelize, Sequelize) => {
         genre: {
             type: Sequelize.STRING
         },
+        commission_rate: {
+            type: Sequelize.INTEGER,
+            defaultValue: 1
+        },
         private_fee: {
             type: Sequelize.INTEGER
         },

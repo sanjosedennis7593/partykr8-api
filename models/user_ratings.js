@@ -1,16 +1,19 @@
 module.exports = (sequelize, Sequelize) => {
-    const TalentRatings = sequelize.define("talent_ratings", {
-        talent_rating_id: {
+    const UserRatings = sequelize.define("user_ratings", {
+        user_rating_id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        talent_id: {
-            type: Sequelize.INTEGER
-        },
         user_id: {
             type: Sequelize.INTEGER
         },
+        talent_id: {
+            type: Sequelize.INTEGER
+        },
+        event_id: {
+            type: Sequelize.INTEGER
+        }, 
         rating: {
             type: Sequelize.INTEGER
         },
@@ -29,5 +32,5 @@ module.exports = (sequelize, Sequelize) => {
         },
     });
 
-    return TalentRatings;
+    return UserRatings;
 };

@@ -13,7 +13,7 @@ models.event_payments = require("./event_payments")(db.connection, db.library);
 models.event_payment_details = require("./event_payment_details")(db.connection, db.library);
 models.talent_update_request = require("./talent_update_request")(db.connection, db.library);
 models.talent_ratings = require("./talent_ratings")(db.connection, db.library);
-
+models.user_ratings = require("./user_ratings")(db.connection, db.library);
 
 models.Sequelize = db.library;
 models.sequelize = db.connection;
@@ -140,6 +140,27 @@ models.talent_ratings.belongsTo(models.users, {
     sourceKey: 'id'
 });
 
+
+models.talents.hasMany(models.user_ratings, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+
+
+models.user_ratings.belongsTo(models.talents, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+
+models.users.hasMany(models.user_ratings, {
+    foreignKey: 'user_id',
+    sourceKey: 'id'
+});
+
+models.user_ratings.belongsTo(models.users, {
+    foreignKey: 'user_id',
+    sourceKey: 'id'
+});
 
 
 
