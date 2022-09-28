@@ -9,10 +9,14 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         user_id: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         rating: {
             type: Sequelize.DECIMAL
+        },
+        status: {
+            type: Sequelize.INTEGER,
+            defaultValue: 1
         },
         feedback: {
             type: Sequelize.STRING

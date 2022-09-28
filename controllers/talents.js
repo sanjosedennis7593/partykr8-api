@@ -17,6 +17,7 @@ import sequelize from 'sequelize';
 const EventTalent = new Table(db.event_talents);
 const Talent = new Table(db.talents);
 const TalentUpdateRequest = new Table(db.talent_update_request);
+const TalentRatings = new Table(db.talent_ratings);
 const TalentValidIds = new Table(db.talent_valid_ids);
 const User = new Table(db.users);
 
@@ -57,7 +58,7 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
 }
 const GetTalents = async (req, res, next) => {
     try {
-    
+
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
@@ -91,15 +92,15 @@ const GetTalents = async (req, res, next) => {
                         'id'
                     ],
                     include: [
-                       {
-                        model: db.events,
-                        attributes: [
-                            'title',
-                            'date',
-                            'start_time',
-                            'end_time',
-                        ]
-                       }
+                        {
+                            model: db.events,
+                            attributes: [
+                                'title',
+                                'date',
+                                'start_time',
+                                'end_time',
+                            ]
+                        }
                     ]
                 },
             ]
@@ -452,7 +453,7 @@ const TalentUpdateAvatar = async (req, res, next) => {
 const GetTalentDetailsRequest = async (req, res, next) => {
     try {
         const status = req.query.status || null;
- 
+
         const whereClause = status ? {
             where: {
                 status
@@ -670,6 +671,79 @@ const GetTalentEvents = async (req, res, next) => {
     });
 }
 
+
+const CreateTalentRating = async (req, res, next) => {
+    try {
+
+        const {
+            ratings = []
+        } = req.body;
+
+
+        if (ratings.length === 0) {
+            return res.status(400).json({ message: 'Invalid Request' });
+        }
+
+        const talentRatings = await TalentRatings.CREATE_MANY(ratings);
+
+        return res.status(201).json({
+            data: talentRatings
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
+const GetTalentRatings = async (req, res, next) => {
+    try {
+
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({
+                message: 'Invalid Request'
+            });
+        };
+
+        const talentRatings = await TalentRatings.GET_ALL({
+            where: {
+                talent_id: id
+            },
+
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'email',
+                        'lastname',
+                        'firstname',
+                        'avatar_url'
+                    ]
+                },
+            ]
+        });
+
+        return res.status(201).json({
+            ratings: talentRatings
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
 export {
     GetTalent,
     GetTalents,
@@ -679,5 +753,7 @@ export {
     TalentUpdateStatus,
     TalentUpdateAvatar,
     CreateTalentDetailsRequest,
-    UpdateTalentDetailsRequest
+    UpdateTalentDetailsRequest,
+    CreateTalentRating,
+    GetTalentRatings
 }
