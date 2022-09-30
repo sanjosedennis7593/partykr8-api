@@ -235,6 +235,7 @@ const TalentSignUp = async (req, res, next) => {
             tiktok_url: req.body.tiktok_url,
             status: TALENT_STATUS[req.body.status],
             user_id: req.user.id,
+            commission_rate:  req.body.commission_rate,
             status: TALENT_STATUS.pending
         };
 
@@ -507,7 +508,8 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             lng,
             type,
             genre,
-            gcash_no
+            gcash_no,
+            commission_rate
         } = req.body;
         const curentRequest = await TalentUpdateRequest.GET({
             where: {
@@ -531,6 +533,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             service_rate_type,
             private_fee,
             gcash_no,
+            commission_rate,
             status: 'pending'
         });
 
@@ -584,6 +587,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     service_rate: currentRequest.service_rate,
                     service_rate_type: currentRequest.service_rate_type,
                     private_fee: currentRequest.private_fee,
+                    commission_rate: currentRequest.commission_rate,
                     gcash_no: currentRequest.gcash_no
                 });
 
