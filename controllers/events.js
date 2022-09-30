@@ -1,6 +1,6 @@
 // import { validationResult } from 'express-validator';
 import sequelize, { Op } from 'sequelize';
-import { format, isAfter, isBefore, isEqual } from 'date-fns';
+import { format, isAfter, isBefore, isEqual, differenceInHours } from 'date-fns';
 
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
@@ -29,6 +29,14 @@ const WITH_USERS_AND_TALENTS = {
         },
         {
             model: db.event_guests
+        },
+        {
+            model: db.event_payments,
+            attributes: [
+                'amount',
+                'payment_type',
+                'payment_id'
+            ]
         },
         {
             model: db.event_talents,
@@ -74,12 +82,12 @@ const WITH_USERS_AND_TALENTS = {
 
 const GetEvents = async (req, res, next) => {
     try {
-        
+
         const events = await Event.GET_ALL({
-            where:{
+            where: {
                 user_id: req.user.id,
             },
-            order: [['date', 'desc']],
+            order: [['date', 'asc']],
             ...WITH_USERS_AND_TALENTS
         })
         return res.status(200).json({
@@ -142,10 +150,11 @@ const CreateEvents = async (req, res, next) => {
             id: req.user.id
         });
 
+        const talentIds = req.body.talents.map(talent => talent.id);
 
         const talentUsers = req.body.talents && req.body.talents.length > 0 ? await Talent.GET_ALL({
             where: {
-                id: { [Op.in]: req.body.talents }
+                id: { [Op.in]: talentIds }
             },
             include: [
                 {
@@ -233,9 +242,11 @@ const CreateEvents = async (req, res, next) => {
                 event_id: response.id
             }
         }) : [];
-        const talents = req.body.talents && response && response.id ? req.body.talents.map(talentId => {
+        const talents = req.body.talents && response && response.id ? req.body.talents.map(talent => {
             return {
-                talent_id: talentId,
+                talent_id: talent.id,
+                service_rate: talent.service_rate,
+                private_fee: talent.private_fee,
                 event_id: response.id
             }
         }) : [];
@@ -253,32 +264,36 @@ const CreateEvents = async (req, res, next) => {
             await EventTalent.CREATE_MANY(talents);
         }
 
-        // await sendMessage({
-        //     to: req.body.guests,
-        //     subject: `PartyKr8 Event: ${req.body.title}`,
-        //     html: EVENT_INVITE_MESSAGE({
-        //         title: req.body.title,
-        //         message_to_guest: req.body.message_to_guest,
-        //         location: req.body.location,
-        //         date: req.body.date,
-        //         start_time: req.body.start_time,
-        //         end_time: req.body.end_time,
-        //         user
-        //     })
-        // });
+        if (req.body.send_invite_after_create) {
 
-        // await sendMessage({
-        //     to: talentEmails,
-        //     subject: `Talent Invitation`,
-        //     html: TALENT_INVITATION_MESSAGE({
-        //         title: req.body.title,
-        //         location: req.body.location,
-        //         date: req.body.date,
-        //         start_time: req.body.start_time,
-        //         end_time: req.body.end_time,
-        //         user
-        //     })
-        // });
+            await sendMessage({
+                to: req.body.guests,
+                subject: `PartyKr8 Event: ${req.body.title}`,
+                html: EVENT_INVITE_MESSAGE({
+                    title: req.body.title,
+                    message_to_guest: req.body.message_to_guest,
+                    location: req.body.location,
+                    date: req.body.date,
+                    start_time: req.body.start_time,
+                    end_time: req.body.end_time,
+                    user
+                })
+            });
+        }
+
+
+        await sendMessage({
+            to: talentEmails,
+            subject: `Talent Invitation`,
+            html: TALENT_INVITATION_MESSAGE({
+                title: req.body.title,
+                location: req.body.location,
+                date: req.body.date,
+                start_time: req.body.start_time,
+                end_time: req.body.end_time,
+                user
+            })
+        });
 
         return res.status(200).json({
             message: 'Event has been created successfully!',
@@ -410,13 +425,15 @@ const UpdateEventStatus = async (req, res, next) => {
             return res.status(400).json({ errors: "Invalid Status" });
         }
 
+        const { status } = req.body;
+
         await Event.UPDATE(
             {
                 id: req.body.event_id,
                 user_id: req.user.id
             },
             {
-                status: req.body.status
+                status: status
             }
         );
 
@@ -452,7 +469,7 @@ const SendEventInvite = async (req, res, next) => {
             id: req.user.id
         });
 
-        console.log('Guestssss', guests)
+
 
         for (let guest of guests) {
             await EventGuest.UPSERT(
@@ -480,17 +497,10 @@ const SendEventInvite = async (req, res, next) => {
             where: {
                 id: event_id
             },
-            include: [
-                {
-                    model: db.event_guests,
-                    attributes: [
-                        'email'
-                    ]
-                }
-
-            ]
+            ...WITH_USERS_AND_TALENTS
         });
 
+    
         if (send_invite) {
             await sendMessage({
                 to: guests,
@@ -513,6 +523,7 @@ const SendEventInvite = async (req, res, next) => {
         return res.status(200).json({
             message: "Guest has been updated successfully",
             guests,
+            event,
             custom_message
         });
     }
@@ -540,7 +551,7 @@ const GetJoinedEvents = async (req, res, next) => {
         const response = await EventGuest.GET_ALL({
             where: {
                 email
-            } ,
+            },
             // attributes: [[sequelize.fn('DISTINCT', sequelize.col('event_guests.event_id')), 'alias_name']],
             distinct: true,
             attributes: ['event_id'],
