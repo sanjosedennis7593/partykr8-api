@@ -365,7 +365,7 @@ const CreateRefund = async (req, res, next) => {
             EventRefund.CREATE({
                 event_id,
                 refund_id: refundResponse.data.id,
-                amount,
+                amount: amount / 100,
                 reason: notes
             });
         }
@@ -396,7 +396,7 @@ const GetRefundById = async (req, res, next) => {
         const refundResponse = await retrieveRefundById(id);
 
         return res.status(200).json({
-            data: refundResponse
+            refund: refundResponse
         });
     }
     catch (err) {

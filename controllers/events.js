@@ -31,6 +31,9 @@ const WITH_USERS_AND_TALENTS = {
             model: db.event_guests
         },
         {
+            model: db.event_refund
+        },
+        {
             model: db.event_payments,
             attributes: [
                 'amount',
