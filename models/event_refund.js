@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-    const EventTalents = sequelize.define("event_talents", {
-        id: {
+    const EventRefund = sequelize.define("event_refund", {
+        event_refund_id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
             primaryKey: true,
@@ -8,18 +8,18 @@ module.exports = (sequelize, Sequelize) => {
         event_id: {
             type: Sequelize.INTEGER
         },
-        talent_id: {
+        refund_id: {
+            type: Sequelize.STRING
+        },
+        amount: {
             type: Sequelize.INTEGER
         },
+        reason: {
+            type: Sequelize.STRING
+        },
+
         status: {
-            type: Sequelize.STRING,
-            defaultValue: 'pending'
-        },
-        service_rate: {
-            type: Sequelize.INTEGER,
-        },
-        private_fee: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING
         },
         createdAt: {
             type: Sequelize.DATE,
@@ -29,5 +29,5 @@ module.exports = (sequelize, Sequelize) => {
         },
     });
 
-    return EventTalents;
+    return EventRefund;
 };

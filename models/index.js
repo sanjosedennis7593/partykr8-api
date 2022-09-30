@@ -8,9 +8,10 @@ models.talents = require("./talents")(db.connection, db.library);
 models.talent_valid_ids = require("./talent_valid_ids")(db.connection, db.library);
 models.events = require("./events")(db.connection, db.library);
 models.event_guests = require("./event_guests")(db.connection, db.library);
+models.event_refund = require("./event_refund")(db.connection, db.library);
 models.event_talents = require("./event_talents")(db.connection, db.library);
 models.event_payments = require("./event_payments")(db.connection, db.library);
-models.event_payment_details = require("./event_payment_details")(db.connection, db.library);
+// models.event_payment_details = require("./event_payment_details")(db.connection, db.library);
 models.talent_update_request = require("./talent_update_request")(db.connection, db.library);
 models.talent_ratings = require("./talent_ratings")(db.connection, db.library);
 models.user_ratings = require("./user_ratings")(db.connection, db.library);
@@ -94,15 +95,15 @@ models.event_payments.belongsTo(models.events, {
     sourceKey: 'id'
 });
 
-models.event_payments.hasMany(models.event_payment_details, {
-    foreignKey: 'event_payment_id',
-    sourceKey: 'event_payment_id'
-});
+// models.event_payments.hasMany(models.event_payment_details, {
+//     foreignKey: 'event_payment_id',
+//     sourceKey: 'event_payment_id'
+// });
 
-models.event_payment_details.belongsTo(models.talents, {
-    foreignKey: 'talent_id',
-    sourceKey: 'id'
-});
+// models.event_payment_details.belongsTo(models.talents, {
+//     foreignKey: 'talent_id',
+//     sourceKey: 'id'
+// });
 
 
 
@@ -162,6 +163,17 @@ models.user_ratings.belongsTo(models.users, {
     sourceKey: 'id'
 });
 
+
+models.events.hasOne(models.event_refund, {
+    foreignKey: 'event_id',
+    sourceKey: 'id'
+});
+
+
+models.event_refund.belongsTo(models.events, {
+    foreignKey: 'event_id',
+    sourceKey: 'id'
+});
 
 
 

@@ -24,6 +24,7 @@ const WITH_USERS_AND_TALENTS = {
                 'email',
                 'lastname',
                 'firstname',
+                'avatar_url'
             ]
         },
         {
@@ -41,6 +42,7 @@ const WITH_USERS_AND_TALENTS = {
                                 'email',
                                 'lastname',
                                 'firstname',
+                                'avatar_url'
                             ]
                         },
                         {
