@@ -17,7 +17,9 @@ import Table from '../helpers/database';
 import db from '../models';
 
 
+const Events = new Table(db.events);
 const EventPayments = new Table(db.event_payments);
+const EventRefund = new Table(db.event_refund);
 
 const GetPayments = async (req, res, next) => {
 
@@ -358,6 +360,15 @@ const CreateRefund = async (req, res, next) => {
             notes,
             reason
         });
+        
+        if(refundResponse && refundResponse.data) {
+            EventRefund.CREATE({
+                event_id,
+                refund_id: refundResponse.data.id,
+                amount,
+                reason: notes
+            });
+        }
 
 
         return res.status(200).json({
@@ -366,7 +377,7 @@ const CreateRefund = async (req, res, next) => {
         });
     }
     catch (err) {
-        console.log('Error', err)
+        // console.log('Error ', err.response.data)
         return res.status(400).json({
             error: err.code,
             message: err.response.data

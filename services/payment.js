@@ -238,7 +238,7 @@ const createRefund = async ({
         data: {
             data: {
                 attributes: {
-                    amount,
+                    amount: amount,
                     payment_id,
                     notes,
                     reason
