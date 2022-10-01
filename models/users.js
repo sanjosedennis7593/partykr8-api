@@ -27,6 +27,9 @@ module.exports = (sequelize, Sequelize) => {
       firstname: {
         type: Sequelize.STRING,
       },
+      gender: {
+        type: Sequelize.STRING
+      },
       avatar_url: {
         type: Sequelize.STRING,
       },
@@ -48,6 +51,14 @@ module.exports = (sequelize, Sequelize) => {
       country: {
         type: Sequelize.STRING,
       },
+      lat: {
+        type: Sequelize.DECIMAL(10, 5),
+        defaultValue: null
+    },
+    lng: {
+        type: Sequelize.DECIMAL(10, 5),
+        defaultValue: null
+    },
       last_login: {
         type: Sequelize.DATE,
       },

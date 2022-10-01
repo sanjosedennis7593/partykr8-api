@@ -14,6 +14,9 @@ module.exports = (sequelize, Sequelize) => {
         type: {
             type: Sequelize.STRING
         },
+        venue_type: {
+            type: Sequelize.STRING
+        },
         location: {
             type: Sequelize.STRING
         },

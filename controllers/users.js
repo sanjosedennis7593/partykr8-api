@@ -71,11 +71,14 @@ const UpdateUserDetails = async (req, res, next) => {
             email: req.body.email,
             firstname: req.body.firstname,
             lastname: req.body.lastname,
+            gender: req.body.gender,
             address: req.body.address,
             city: req.body.city,
             state: req.body.state,
             country: req.body.country,
             zip: req.body.zip,
+            lat: req.body.lat,
+            lng: req.body.lng,
             phone_number: req.body.phone_number
         };
 

@@ -310,10 +310,13 @@ const SignUpController = async (req, res, next) => {
             avatar_url: req.body.avatar_url,
             firstname: req.body.firstname,
             lastname: req.body.lastname,
+            gender: req.body.gender,
             address: req.body.address,
             city: req.body.city,
             state: req.body.state,
             country: req.body.country,
+            lat: req.body.lat,
+            lng: req.body.lng,
             zip: req.body.zip,
             phone_number: req.body.phone_number,
             role: ROLES.user

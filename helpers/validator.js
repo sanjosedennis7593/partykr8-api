@@ -34,6 +34,8 @@ const TalentSignupValidator = [
     body('instagram_url').not().isEmpty().isURL().withMessage('Instagram URL must be in URL format'),
     body('twitter_url').not().isEmpty().isURL().withMessage('Twitter URL must be in URL format'),
     body('tiktok_url').not().isEmpty().isURL().withMessage('TikTok URL must be in URL format'),
+    body('lat').not().isEmpty(),
+    body('lng').not().isEmpty()
 ];
 
 const ResetPasswordValidator = [
