@@ -1,8 +1,20 @@
 import { format } from 'date-fns';
 import styles from './styles';
 
+
+const background = {
+  birthday:`background-image: url(https://www.pngkey.com/png/full/947-9471251_background-for-birthday-banner-png.png);background-repeat: no-repeat; background-size: 100% ;`,
+  debut: `background-image: url(https://www.pngkey.com/png/full/947-9471251_background-for-birthday-banner-png.png);background-repeat: no-repeat; background-size: 100% ;`,
+  wedding: `background-image: url(https://media.istockphoto.com/photos/styled-stock-photo-feminine-wedding-desktop-with-babys-breath-on-picture-id931476308?b=1&k=20&m=931476308&s=170667a&w=0&h=V4bbUvz1v46QdnQIYCIRj7mWoGBi3P-2xdlTsToMSrQ=);background-repeat: no-repeat; background-size: 100% 100%;`,
+  baptismal: `background-image: url(https://cutewallpaper.org/24/baptism-borders-cliparts/1908627430.jpg);background-repeat: no-repeat; background-size: 100% 100%;`,
+  seminar: `background-image: url(https://img.freepik.com/free-vector/blue-gradient-blank-background-business_53876-120508.jpg);background-repeat: no-repeat; background-size: 100% 100%;`,
+  company_party:  `background-image: url(https://img.freepik.com/free-vector/blue-gradient-blank-background-business_53876-120508.jpg);background-repeat: no-repeat; background-size: 100% 100%;`,
+  school_event:  `background-image: url(https://img.freepik.com/free-photo/colorful-school-accessories-corner-white-background_23-2148050642.jpg);background-repeat: no-repeat; background-size: 100% 100%;`,
+}
+
 const EVENT_INVITE_MESSAGE = ({
     title = '',
+    type = '',
     // message_to_guest = '',
     day = 'Monday',
     location = '',
@@ -11,96 +23,255 @@ const EVENT_INVITE_MESSAGE = ({
     user
 }) => {
 
-    return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-  <html xmlns="http://www.w3.org/1999/xhtml" 
-   xmlns:v="urn:schemas-microsoft-com:vml"
-   xmlns:o="urn:schemas-microsoft-com:office:office">
-  <head>
-    <!-- fix outlook zooming on 120 DPI windows devices -->
+    return `
+    <!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+    xmlns:o="urn:schemas-microsoft-com:office:office">
+
+<head>
+    <title>
+
+    </title>
+    <!--[if !mso]><!-- -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--<![endif]-->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- So that mobile will display zoomed in -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- enable media queries for windows phone 8 -->
-    <meta name="format-detection" content="date=no"> <!-- disable auto date linking in iOS 7-9 -->
-    <meta name="format-detection" content="telephone=no"> <!-- disable auto telephone linking in iOS 7-9 -->
-    <title>Single Column</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
-    ${styles}
-  </style>
-  </head>
-  
-  <body style="margin:0; padding:0;" bgcolor="#F0F0F0" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
-  
-  
-  <table border="0" width="100%" height="100%" cellpadding="0" cellspacing="0" bgcolor="#F0F0F0">
-    <tr>
-      <td align="center" valign="top" bgcolor="#F0F0F0" style="background-color: #F0F0F0;">
-  
-        <br>
-  
-        <!-- 600px container (white background) -->
-        <table border="0" width="600" cellpadding="0" cellspacing="0" class="container" style="width:600px;max-width:600px">
-          <tr>
-            <td class="container-padding header" align="left" style="font-family:Helvetica, Arial, sans-serif;font-size:24px;font-weight:bold;padding-bottom:12px;color:#DF4726;padding-left:24px;padding-right:24px">
-              PartyKr8 Event
-            </td>
-          </tr>
-          <tr>
-            <td class="container-padding content" align="left" style="padding-left:24px;padding-right:24px;padding-top:12px;padding-bottom:12px;background-color:#ffffff">
-              <br>
-  
-              <div class="title" style="font-family:Helvetica, Arial, sans-serif;font-size:18px;font-weight:600;color:#374550">${title}</div>
-  <br>
-  
-  <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
-      ${/* message_to_guest */``}
-  
-      Dear Recipient,
-    <br><br>
-   
-    I would like to invite you to join us for an event/party on ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} at ${time} in the evening as we celebrate our ${title}.
-    The party will be held at (venue) ${location} .
-    <br><br>
-    I hope to see you in our simple party with the rest of our friends. We are pretty sure that with your presence, our very special day would be perfect. 
-    <br><br>
-    On the other hand, this party is also open to people who you want to be with. We are looking forward to meeting you to the party.
-    <br><br>
-    We have booked this event through PARTYKR8 App available in Appstore and Play store for download. Please click this link to view our booking - LINK
-    If you like to experience hassle free party experience use PARTKR8. 
-    Download the app now and register! Several Party service providers such as lights and sounds provider, DJs, singers, hosts, magicians, bands and many more to choose from to make your event memorable and lively.
-    <br><br><br>
+        #outlook a {
+            padding: 0;
+        }
+
+        .ReadMsgBody {
+            width: 100%;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        .ExternalClass * {
+            line-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table,
+        td {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+
+        p {
+            display: block;
+            margin: 13px 0;
+        }
+    </style>
+    <!--[if !mso]><!-->
+    <style type="text/css">
+        @media only screen and (max-width:480px) {
+            @-ms-viewport {
+                width: 320px;
+            }
+
+            @viewport {
+                width: 320px;
+            }
+        }
+    </style>
+
+
+    <style type="text/css">
+        @media only screen and (min-width:480px) {
+            .mj-column-per-100 {
+                width: 100% !important;
+            }
+        }
+    </style>
+
+
+    <style type="text/css">
+    </style>
+
+</head>
+
+<body style="background-color:#f9f9f9;">
+
+
+    <div style="${background[type]}">
+
+
+
+        <div style="background:#f9f9f9;background-color:#f9f9f9;Margin:0px auto;max-width:600px;">
+
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#f9f9f9;background-color:#f9f9f9;width:100%;">
+                <tbody>
+                    <tr>
+                        <td
+                            style="border-bottom:#333957 solid 5px;direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <div style="background:#fff;background-color:#fff;Margin:0px auto;max-width:600px;">
+
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+                style="background:#fff;background-color:#fff;width:100%;">
+                <tbody>
+                    <tr>
+                        <td
+                            style="border:#dddddd solid 1px;border-top:0px;direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
+            
+
+                            <div class="mj-column-per-100 outlook-group-fix"
+                                style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:bottom;width:100%;height:100%;">
+
+                                <table border="0" cellpadding="0" cellspacing="0" role="presentation"
+                                    style="vertical-align:bottom;" width="100%">
+                       
+                                    <tr>
+                                        <td align="center"
+                                            style="font-size:0px;padding:10px 25px;padding-bottom:40px;word-break:break-word;">
+
+
+                                            <div
+                                                style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:28px;font-weight:bold;line-height:1;text-align:center;color:#555;">
+                                                <br />
+
+                                                PartyKr8 Event
+                                            </div>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+
+                                            <div
+                                                style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:22px;text-align:left;color:black; padding: 5px">
+                                                Hello!<br></br>
+                                                </br>
+
+                                                I would like to invite you to join us for an event/party on ${format(new
+                                                Date(date), 'EEEE, MMMM dd, yyyy')} at ${time} in the evening as we
+                                                celebrate our ${title}.
+                                                The party will be held at (venue) ${location} .
+                                                <br><br>
+                                                I hope to see you in our simple party with the rest of our friends. We
+                                                are pretty sure that with your presence, our very special day would be
+                                                perfect.
+                                                <br><br>
+                                                On the other hand, this party is also open to people who you want to be
+                                                with. We are looking forward to meeting you to the party.
+                                                <br><br>
+                                                We have booked this event through PARTYKR8 App available in Appstore and
+                                                Play store for download. Please click this link to view our booking -
+                                                LINK
+                                                If you like to experience hassle free party experience use PARTKR8.
+                                                Download the app now and register! Several Party service providers such
+                                                as lights and sounds provider, DJs, singers, hosts, magicians, bands and
+                                                many more to choose from to make your event memorable and lively.
+                                                <br><br>
+                                                Best Wishes,
+                                                <br><br>
+                                                The Celebrators,
+                                                <br>
+                                                ${`${user.firstname} ${user.lastname}`}
+                                                <br>
+                                                PartyKr8 user
+                                                <br>
+                                                <br> <br> <br> <br> <br>
+                                                <br>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                         
+                                    <tr>
+                                        <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+
+                                            <div
+                                                style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:20px;text-align:left;color:#525252;">
+                                                <!-- Best regards,<br><br> Csaba Kissi<br>Elerion ltd., CEO and Founder<br> -->
+                                                <!-- <a href="https://www.htmlemailtemplates.net" style="color:#2F67F6">htmlemailtemplates.net</a> -->
+                                            </div>
+
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="container-padding footer-text" align="left" style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;padding-left:24px;padding-right:24px">
+                                          <br><br>
+                                               2022 PartyKr8.
+                                          <br><br>
+                              
+                                          You are receiving this email because a PartyKr8 user invited you to his/her upcoming event..
+                                          <br><br>
+                                        </td>
+                                      </tr>
+
+                                </table>
+
+                            </div>
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <div style="Margin:0px auto;max-width:600px;">
+
+            <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+                <tbody>
+                    <tr>
+                        <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
+
+                            <div class="mj-column-per-100 outlook-group-fix"
+                                style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:bottom;width:100%;">
+
+                           
+
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+
+
+    </div>
+
+</body>
+
+</html>
     
-  
-    Best Wishes,
-    <br><br>
-    The Celebrators,
-    <br>
-    ${`${user.firstname} ${user.lastname}`}
-    <br>
-    PartyKr8 user
-    <br>
-  </div>
-  
-            </td>
-          </tr>
-          <tr>
-            <td class="container-padding footer-text" align="left" style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;color:#aaaaaa;padding-left:24px;padding-right:24px">
-              <br><br>
-                   2022 PartyKr8.
-              <br><br>
-  
-              You are receiving this email because a PartyKr8 user invited you to his/her upcoming event..
-              <br><br>
-            </td>
-          </tr>
-        </table>
-  
-      </td>
-    </tr>
-  </table>
-  
-  </body>
-  </html>`;
+    
+    `;
 };
 
 export default EVENT_INVITE_MESSAGE;

@@ -129,6 +129,31 @@ const GetEvent = async (req, res, next) => {
     }
 };
 
+const GetAllEventsByStatus = async (req, res, next) => {
+    try {
+
+        const events = await Event.GET_ALL({
+            where: {
+                status: req.params.status,
+            },
+            order: [['date', 'asc']],
+            ...WITH_USERS_AND_TALENTS
+        })
+
+        return res.status(200).json({
+            events: events
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
 
 
 const CreateEvents = async (req, res, next) => {
@@ -274,6 +299,7 @@ const CreateEvents = async (req, res, next) => {
                 subject: `PartyKr8 Event: ${req.body.title}`,
                 html: EVENT_INVITE_MESSAGE({
                     title: req.body.title,
+                    type: req.body.type,
                     message_to_guest: req.body.message_to_guest,
                     location: req.body.location,
                     date: req.body.date,
@@ -510,6 +536,7 @@ const SendEventInvite = async (req, res, next) => {
                 subject: `PartyKr8 Event: ${event.title}`,
                 html: EVENT_INVITE_MESSAGE({
                     title: event.title,
+                    type: event.type,
                     message_to_guest: custom_message || req.body.message_to_guest,
                     location: event.location,
                     date: event.date,
@@ -607,5 +634,6 @@ export {
     UpdateEventTalentStatus,
     UpdateEventStatus,
     SendEventInvite,
-    GetJoinedEvents
+    GetJoinedEvents,
+    GetAllEventsByStatus
 };
