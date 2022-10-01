@@ -623,6 +623,68 @@ const GetJoinedEvents = async (req, res, next) => {
 };
 
 
+const GetEventTalents =  async (req, res, next) => {
+    try {
+
+        const { payout_received = 0 } = req.query;
+
+        const whereQuery = payout_received !== null ? {
+            where: {
+                payout_received
+            }
+        } : {};
+
+        const eventTalents = await EventTalent.GET_ALL({
+            ...whereQuery,
+
+            include: [
+                {
+                    model: db.events,
+                    attributes: [
+                        'title',
+                        'status'
+                    ]
+                },
+                {
+                    model: db.talents,
+                    attributes: [
+                        'avatar_url_1',
+                        'type',
+                        'commission_rate',
+                        'private_fee',
+                        'service_rate',
+                        'service_rate_type'
+                    ],
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: [
+                                'id',
+                                'firstname',
+                                'lastname',
+                                'email'
+                            ]
+                        }, 
+                    ]
+                },
+            ]
+        });
+
+        return res.status(201).json({
+            event_talents: eventTalents
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
 
 
 
@@ -635,5 +697,6 @@ export {
     UpdateEventStatus,
     SendEventInvite,
     GetJoinedEvents,
-    GetAllEventsByStatus
+    GetAllEventsByStatus,
+    GetEventTalents
 };
