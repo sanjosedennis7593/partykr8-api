@@ -24,12 +24,12 @@ models.talents.belongsTo(models.users, {
     sourceKey: 'id'
 });
 
-models.talent_valid_ids.belongsTo(models.talents, {
+models.talents.hasMany(models.talent_valid_ids, {
     foreignKey: 'talent_id',
     sourceKey: 'id'
 });
 
-models.talents.hasMany(models.talent_valid_ids, {
+models.talent_valid_ids.belongsTo(models.talents, {
     foreignKey: 'talent_id',
     sourceKey: 'id'
 });

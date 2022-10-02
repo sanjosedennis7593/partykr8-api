@@ -64,8 +64,10 @@ const GetTalents = async (req, res, next) => {
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
         let status = req.query.status || 'approved';
 
-        let whereClause = status === 'all' ? {} : { where: status }
-
+        let whereClause = status === 'all' ? {} : { where: {
+            status
+        } }
+        console.log('whereClause',whereClause)
         const talents = await Talent.GET_ALL({
             ...distanceOptions,
             ...whereClause,
@@ -236,7 +238,10 @@ const TalentSignUp = async (req, res, next) => {
             status: TALENT_STATUS[req.body.status],
             user_id: req.user.id,
             commission_rate:  req.body.commission_rate,
-            status: TALENT_STATUS.pending
+            status: TALENT_STATUS.pending,
+            gcash_no:  req.body.gcash_no,
+            lat: req.body.lat,
+            lat: req.body.lng,
         };
 
         const currentTalent = await Talent.CREATE({
@@ -274,7 +279,7 @@ const TalentSignUp = async (req, res, next) => {
 
                             const s3Response = await uploadFile(s3Params);
                             if (s3Response) {
-                                TalentValidIds.CREATE({
+                                await TalentValidIds.CREATE({
                                     talent_id: currentTalent.id,
                                     valid_id_url: s3Response.Key
                                 })
