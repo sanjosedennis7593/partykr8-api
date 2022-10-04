@@ -41,11 +41,11 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         lat: {
-            type: Sequelize.DECIMAL(10, 5),
+            type: Sequelize.DECIMAL(10, 7),
             defaultValue: null
         },
         lng: {
-            type: Sequelize.DECIMAL(10, 5),
+            type: Sequelize.DECIMAL(10, 7),
             defaultValue: null
         },
 

@@ -10,7 +10,8 @@ import {
     SendEventInvite, 
     GetJoinedEvents, 
     GetAllEventsByStatus,
-    GetEventTalents
+    GetEventTalents,
+    UpdateEventTalents
 } from '../controllers/events';
 
 // import { UpdateUserDetailsValidator } from '../helpers/validator';
@@ -26,6 +27,7 @@ router.post('/create', CreateEvents);
 router.post('/invite/send', SendEventInvite);
 router.put('/details/update', UpdateEventDetails);
 router.put('/status/update', UpdateEventStatus);
+router.put('/talents', UpdateEventTalents);
 router.put('/talent/status/update', UpdateEventTalentStatus);
 
 

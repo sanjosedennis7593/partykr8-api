@@ -1,11 +1,11 @@
 // import { validationResult } from 'express-validator';
 import sequelize, { Op } from 'sequelize';
-import { format, isAfter, isBefore, isEqual, differenceInHours } from 'date-fns';
+import { format, isAfter, isBefore, isEqual, addDays } from 'date-fns';
 
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { EVENT_INVITE_MESSAGE, TALENT_INVITATION_MESSAGE } from '../helpers/mail_templates';
+import { EVENT_INVITE_MESSAGE, TALENT_INVITATION_MESSAGE, UPDATE_TALENT_STATUS } from '../helpers/mail_templates';
 import db from '../models';
 
 
@@ -38,7 +38,13 @@ const WITH_USERS_AND_TALENTS = {
             attributes: [
                 'amount',
                 'payment_type',
-                'payment_id'
+                'payment_id',
+                'status'
+            ],
+            include: [
+                {
+                    model: db.event_payment_details
+                }
             ]
         },
         {
@@ -85,6 +91,7 @@ const WITH_USERS_AND_TALENTS = {
 
 const GetEvents = async (req, res, next) => {
     try {
+        console.log('req.user.id', req.user.id)
 
         const events = await Event.GET_ALL({
             where: {
@@ -93,6 +100,8 @@ const GetEvents = async (req, res, next) => {
             order: [['date', 'asc']],
             ...WITH_USERS_AND_TALENTS
         })
+
+        console.log('req.user.id events', events)
         return res.status(200).json({
             data: events
         });
@@ -164,10 +173,13 @@ const CreateEvents = async (req, res, next) => {
             type: req.body.type,
             venue_type: req.body.venue_type,
             location: req.body.location,
+            lat: req.body.lat,
+            lng: req.body.lng,
             date: req.body.date,
             start_time: req.body.start_time,
             end_time: req.body.end_time,
-            message_to_guest: req.body.message_to_guest
+            message_to_guest: req.body.message_to_guest,
+            status: 'pending'
         };
 
         const createdEventDateTimeStart = new Date(`${event.date} ${event.start_time}`);
@@ -179,7 +191,7 @@ const CreateEvents = async (req, res, next) => {
             id: req.user.id
         });
 
-        const talentIds = req.body.talents.map(talent => talent.id);
+        const talentIds = req.body.talents && req.body.talents.map(talent => talent.id);
 
         const talentUsers = req.body.talents && req.body.talents.length > 0 ? await Talent.GET_ALL({
             where: {
@@ -276,6 +288,9 @@ const CreateEvents = async (req, res, next) => {
                 talent_id: talent.id,
                 service_rate: talent.service_rate,
                 private_fee: talent.private_fee,
+                payment_expiration: talent.payment_expiration,
+                invitation_expiration: talent.invitation_expiration,
+                payment_type: talent.payment_type,
                 event_id: response.id
             }
         }) : [];
@@ -311,19 +326,21 @@ const CreateEvents = async (req, res, next) => {
             });
         }
 
+        if (talentEmails.length > 0) {
+            await sendMessage({
+                to: talentEmails,
+                subject: `Talent Invitation`,
+                html: TALENT_INVITATION_MESSAGE({
+                    title: req.body.title,
+                    location: req.body.location,
+                    date: req.body.date,
+                    start_time: req.body.start_time,
+                    end_time: req.body.end_time,
+                    user
+                })
+            });
 
-        await sendMessage({
-            to: talentEmails,
-            subject: `Talent Invitation`,
-            html: TALENT_INVITATION_MESSAGE({
-                title: req.body.title,
-                location: req.body.location,
-                date: req.body.date,
-                start_time: req.body.start_time,
-                end_time: req.body.end_time,
-                user
-            })
-        });
+        }
 
         return res.status(200).json({
             message: 'Event has been created successfully!',
@@ -419,21 +436,183 @@ const UpdateEventDetails = async (req, res, next) => {
     }
 };
 
+
+const UpdateEventTalents = async (req, res, next) => {
+    try {
+
+        const { event_talents } = req.body;
+
+        console.log('event_talents', event_talents)
+
+        for (let talent of event_talents) {
+            await EventTalent.UPSERT(
+                {
+                    talent_id: talent.talent_id,
+                    event_id: talent.event_id,
+
+                },
+                {
+                    talent: talent.talent_id,
+                    event_id: talent.event_id,
+                    service_rate: talent.service_rate,
+                    private_fee: talent.private_fee,
+                    status: 'pending'
+                }
+            )
+        }
+
+
+
+
+        const eventTalents = await EventTalent.GET_ALL({
+            where: {
+                event_id: event_talents[0].talent_id
+            },
+            include: [
+                {
+                    model: db.talents,
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: [
+                                'email',
+                                'lastname',
+                                'firstname',
+                                'avatar_url'
+                            ]
+                        },
+                        {
+                            model: db.event_talents,
+                            attributes: [
+                                'event_id',
+                                'status',
+                                'id'
+                            ],
+                            include: [
+                                {
+                                    model: db.events,
+                                    attributes: [
+                                        'title',
+                                        'date',
+                                        'start_time',
+                                        'end_time',
+                                    ]
+                                }
+                            ]
+                        },
+                    ]
+                }
+            ]
+        });
+
+
+
+        return res.status(201).json({
+            message: "Event talent has been updated successfully!",
+            event_talents: eventTalents
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
+
 const UpdateEventTalentStatus = async (req, res, next) => {
     try {
         if (!TALENT_STATUS[req.body.status]) {
             return res.status(400).json({ errors: "Invalid Status" });
         }
 
-        await EventTalent.UPDATE(
+        const { event_id, status, talent_id, expiration_date = null } = req.body;
+
+        await Event.UPDATE(
             {
-                event_id: req.body.event_id,
-                talent_id: req.body.talent_id
+                id: event_id
             },
             {
-                status: req.body.status
+                payment_expiration: expiration_date
             }
         );
+
+
+
+        await EventTalent.UPDATE(
+            {
+                event_id,
+                talent_id
+            },
+            {
+                status
+            }
+        );
+
+        const talent = await Talent.GET({
+            where: {
+                id: talent_id
+            },
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'id',
+                        'email',
+                        'lastname',
+                        'firstname',
+                        'avatar_url'
+                    ]
+                }
+
+            ]
+        });
+
+        const event = await Event.GET({
+            where: {
+                id: event_id
+            },
+            include: [
+                {
+                    model: db.users,
+                    attributes: [
+                        'id',
+                        'email',
+                        'lastname',
+                        'firstname',
+                        'avatar_url'
+                    ]
+                }
+
+            ]
+        });
+       
+
+        if (event && event.dataValues && talent && talent.dataValues) {
+
+            const currentTalent = talent.dataValues.user.dataValues;
+            const talentName = `${currentTalent.firstname} ${currentTalent.lastname}`
+            await sendMessage({
+                to: event.dataValues.user.email,
+                subject: `PartyKr8 Event: ${talentName} ${status} your event ${event.title} invitation`,
+                html: UPDATE_TALENT_STATUS({
+                    user:{
+                        ...event.dataValues.user.dataValues
+                    },
+                    talent:{
+                        ...(currentTalent || {})
+                    },
+                    status
+
+                })
+            });
+        }
+
+
+
+
 
 
         return res.status(200).json({
@@ -531,7 +710,7 @@ const SendEventInvite = async (req, res, next) => {
             ...WITH_USERS_AND_TALENTS
         });
 
-    
+
         if (send_invite) {
             await sendMessage({
                 to: guests,
@@ -625,7 +804,7 @@ const GetJoinedEvents = async (req, res, next) => {
 };
 
 
-const GetEventTalents =  async (req, res, next) => {
+const GetEventTalents = async (req, res, next) => {
     try {
 
         const { payout_received = 0 } = req.query;
@@ -666,7 +845,7 @@ const GetEventTalents =  async (req, res, next) => {
                                 'lastname',
                                 'email'
                             ]
-                        }, 
+                        },
                     ]
                 },
             ]
@@ -700,5 +879,6 @@ export {
     SendEventInvite,
     GetJoinedEvents,
     GetAllEventsByStatus,
-    GetEventTalents
+    GetEventTalents,
+    UpdateEventTalents
 };

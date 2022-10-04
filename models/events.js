@@ -28,7 +28,9 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.DECIMAL(10, 5),
             defaultValue: null
         },
-
+        payment_expiration: {
+            type: Sequelize.DATE
+        },
         date: {
             type: Sequelize.DATE
         },

@@ -64,16 +64,51 @@ const GetTalents = async (req, res, next) => {
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
         let status = req.query.status || 'approved';
 
-        let whereClause = status === 'all' ? {} : { where: {
-            status
-        } }
-        console.log('whereClause',whereClause)
+        let queries = {};
+        let userQueries = {};
+
+        const filters = Object.keys(req.query).reduce((accum, key) => {
+            if (key !== 'lat' && key !== 'lng' && key !== 'status' && key !== 'gender' && key !== 'address') {
+                return {
+                    ...accum,
+                    [key]: req.query[key]
+                }
+            }
+
+            return accum;
+        }, {})
+
+        console.log('req.query', req.query)
+        if (req.query.gender) {
+            if (req.query.gender !== 'both') {
+                userQueries = {
+                    gender: req.query.gender
+                }
+            }
+
+
+
+        }
+
+
+
+        let whereClause = status === 'all' ? {} : {
+            where: {
+                ...filters,
+                status
+            }
+        }
+        console.log('whereClause', whereClause)
+        console.log('whereClause distanceOptions', distanceOptions)
         const talents = await Talent.GET_ALL({
             ...distanceOptions,
-            ...whereClause,
+           ...whereClause,
             include: [
                 {
                     model: db.users,
+                    where: {
+                        ...userQueries
+                    },
                     attributes: [
                         'email',
                         'lastname',
@@ -237,9 +272,9 @@ const TalentSignUp = async (req, res, next) => {
             tiktok_url: req.body.tiktok_url,
             status: TALENT_STATUS[req.body.status],
             user_id: req.user.id,
-            commission_rate:  req.body.commission_rate,
+            commission_rate: req.body.commission_rate,
             status: TALENT_STATUS.pending,
-            gcash_no:  req.body.gcash_no,
+            gcash_no: req.body.gcash_no,
             lat: req.body.lat,
             lat: req.body.lng,
         };
@@ -342,6 +377,7 @@ const TalentUpdateStatus = async (req, res, next) => {
             }
         );
 
+
         // const talentUser = await User.GET({
         //     id: talent.user_id
         // })
@@ -354,6 +390,7 @@ const TalentUpdateStatus = async (req, res, next) => {
                 {
                     model: db.users,
                     attributes: [
+                        'id',
                         'email',
                         'lastname',
                         'firstname',
@@ -367,6 +404,19 @@ const TalentUpdateStatus = async (req, res, next) => {
                 },
             ]
         });
+
+        console.log('talentUser',talentUser)
+        if (talentUser && talentUser.dataValues && talentUser.dataValues.user) {
+
+            await User.UPDATE(
+                {
+                    id: talentUser.dataValues.user.id
+                },
+                {
+                    role: 'talent'
+                }
+            );
+        }
         if (talentUser && talentUser.dataValues && req.body.status === TALENT_STATUS.approved) {
             await sendMessage({
                 to: talentUser.dataValues.user.email,

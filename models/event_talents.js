@@ -21,10 +21,19 @@ module.exports = (sequelize, Sequelize) => {
         private_fee: {
             type: Sequelize.INTEGER,
         },
-
+        payment_type: {
+            type: Sequelize.STRING,
+        },
+        is_paid: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
         payout_received: {
             type: Sequelize.INTEGER,
             defaultValue:0
+        },
+        invitation_expiration: {
+            type: Sequelize.DATE
         },
         ref_id: {
             type: Sequelize.STRING
