@@ -41,6 +41,14 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
             'type',
             'genre',
             'address',
+            'lat',
+            'lng',
+            'avatar_url_1',
+            'service_rate',
+            'private_fee',
+            'equipment_provided',
+            'venue_type',
+            'service_type',
             [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
         ],
         order: sequelize.col('distance'),
@@ -61,14 +69,26 @@ const GetTalents = async (req, res, next) => {
 
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
+
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
+
+        // const equipmentProvided = req.query.equipment_provided  === 'both' || !req.query.equipment_provided ? {} : {
+        //     equipment_provided: req.query.equipment_provided
+        // };
         let status = req.query.status || 'approved';
 
         let queries = {};
         let userQueries = {};
 
-        const filters = Object.keys(req.query).reduce((accum, key) => {
+
+        let filters = Object.keys(req.query).reduce((accum, key) => {
             if (key !== 'lat' && key !== 'lng' && key !== 'status' && key !== 'gender' && key !== 'address') {
+
+                if (key === 'equipment_provided' && req.query[key] === 'both') {
+                    return {
+                        ...accum
+                    }
+                }
                 return {
                     ...accum,
                     [key]: req.query[key]
@@ -76,9 +96,9 @@ const GetTalents = async (req, res, next) => {
             }
 
             return accum;
-        }, {})
+        }, {});
 
-        console.log('req.query', req.query)
+
         if (req.query.gender) {
             if (req.query.gender !== 'both') {
                 userQueries = {
@@ -86,10 +106,7 @@ const GetTalents = async (req, res, next) => {
                 }
             }
 
-
-
         }
-
 
 
         let whereClause = status === 'all' ? {} : {
@@ -98,11 +115,13 @@ const GetTalents = async (req, res, next) => {
                 status
             }
         }
-        console.log('whereClause', whereClause)
-        console.log('whereClause distanceOptions', distanceOptions)
+
+        console.log('filters whereClause', whereClause)
+        // console.log('whereClause', whereClause)
+        // console.log('whereClause distanceOptions', distanceOptions)
         const talents = await Talent.GET_ALL({
             ...distanceOptions,
-           ...whereClause,
+            ...whereClause,
             include: [
                 {
                     model: db.users,
@@ -276,7 +295,34 @@ const TalentSignUp = async (req, res, next) => {
             status: TALENT_STATUS.pending,
             gcash_no: req.body.gcash_no,
             lat: req.body.lat,
-            lat: req.body.lng,
+            lng: req.body.lng,
+            equipment_provided: req.body.equipment_provided,
+            venue_type: req.body.venue_type,
+            area_coverage: req.body.area_coverage,
+            service_type: req.body.service_type,
+
+            description: req.body.description,
+
+            birthday_rate_per_hour:  req.body.birthday_rate_per_hour || 0,
+            birthday_rate_per_day: req.body.birthday_rate_per_day || 0,
+
+            debut_rate_per_hour: req.body.debut_rate_per_hour || 0,
+            debut_rate_per_day:  req.body.debut_rate_per_day || 0,
+
+            wedding_rate_per_hour:  req.body.wedding_rate_per_hour || 0,
+            wedding_rate_per_day:  req.body.wedding_rate_per_day || 0,
+
+            baptismal_rate_per_hour:  req.body.baptismal_rate_per_hour || 0,
+            baptismal_rate_per_day:  req.body.baptismal_rate_per_day || 0,
+
+            seminar_rate_per_hour:  req.body.seminar_rate_per_hour || 0,
+            seminar_rate_per_day:  req.body.seminar_rate_per_day || 0,
+
+            company_party_rate_per_hour:  req.body.company_party_rate_per_hour || 0,
+            company_party_rate_per_day:  req.body.company_party_rate_per_day || 0,
+
+            school_event_rate_per_hour:  req.body.school_event_rate_per_hour || 0,
+            school_event_rate_per_day:  req.body.school_event_rate_per_day || 0,
         };
 
         const currentTalent = await Talent.CREATE({
@@ -405,7 +451,7 @@ const TalentUpdateStatus = async (req, res, next) => {
             ]
         });
 
-        console.log('talentUser',talentUser)
+        console.log('talentUser', talentUser)
         if (talentUser && talentUser.dataValues && talentUser.dataValues.user) {
 
             await User.UPDATE(

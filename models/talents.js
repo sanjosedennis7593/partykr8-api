@@ -8,6 +8,13 @@ module.exports = (sequelize, Sequelize) => {
         user_id: {
             type: Sequelize.INTEGER
         },
+        service_type: {
+            type: Sequelize.STRING
+        },
+        description: {
+            type: Sequelize.STRING
+        },
+
         avatar_url_1: {
             type: Sequelize.STRING
         },
@@ -27,6 +34,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             defaultValue: 1
         },
+        equipment_provided: {
+            type: Sequelize.STRING,
+            defaultValue: ''
+        },
         private_fee: {
             type: Sequelize.INTEGER
         },
@@ -37,8 +48,54 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
 
-        address: {
-            type: Sequelize.STRING
+        birthday_rate_per_hour: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        birthday_rate_per_day: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        debut_rate_per_hour: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        debut_rate_per_day: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        wedding_rate_per_hour: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        wedding_rate_per_day: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        baptismal_rate_per_day: {
+            type: Sequelize.INTEGER
+        },
+        baptismal_rate_per_hour: {
+            type: Sequelize.INTEGER
+        },
+        seminar_rate_per_hour: {
+            type: Sequelize.INTEGER
+        },
+        seminar_rate_per_day: {
+            type: Sequelize.INTEGER
+        },
+
+        company_party_rate_per_hour: {
+            type: Sequelize.INTEGER
+        },
+        company_party_rate_per_day: {
+            type: Sequelize.INTEGER
+        },
+        school_event_rate_per_hour: {
+            type: Sequelize.INTEGER
+        },
+        school_event_rate_per_day: {
+            type: Sequelize.INTEGER
         },
         lat: {
             type: Sequelize.DECIMAL(10, 7),
@@ -74,6 +131,17 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             defaultValue: 'pending'
         },
+
+        // PARTNERS
+        venue_type: {
+            type: Sequelize.STRING,
+            defaultValue: ''
+        },
+        area_coverage: {
+            type: Sequelize.STRING
+        },
+
+
         createdAt: {
             type: Sequelize.DATE,
         },

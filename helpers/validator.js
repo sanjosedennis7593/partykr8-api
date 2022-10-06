@@ -26,7 +26,7 @@ const TalentSignupValidator = [
     body('address').not().isEmpty().trim().escape(),
     body('phone_number').not().isEmpty().trim().escape(),
     body('type').not().isEmpty().trim().escape(),
-    body('genre').not().isEmpty().trim().escape(),
+    // body('genre').not().isEmpty().trim().escape(),
     body('private_fee').not().isEmpty().isNumeric().withMessage('Private fee must be a decimal value'),
     body('service_rate').not().isEmpty().isNumeric().withMessage('Service rate must be a decimal value'),
     body('service_rate_type').not().isEmpty(),
