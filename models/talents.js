@@ -97,6 +97,9 @@ module.exports = (sequelize, Sequelize) => {
         school_event_rate_per_day: {
             type: Sequelize.INTEGER
         },
+        address: {
+            type: Sequelize.STRING
+        },
         lat: {
             type: Sequelize.DECIMAL(10, 7),
             defaultValue: null

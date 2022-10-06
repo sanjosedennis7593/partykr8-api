@@ -15,12 +15,10 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             defaultValue: 'pending'
         },
-        service_rate: {
+        amount_paid: {
             type: Sequelize.INTEGER,
         },
-        private_fee: {
-            type: Sequelize.INTEGER,
-        },
+
         payment_type: {
             type: Sequelize.STRING,
         },
