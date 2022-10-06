@@ -103,7 +103,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
             selected_talent = []
         } = req.body;
 
-        console.log('selected_talent',selected_talent)
+        console.log('selected_talent', selected_talent)
 
         const eventPaymentResponse = await createPayment({
             id,
@@ -126,7 +126,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
         );
 
 
-        const currentEventPayment = await  EventPayments.GET(
+        const currentEventPayment = await EventPayments.GET(
             {
                 where: {
                     event_id,
@@ -135,9 +135,9 @@ const ConfirmSourcePayment = async (req, res, next) => {
             }
         );
 
-      
-        if (currentEventPayment &&  currentEventPayment.dataValues) {
-    
+
+        if (currentEventPayment && currentEventPayment.dataValues) {
+
             for (let talent of selected_talent) {
                 await EventPaymentDetails.CREATE({
                     event_id,
@@ -213,6 +213,35 @@ const GetSourceById = async (req, res, next) => {
     }
 };
 
+
+const UpdatePaymentIntentStatus = async (req, res, next) => {
+    try {
+        const { payment_intent_id, event_id, payment_id } = req.body;
+
+        await EventPayments.UPSERT(
+            {
+                ref_id: payment_intent_id,
+                event_id
+            },
+            {
+                payment_id,
+                status: 'succeeded'
+            }
+        );
+
+
+        return res.status(200).json({
+            message: 'Success'
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+}
 
 const PaymentSuccessCallback = async (req, res, next) => {
 
@@ -303,6 +332,7 @@ const GetPaymentIntentById = async (req, res, next) => {
             id
         } = req.params;
 
+            console.log('idddddddd', id)
         const paymentIntentResponse = await rerievePaymentIntentById(id);
 
         return res.status(200).json({
@@ -310,6 +340,7 @@ const GetPaymentIntentById = async (req, res, next) => {
         });
     }
     catch (err) {
+        console.log('errrrr', err)
         // console.log('Error ', err.response.data)
         return res.status(400).json({
             error: err.code,
@@ -329,13 +360,17 @@ const AttachPaymentIntent = async (req, res, next) => {
         const {
             event_id,
             payment_method_id,
-            selected_talent
+            selected_talent,
+            return_url
         } = req.body;
+
+        console.log('return_url', return_url)
 
         const paymentIntentResponse = await confirmPaymentIntent({
             payment_intent_id,
             payment_method_id,
-            event_id
+            event_id,
+            return_url
         });
 
         const paymentId = paymentIntentResponse && paymentIntentResponse.data &&
@@ -366,7 +401,7 @@ const AttachPaymentIntent = async (req, res, next) => {
             },
             */
 
-        const currentEventPayment = await  EventPayments.GET(
+        const currentEventPayment = await EventPayments.GET(
             {
                 where: {
                     event_id,
@@ -375,9 +410,9 @@ const AttachPaymentIntent = async (req, res, next) => {
             }
         );
 
-      
-        if (currentEventPayment &&  currentEventPayment.dataValues) {
-    
+
+        if (currentEventPayment && currentEventPayment.dataValues) {
+
             for (let talent of selected_talent) {
                 await EventPaymentDetails.CREATE({
                     event_id,
@@ -510,5 +545,6 @@ export {
     AttachPaymentIntent,
     CreateRefund,
     GetRefundById,
-    GetRefunds
+    GetRefunds,
+    UpdatePaymentIntentStatus
 };

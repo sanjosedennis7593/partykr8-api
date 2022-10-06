@@ -69,7 +69,7 @@ const rerievePaymentIntentById = async id => {
     const options = {
         method: 'GET',
         url: `${PAYMONGO_API}/payment_intents/${id}`,
-        headers: setHeaders(ENCODED_PUBLIC_KEY),
+        headers: setHeaders(ENCODED_SECRET_KEY),
     };
 
     return await axios
@@ -80,9 +80,13 @@ const rerievePaymentIntentById = async id => {
 const confirmPaymentIntent = async ({
     payment_intent_id,
     payment_method_id,
-    event_id
+    event_id,
+    return_url = ''
 }) => {
 
+    let returnUrl = return_url ? {
+        return_url
+    } : {};
     const options = {
         method: 'POST',
         url: `${PAYMONGO_API}/payment_intents/${payment_intent_id}/attach`,
@@ -92,6 +96,7 @@ const confirmPaymentIntent = async ({
                 attributes: {
                     payment_method: payment_method_id,
                     success: `${API_URL}/callback/payment/success?id=${event_id}`,
+                    ...returnUrl
                 }
             }
         }
