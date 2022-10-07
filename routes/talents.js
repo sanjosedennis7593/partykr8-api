@@ -11,7 +11,8 @@ import {
     GetTalentDetailsRequest,
     GetTalentEvents,
     CreateTalentRating,
-    GetTalentRatings
+    GetTalentRatings,
+    GetServiceCounts
 } from '../controllers/talents';
 
 import { fileRequest } from '../helpers/upload';
@@ -26,14 +27,15 @@ const avatarUrlRequests = [
 ];
 
 const signupAvatarRequest = fileRequest.fields([
-    ...avatarUrlRequests,
-     { name: 'valid_ids[]', maxCount: 3 }
+    { name: 'talent_photos[]', maxCount: 5 },
+    { name: 'valid_ids[]', maxCount: 3 }
 ]);
 
 const avatarRequest = fileRequest.fields(avatarUrlRequests);
 
 
 router.get('/', GetTalents);
+router.get('/counts', GetServiceCounts);
 router.get('/:id', GetTalent);
 router.get('/:id/events', GetTalentEvents);
 router.get('/:id/ratings', GetTalentRatings);

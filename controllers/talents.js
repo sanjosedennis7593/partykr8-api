@@ -1,23 +1,25 @@
 import { validationResult } from 'express-validator';
 
-import { TALENT_STATUS, TALENT_TYPES } from '../config/constants';
+import { EVENT_TYPE_RATE_FIELDS, TALENT_STATUS, TALENT_TYPES } from '../config/constants';
 
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
 import { uploadFile } from '../helpers/upload';
 import { TALENT_APPROVED_MESSAGE } from '../helpers/mail_templates';
 
+
 // import { encryptPassword } from '../helpers/password';
 import db from '../models';
 import { format } from 'date-fns';
 
-import sequelize from 'sequelize';
+import sequelize, { Op } from 'sequelize';
 
 
 const EventTalent = new Table(db.event_talents);
 const Talent = new Table(db.talents);
 const TalentUpdateRequest = new Table(db.talent_update_request);
 const TalentRatings = new Table(db.talent_ratings);
+const TalentPhotos = new Table(db.talent_photos);
 const TalentValidIds = new Table(db.talent_valid_ids);
 const User = new Table(db.users);
 
@@ -44,24 +46,18 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
             'lat',
             'lng',
             'avatar_url_1',
-            'service_rate',
-            'private_fee',
-            'birthday_rate_per_hour',
             'birthday_rate_per_day',
-            'debut_rate_per_hour',
             'debut_rate_per_day',
-            'wedding_rate_per_hour',
             'wedding_rate_per_day',
-            'baptismal_rate_per_hour',
             'baptismal_rate_per_day',
-            'seminar_rate_per_hour',
             'seminar_rate_per_day',
-            'company_party_rate_per_hour',
             'company_party_rate_per_day',
-            'school_event_rate_per_hour',
             'school_event_rate_per_day',
-            'seminar_rate_per_hour',
             'seminar_rate_per_day',
+            'service_type',
+            'description',
+            'duration',
+            'venue_type',
 
             [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
         ],
@@ -90,13 +86,14 @@ const GetTalents = async (req, res, next) => {
         //     equipment_provided: req.query.equipment_provided
         // };
         let status = req.query.status || 'approved';
-
+        let eventRateField = EVENT_TYPE_RATE_FIELDS[req.query.event_type]
+        
         let queries = {};
         let userQueries = {};
 
 
         let filters = Object.keys(req.query).reduce((accum, key) => {
-            if (key !== 'lat' && key !== 'lng' && key !== 'status' && key !== 'gender' && key !== 'address') {
+            if (key !== 'lat' && key !== 'lng' && key !== 'status' && key !== 'gender' && key !== 'address' && key !== 'event_type') {
 
                 if (key === 'equipment_provided' && req.query[key] === 'both') {
                     return {
@@ -113,6 +110,18 @@ const GetTalents = async (req, res, next) => {
         }, {});
 
 
+        if(eventRateField) {
+            filters = {
+                ...filters,
+                [eventRateField]: {
+                    [Op.gt]: 0
+                }
+            }
+        };
+
+
+
+   
         if (req.query.gender) {
             if (req.query.gender !== 'both') {
                 userQueries = {
@@ -146,12 +155,19 @@ const GetTalents = async (req, res, next) => {
                         'email',
                         'lastname',
                         'firstname',
+                        'avatar_url',
                     ]
                 },
                 {
                     model: db.talent_valid_ids,
                     attributes: [
                         'valid_id_url'
+                    ]
+                },
+                {
+                    model: db.talent_photos,
+                    attributes: [
+                        'photo_url'
                     ]
                 },
                 {
@@ -211,6 +227,8 @@ const GetTalent = async (req, res, next) => {
                         'email',
                         'lastname',
                         'firstname',
+                        'avatar_url',
+
                     ]
                 },
                 {
@@ -273,11 +291,11 @@ const TalentSignUp = async (req, res, next) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
-        if (!TALENT_TYPES[req.body.type]) {
-            return res.status(400).json({
-                message: 'Talent type is not exist!'
-            });
-        }
+        // if (!TALENT_TYPES[req.body.type]) {
+        //     return res.status(400).json({
+        //         message: 'Talent type is not exist!'
+        //     });
+        // }
 
         const talent = await Talent.GET({
             where: {
@@ -294,9 +312,9 @@ const TalentSignUp = async (req, res, next) => {
         const payload = {
             type: req.body.type,
             genre: req.body.genre,
-            private_fee: req.body.private_fee,
-            service_rate: req.body.service_rate,
-            service_rate_type: req.body.service_rate_type,
+            // private_fee: req.body.private_fee,
+            // service_rate: req.body.service_rate,
+            // service_rate_type: req.body.service_rate_type,
             address: req.body.address,
             phone_number: req.body.phone_number,
             facebook_url: req.body.facebook_url,
@@ -314,29 +332,15 @@ const TalentSignUp = async (req, res, next) => {
             venue_type: req.body.venue_type,
             area_coverage: req.body.area_coverage,
             service_type: req.body.service_type,
-
             description: req.body.description,
-
-            birthday_rate_per_hour:  req.body.birthday_rate_per_hour || 0,
             birthday_rate_per_day: req.body.birthday_rate_per_day || 0,
-
-            debut_rate_per_hour: req.body.debut_rate_per_hour || 0,
             debut_rate_per_day:  req.body.debut_rate_per_day || 0,
-
-            wedding_rate_per_hour:  req.body.wedding_rate_per_hour || 0,
             wedding_rate_per_day:  req.body.wedding_rate_per_day || 0,
-
-            baptismal_rate_per_hour:  req.body.baptismal_rate_per_hour || 0,
             baptismal_rate_per_day:  req.body.baptismal_rate_per_day || 0,
-
-            seminar_rate_per_hour:  req.body.seminar_rate_per_hour || 0,
             seminar_rate_per_day:  req.body.seminar_rate_per_day || 0,
-
-            company_party_rate_per_hour:  req.body.company_party_rate_per_hour || 0,
             company_party_rate_per_day:  req.body.company_party_rate_per_day || 0,
-
-            school_event_rate_per_hour:  req.body.school_event_rate_per_hour || 0,
             school_event_rate_per_day:  req.body.school_event_rate_per_day || 0,
+            duration:  req.body.duration || 0,
         };
 
         const currentTalent = await Talent.CREATE({
@@ -345,19 +349,38 @@ const TalentSignUp = async (req, res, next) => {
         let avatarUrlKeys = {};
         if (Object.keys(req.files).length > 0) {
             for (let key of Object.keys(req.files)) {
-                if (key !== 'valid_ids[]') {
-                    if (req.files[key] && req.files[key][0]) {
-                        const s3Params = {
-                            Key: `talent/${currentTalent.id}/${key}_${currentTalent.id}.jpg`,
-                            Body: req.files[key][0].buffer,
-                        };
+                if (key === 'talent_photos[]') {
+                    // if (req.files[key] && req.files[key][0]) {
+                    //     const s3Params = {
+                    //         Key: `talent/${currentTalent.id}/talent)/${key}_${currentTalent.id}.jpg`,
+                    //         Body: req.files[key][0].buffer,
+                    //     };
 
-                        const s3Response = await uploadFile(s3Params);
-                        if (s3Response) {
-                            avatarUrlKeys = {
-                                ...avatarUrlKeys,
-                                [key]: s3Response && s3Response.Key
+                    //     const s3Response = await uploadFile(s3Params);
+                    //     if (s3Response) {
+                    //         avatarUrlKeys = {
+                    //             ...avatarUrlKeys,
+                    //             [key]: s3Response && s3Response.Key
+                    //         }
+                    //     }
+                    // }
+                    if (req.files[key]) {
+                        let idIndex = 1;
+
+                        for (let item of req.files[key]) {
+                            const s3Params = {
+                                Key: `talent/${currentTalent.id}/talent_photos/${idIndex}_${currentTalent.id}.jpg`,
+                                Body: item.buffer,
+                            };
+
+                            const s3Response = await uploadFile(s3Params);
+                            if (s3Response) {
+                                await TalentPhotos.CREATE({
+                                    talent_id: currentTalent.id,
+                                    photo_url: s3Response.Key
+                                })
                             }
+                            idIndex++;
                         }
                     }
 
@@ -465,7 +488,6 @@ const TalentUpdateStatus = async (req, res, next) => {
             ]
         });
 
-        console.log('talentUser', talentUser)
         if (talentUser && talentUser.dataValues && talentUser.dataValues.user) {
 
             await User.UPDATE(
@@ -615,9 +637,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
     try {
         const {
             talent_id,
-            service_rate,
-            service_rate_type,
-            private_fee,
+
             address,
             lat,
             lng,
@@ -644,9 +664,6 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             lng,
             type,
             genre,
-            service_rate,
-            service_rate_type,
-            private_fee,
             gcash_no,
             commission_rate,
             status: 'pending'
@@ -699,9 +716,6 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     address: currentRequest.address,
                     lat: currentRequest.lat,
                     lng: currentRequest.lng,
-                    service_rate: currentRequest.service_rate,
-                    service_rate_type: currentRequest.service_rate_type,
-                    private_fee: currentRequest.private_fee,
                     commission_rate: currentRequest.commission_rate,
                     gcash_no: currentRequest.gcash_no
                 });
@@ -773,6 +787,7 @@ const GetTalentEvents = async (req, res, next) => {
                                             'email',
                                             'lastname',
                                             'firstname',
+                                            'avatar_url'
                                         ]
                                     }
                                 ]
@@ -863,6 +878,42 @@ const GetTalentRatings = async (req, res, next) => {
     }
 
 };
+
+
+const GetServiceCounts = async (req, res, next) => {
+    try {
+        let serviceCount = {};
+
+
+        for(let key in TALENT_TYPES) {
+            const count = await Talent.COUNT({
+                type: key,
+                status: 'approved'
+            });
+            serviceCount = {
+                ...serviceCount,
+                [key]: count
+            }
+            
+        }
+       
+
+        
+
+        return res.status(200).json({
+            counts: serviceCount
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
 export {
     GetTalent,
     GetTalents,
@@ -874,5 +925,6 @@ export {
     CreateTalentDetailsRequest,
     UpdateTalentDetailsRequest,
     CreateTalentRating,
-    GetTalentRatings
+    GetTalentRatings,
+    GetServiceCounts
 }

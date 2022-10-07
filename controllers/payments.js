@@ -364,7 +364,6 @@ const AttachPaymentIntent = async (req, res, next) => {
             return_url
         } = req.body;
 
-        console.log('return_url', return_url)
 
         const paymentIntentResponse = await confirmPaymentIntent({
             payment_intent_id,

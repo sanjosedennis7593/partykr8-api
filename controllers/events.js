@@ -587,7 +587,7 @@ const UpdateEventTalentStatus = async (req, res, next) => {
 
             ]
         });
-       
+
 
         if (event && event.dataValues && talent && talent.dataValues) {
 
@@ -597,10 +597,10 @@ const UpdateEventTalentStatus = async (req, res, next) => {
                 to: event.dataValues.user.email,
                 subject: `PartyKr8 Event: ${talentName} ${status} your event ${event.title} invitation`,
                 html: UPDATE_TALENT_STATUS({
-                    user:{
+                    user: {
                         ...event.dataValues.user.dataValues
                     },
-                    talent:{
+                    talent: {
                         ...(currentTalent || {})
                     },
                     status
@@ -653,6 +653,17 @@ const UpdateEventStatus = async (req, res, next) => {
             },
             ...WITH_USERS_AND_TALENTS
         });
+
+        if (status === 'cancelled') {
+            await EventTalent.UPDATE({
+                event_id: req.body.event_id,
+            },
+                {
+                    status: 'cancelled'
+                });
+        }
+
+
 
         return res.status(200).json({
             message: "Status has been updated successfully!",
@@ -831,9 +842,6 @@ const GetEventTalents = async (req, res, next) => {
                         'avatar_url_1',
                         'type',
                         'commission_rate',
-                        'private_fee',
-                        'service_rate',
-                        'service_rate_type'
                     ],
                     include: [
                         {

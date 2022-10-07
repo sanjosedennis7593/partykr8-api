@@ -24,12 +24,27 @@ const TALENT_TYPES = {
     singer: 'singer',
     host: 'host',
     band: 'band',
-    magician: 'magician'
+    magician: 'magician',
+    lights_and_sounds: 'lights_and_sounds',
+    led_wall: 'led_wall'
 };
+
+
+const EVENT_TYPE_RATE_FIELDS = {
+    birthday: 'birthday_rate_per_day',
+    debut: 'debut_rate_per_day',
+    wedding: 'wedding_rate_per_day',
+    baptismal: 'baptismal_rate_per_day',
+    seminar: 'seminar_rate_per_day',
+    company_party: 'company_party_rate_per_day',
+    school_event: 'school_rate_per_day'
+};
+
 
 
 export { 
     EVENT_STATUS,
+    EVENT_TYPE_RATE_FIELDS,
     ROLES,
     TALENT_STATUS,
     TALENT_TYPES
