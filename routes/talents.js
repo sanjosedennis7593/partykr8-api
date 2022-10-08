@@ -12,7 +12,8 @@ import {
     GetTalentEvents,
     CreateTalentRating,
     GetTalentRatings,
-    GetServiceCounts
+    GetServiceCounts,
+    UpdateTalentPayout
 } from '../controllers/talents';
 
 import { fileRequest } from '../helpers/upload';
@@ -42,6 +43,7 @@ router.get('/:id/ratings', GetTalentRatings);
 router.get('/details/request', GetTalentDetailsRequest);
 router.post('/signup', signupAvatarRequest, TalentSignupValidator, TalentSignUp);
 router.put('/status/update', TalentUpdateStatus);
+router.put('/payout/update', UpdateTalentPayout);
 router.put('/avatar/update', avatarRequest, TalentUpdateAvatar);
 router.post('/details/request', CreateTalentDetailsRequest);
 router.put('/details/request/update', UpdateTalentDetailsRequest);

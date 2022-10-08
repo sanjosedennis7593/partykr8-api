@@ -914,6 +914,88 @@ const GetServiceCounts = async (req, res, next) => {
     }
 
 };
+
+
+const UpdateTalentPayout = async (req, res, next) => {
+
+    try {
+        const { event_id, talent_id, id, payout_received = 0  } = req.body;
+
+        if(payout_received > 1 || payout_received < 0) {
+            return res.status(400).json({
+                message: 'Invalid Value'
+            });
+        }
+        await EventTalent.UPDATE({
+            event_id,
+            talent_id,
+            status: 'approved'
+        }, {
+            payout_received
+        });
+
+
+        const events = await EventTalent.GET_ALL({
+            where: {
+                event_id
+            },
+            include: [
+    
+                {
+                    model: db.events,
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: {
+                                exclude: ['password']
+                            }
+                        },
+                        {
+                            model: db.event_guests
+                        },
+                        {
+                            model: db.event_talents,
+                            attributes: [
+                                'status',
+                            ],
+                            include: [
+                                {
+                                    model: db.talents,
+                                    include: [
+                                        {
+                                            model: db.users,
+                                            attributes: [
+                                                'email',
+                                                'lastname',
+                                                'firstname',
+                                                'avatar_url'
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                    ]
+                }
+            ]
+        });
+    
+        return res.status(201).json({
+            message: 'Event talent payout has been updated successfully!',
+            event_talents: events
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
 export {
     GetTalent,
     GetTalents,
@@ -926,5 +1008,6 @@ export {
     UpdateTalentDetailsRequest,
     CreateTalentRating,
     GetTalentRatings,
-    GetServiceCounts
+    GetServiceCounts,
+    UpdateTalentPayout
 }
