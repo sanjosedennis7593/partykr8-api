@@ -5,6 +5,7 @@
  */
  require('dotenv').config()
 require("babel-core/register");
+require("babel-polyfill");
 
 var app = require('./app');
 var debug = require('debug')('partykr8-api:server');
