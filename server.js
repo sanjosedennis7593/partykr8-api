@@ -15,6 +15,7 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
+console.log('Port: ', process.env.API_PORT)
 var port = normalizePort(process.env.API_PORT || '3000');
 app.set('port', port);
 
@@ -57,6 +58,7 @@ function normalizePort(val) {
  */
 
 function onError(error) {
+  console.log('Error',error)
   if (error.syscall !== 'listen') {
     throw error;
   }
