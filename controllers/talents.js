@@ -919,8 +919,9 @@ const GetServiceCounts = async (req, res, next) => {
 const UpdateTalentPayout = async (req, res, next) => {
 
     try {
-        const { event_id, talent_id, id, payout_received = 0  } = req.body;
+        const { event_id, talent_id, payout_received = 0  } = req.body;
 
+     
         if(payout_received > 1 || payout_received < 0) {
             return res.status(400).json({
                 message: 'Invalid Value'
@@ -928,8 +929,7 @@ const UpdateTalentPayout = async (req, res, next) => {
         }
         await EventTalent.UPDATE({
             event_id,
-            talent_id,
-            status: 'approved'
+            talent_id
         }, {
             payout_received
         });

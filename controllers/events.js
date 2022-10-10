@@ -465,7 +465,7 @@ const UpdateEventTalents = async (req, res, next) => {
 
         const eventTalents = await EventTalent.GET_ALL({
             where: {
-                event_id: event_talents[0].talent_id
+                event_id: event_talents[0].event_id
             },
             include: [
                 {
@@ -789,6 +789,11 @@ const GetJoinedEvents = async (req, res, next) => {
                         'end_time',
                         'status',
                     ],
+                    where: {
+                        [Op.or]: [{ status: 'pending' }, { status: 'finished' }]
+                    },
+
+
                     ...WITH_USERS_AND_TALENTS
                 }
 
@@ -817,13 +822,14 @@ const GetJoinedEvents = async (req, res, next) => {
 const GetEventTalents = async (req, res, next) => {
     try {
 
-        const { payout_received = 0 } = req.query;
+        const { payout_received = null } = req.query;
 
         const whereQuery = payout_received !== null ? {
             where: {
                 payout_received
             }
         } : {};
+
 
         const eventTalents = await EventTalent.GET_ALL({
             ...whereQuery,
@@ -850,7 +856,8 @@ const GetEventTalents = async (req, res, next) => {
                                 'id',
                                 'firstname',
                                 'lastname',
-                                'email'
+                                'email',
+                                'avatar_url'
                             ]
                         },
                     ]

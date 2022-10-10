@@ -3,6 +3,7 @@ node_modules
 *.log
 *.gz
 
+dist
 # dotenv environment variables file
 .env
 .env.test
