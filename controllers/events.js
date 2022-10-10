@@ -564,6 +564,18 @@ const UpdateEventTalentStatus = async (req, res, next) => {
                         'firstname',
                         'avatar_url'
                     ]
+                },
+                {
+                    model: db.event_talents,
+                    where: {
+                        talent_id,
+                        event_id
+                    },
+                    attributes: [
+                        'id',
+                        'amount_paid',
+
+                    ]
                 }
 
             ]
@@ -588,11 +600,12 @@ const UpdateEventTalentStatus = async (req, res, next) => {
             ]
         });
 
-
-        if (event && event.dataValues && talent && talent.dataValues) {
+        if (event && event.dataValues && talent && talent.dataValues &&  talent.dataValues.event_talents[0].dataValues) {
 
             const currentTalent = talent.dataValues.user.dataValues;
-            const talentName = `${currentTalent.firstname} ${currentTalent.lastname}`
+            const talentName = `${currentTalent.firstname} ${currentTalent.lastname}`;
+            const eventTalentInfo = talent.dataValues.event_talents[0].dataValues;
+
             await sendMessage({
                 to: event.dataValues.user.email,
                 subject: `PartyKr8 Event: ${talentName} ${status} your event ${event.title} invitation`,
@@ -602,6 +615,11 @@ const UpdateEventTalentStatus = async (req, res, next) => {
                     },
                     talent: {
                         ...(currentTalent || {})
+                    },
+                    talentName,
+                    eventTalentInfo,
+                    event: {
+                        ...event.dataValues
                     },
                     status
 
