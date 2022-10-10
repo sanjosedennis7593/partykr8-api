@@ -39,13 +39,24 @@ const TalentSignupValidator = [
 ];
 
 const ResetPasswordValidator = [
-    body('email').isEmail().withMessage('Invalid email format').trim().escape()
+    body('email').isEmail().withMessage('Invalid email format').trim().escape(),
+    body('answer').not().isEmpty().trim().escape()
+];
+
+
+const AdminCreateValidator = [
+    body('email').isEmail().withMessage('Invalid email format').trim().escape(),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 chars long').trim().escape(),
+    body('firstname').not().isEmpty().trim().escape(),
+    body('lastname').not().isEmpty().trim().escape(),
+
 ];
 
 export {
     SignupValidator,
     UpdateUserDetailsValidator,
     TalentSignupValidator,
-    ResetPasswordValidator
+    ResetPasswordValidator,
+    AdminCreateValidator
 }
 

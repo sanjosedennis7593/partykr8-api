@@ -8,7 +8,8 @@ import {
     GoogleSignInCallback, 
     SignInController, 
     SignUpController, 
-    ResetPassword 
+    ResetPassword ,
+    GetSecurityQuestion
 } from '../controllers/auth';
 
 import { fileRequest } from '../helpers/upload';
@@ -23,5 +24,6 @@ router.post('/signin/facebook', FacebookSignIn);
 router.post('/signin/google', GoogleSignIn);
 router.get('/signin/google/callback', GoogleSignInCallback);
 router.post('/forgot/password', ...ResetPasswordValidator, ResetPassword);
+router.post('/security_question', GetSecurityQuestion);
 
 module.exports = router;

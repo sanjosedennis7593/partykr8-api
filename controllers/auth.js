@@ -371,9 +371,10 @@ const ResetPassword = async (req, res, next) => {
             return res.status(400).json({ errors: errors.array() });
         }
 
+        const { email, answer } = req.body;
         const user = await User.GET({
             where: {
-                email: req.body.email
+                email
             },
         });
 
@@ -383,33 +384,41 @@ const ResetPassword = async (req, res, next) => {
             });
         }
 
-        const newPassword = generateCode(12);
-        const updatedPassword = encryptPassword(newPassword);
-
-        const isPasswordUpdateSuccess = await User.UPDATE(
-            {
-                id: user.id
-            },
-            {
-                password: updatedPassword
+        if(user && user.dataValues && user.dataValues.security_answer === answer) {
+            const newPassword = generateCode(12);
+            const updatedPassword = encryptPassword(newPassword);
+    
+            const isPasswordUpdateSuccess = await User.UPDATE(
+                {
+                    id: user.id
+                },
+                {
+                    password: updatedPassword
+                }
+            );
+    
+            if (isPasswordUpdateSuccess) {
+                await sendMessage({
+                    to: user.email,
+                    subject: `Reset Password`,
+                    html: RESET_PASSWORD_MESSAGE({
+                        password: newPassword,
+                        user
+                    })
+                });
+    
             }
-        );
-
-        if (isPasswordUpdateSuccess) {
-            await sendMessage({
-                to: user.email,
-                subject: `Reset Password`,
-                html: RESET_PASSWORD_MESSAGE({
-                    password: newPassword,
-                    user
-                })
+    
+            return res.json({
+                message: 'Your new password has been sent to your email!'
             });
-
         }
 
-        return res.json({
-            message: 'Your new password has been sent to your email!'
+        return res.status(400).json({
+            message: 'Answer is incorrect!'
         });
+
+
     }
     catch (err) {
         console.log('Error', err)
@@ -421,6 +430,37 @@ const ResetPassword = async (req, res, next) => {
 };
 
 
+const GetSecurityQuestion = async (req, res, next) => {
+    try {
+
+        const user = await User.GET({
+            where: {
+                email: req.body.email
+            },
+            attributes: ['security_question'],
+        });
+
+        if(!user) {
+            return res.status(400).json({
+                message: 'User not exist!'
+            });
+        }
+
+        return res.status(200).json({
+            security_question: user && user.dataValues && user.dataValues.security_question
+        })
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+}
+
 export {
     SignInController,
     SignUpController,
@@ -428,5 +468,6 @@ export {
     // FacebookSignInCallback,
     GoogleSignIn,
     GoogleSignInCallback,
-    ResetPassword
+    ResetPassword,
+    GetSecurityQuestion
 }
