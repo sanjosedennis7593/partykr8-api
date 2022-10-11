@@ -79,6 +79,7 @@ const GetTalents = async (req, res, next) => {
 
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
+        const userId = req.query.user_id || null;
 
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
 
@@ -136,6 +137,20 @@ const GetTalents = async (req, res, next) => {
             where: {
                 ...filters,
                 status
+            }
+        };
+
+        if(userId) {
+            if(whereClause && whereClause.where) {
+                whereClause = {
+                    ...whereClause,
+                    where: {
+                        ...whereClause.where,
+                        user_id: {
+                            [Op.not]: userId
+                        }
+                    }
+                }
             }
         }
 
@@ -916,6 +931,71 @@ const GetServiceCounts = async (req, res, next) => {
 };
 
 
+const GetTalentPayout = async (req, res, next) => {
+    
+  try {
+        const { talent_id } = req.params;
+
+        const eventTalents = await EventTalent.GET_ALL({
+            where: {
+                talent_id
+            },
+            include: [
+    
+                {
+                    model: db.events,
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: {
+                                exclude: ['password']
+                            }
+                        },
+                        {
+                            model: db.event_guests
+                        },
+                        {
+                            model: db.event_talents,
+                            attributes: [
+                                'status',
+                            ],
+                            include: [
+                                {
+                                    model: db.talents,
+                                    include: [
+                                        {
+                                            model: db.users,
+                                            attributes: [
+                                                'email',
+                                                'lastname',
+                                                'firstname',
+                                                'avatar_url'
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                    ]
+                }
+            ]
+        });
+    
+        return res.status(200).json({
+            talent_payouts: eventTalents
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+}
+
 const UpdateTalentPayout = async (req, res, next) => {
 
     try {
@@ -1009,5 +1089,6 @@ export {
     CreateTalentRating,
     GetTalentRatings,
     GetServiceCounts,
-    UpdateTalentPayout
+    UpdateTalentPayout,
+    GetTalentPayout
 }

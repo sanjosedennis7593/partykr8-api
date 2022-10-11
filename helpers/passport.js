@@ -26,7 +26,7 @@ const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
 
-const Talent = new Table(db.talents);
+// const Talent = new Table(db.talents);
 const User = new Table(db.users);
 
 passport.serializeUser(function (user, done) {
@@ -218,7 +218,17 @@ passport.use(new JWTStrategy({
                 },
                 include: [
                     {
-                        model: db.talents
+                        model: db.talents,
+                        include: [
+                            {
+                                model: db.event_talents,
+                                include: [
+                                    {
+                                        model: db.events,
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             });

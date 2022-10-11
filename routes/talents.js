@@ -13,7 +13,8 @@ import {
     CreateTalentRating,
     GetTalentRatings,
     GetServiceCounts,
-    UpdateTalentPayout
+    UpdateTalentPayout,
+    GetTalentPayout
 } from '../controllers/talents';
 
 import { fileRequest } from '../helpers/upload';
@@ -37,6 +38,7 @@ const avatarRequest = fileRequest.fields(avatarUrlRequests);
 
 router.get('/', GetTalents);
 router.get('/counts', GetServiceCounts);
+router.get('/payouts/:talent_id', GetTalentPayout);
 router.get('/:id', GetTalent);
 router.get('/:id/events', GetTalentEvents);
 router.get('/:id/ratings', GetTalentRatings);
