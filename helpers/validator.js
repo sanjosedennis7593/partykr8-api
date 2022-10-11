@@ -30,10 +30,10 @@ const TalentSignupValidator = [
     // body('private_fee').not().isEmpty().isNumeric().withMessage('Private fee must be a decimal value'),
     // body('service_rate').not().isEmpty().isNumeric().withMessage('Service rate must be a decimal value'),
     // body('service_rate_type').not().isEmpty(),
-    body('facebook_url').not().isEmpty().isURL().withMessage('Facebook URL must be in URL format'),
-    body('instagram_url').not().isEmpty().isURL().withMessage('Instagram URL must be in URL format'),
-    body('twitter_url').not().isEmpty().isURL().withMessage('Twitter URL must be in URL format'),
-    body('tiktok_url').not().isEmpty().isURL().withMessage('TikTok URL must be in URL format'),
+    // body('facebook_url').not().isEmpty().isURL().withMessage('Facebook URL must be in URL format'),
+    // body('instagram_url').not().isEmpty().isURL().withMessage('Instagram URL must be in URL format'),
+    // body('twitter_url').not().isEmpty().isURL().withMessage('Twitter URL must be in URL format'),
+    // body('tiktok_url').not().isEmpty().isURL().withMessage('TikTok URL must be in URL format'),
     body('lat').not().isEmpty(),
     body('lng').not().isEmpty()
 ];
