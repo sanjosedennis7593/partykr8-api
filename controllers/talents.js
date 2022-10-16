@@ -59,7 +59,7 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
             'description',
             'duration',
             'venue_type',
-
+            'led_dimension',
             [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
         ],
         order: sequelize.col('distance'),
@@ -82,7 +82,7 @@ const GetTalents = async (req, res, next) => {
         const longitude = req.query.lng || null;
         const userId = req.query.user_id || null;
         const serviceType = req.query.service_type || 'talent';
-
+        console.log('serviceType',serviceType)
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
 
         // const equipmentProvided = req.query.equipment_provided  === 'both' || !req.query.equipment_provided ? {} : {
@@ -111,6 +111,9 @@ const GetTalents = async (req, res, next) => {
 
             return accum;
         }, {});
+
+        console.log('filterszzzzz @@@@@@@@@', filters)
+        console.log('filterszzzzz eventRateField', eventRateField)
 
         if (eventRateField && serviceType === 'talent') {
             filters = {
@@ -364,6 +367,7 @@ const TalentSignUp = async (req, res, next) => {
             company_party_rate_per_day: req.body.company_party_rate_per_day || 0,
             school_event_rate_per_day: req.body.school_event_rate_per_day || 0,
             duration: req.body.duration || 0,
+            led_dimension: req.body.led_dimension || '',
         };
 
         const currentTalent = await Talent.CREATE({

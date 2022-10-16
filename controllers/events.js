@@ -63,6 +63,9 @@ const WITH_USERS_AND_TALENTS = {
                             ]
                         },
                         {
+                            model: db.service_package
+                        },
+                        {
                             model: db.talent_photos,
                             attributes: [
                                 'photo_url'
