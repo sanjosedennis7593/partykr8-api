@@ -40,6 +40,52 @@ passport.deserializeUser(function (obj, done) {
 
 const passportAuthenticate = passport.authenticate('jwt', { session: false });
 
+const TALENT_DATA = [
+    {
+        model: db.users,
+        attributes: [
+            'email',
+            'lastname',
+            'firstname',
+            'avatar_url',
+        ]
+    },
+    {
+        model: db.talent_valid_ids,
+        attributes: [
+            'valid_id_url'
+        ]
+    },
+    {
+        model: db.talent_photos,
+        attributes: [
+            'photo_url'
+        ]
+    },
+    {
+        model: db.event_talents,
+        attributes: [
+            'event_id',
+            'status',
+            'id'
+        ],
+        include: [
+            {
+                model: db.events,
+                attributes: [
+                    'title',
+                    'date',
+                    'start_time',
+                    'end_time',
+                ]
+            }
+        ]
+    },
+    {
+        model: db.service_package
+    },
+]
+
 
 passport.use(new LocalStrategy({
     usernameField: 'email',
@@ -54,10 +100,8 @@ passport.use(new LocalStrategy({
                 include: [
                     {
                         model: db.talents,
-                        // attributes: [
-                        //     'id',
-                        //     'status'
-                        // ]
+                        include: TALENT_DATA
+
                     }
                 ]
             });
@@ -79,130 +123,6 @@ passport.use(new LocalStrategy({
 
 
 
-// passport.use(
-//     new FacebookStrategy(
-//         {
-//             clientID: FACEBOOK_APP_ID,
-//             clientSecret: FACEBOOK_SECRET,
-//             callbackURL: `${API_URL}${FACEBOOK_CALLBACK_URL}`,
-//             profileFields: ["email", "name"]
-//         },
-//         async (accessToken, refreshToken, profile, callback) => {
-
-//             if (profile) {
-//                 const { email, first_name, last_name } = profile._json;
-
-//                 let user = await User.GET({
-//                     where: {
-//                         email
-//                     }
-//                 });
-
-
-//                 if (user && user.dataValues) {
-//                     delete user.dataValues.password;
-//                     if (!user.dataValues.facebook_id) {
-//                         await User.UPDATE(
-//                             {
-//                                 email
-//                             },
-//                             {
-//                                 facebook_id: profile.id
-//                             }
-//                         );
-//                     }
-
-//                     return callback(null, {
-//                         user: user && user.dataValues
-//                     })
-//                 }
-//                 else {
-//                     const userPayload = {
-//                         email,
-//                         firstname: first_name,
-//                         lastname: last_name,
-//                         type: ROLES.user,
-//                         facebook_id: profile.id
-//                     };
-
-//                     const newUser = await User.CREATE(userPayload)
-
-//                     return callback(null, {
-//                         user: newUser
-//                     })
-//                 }
-//             }
-
-//             return callback(null, {
-//                 user: null
-//             })
-
-//         }
-//     )
-// );
-
-
-
-
-// passport.use(
-//     new GoogleStrategy({
-//         clientID: GOOGLE_CLIENT_ID,
-//         clientSecret: GOOGLE_SECRET,
-//         callbackURL: `${API_URL}${GOOGLE_CALLBACK_URL}`,
-//         passReqToCallback: true
-//     },
-//         async (request, accessToken, refreshToken, profile, callback) => {
-
-//             if (profile) {
-//                 const { id, email, family_name, given_name } = profile;
-
-//                 let user = await User.GET({
-//                     where: {
-//                         email
-//                     }
-//                 });
-
-//                 if (user && user.dataValues) {
-//                     delete user.dataValues.password;
-//                     if (!user.dataValues.google_id) {
-//                         await User.UPDATE(
-//                             {
-//                                 email
-//                             },
-//                             {
-//                                 google_id: id
-//                             }
-//                         );
-//                     }
-
-//                     return callback(null, {
-//                         user: user && user.dataValues
-//                     })
-//                 }
-//                 else {
-//                     const userPayload = {
-//                         email,
-//                         firstname: given_name,
-//                         lastname: family_name,
-//                         type: ROLES.user,
-//                         facebook_id: id
-//                     };
-
-//                     const newUser = await User.CREATE(userPayload)
-
-//                     return callback(null, {
-//                         user: newUser
-//                     })
-//                 }
-//             }
-
-//             return callback(null, {
-//                 user: null
-//             })
-//         }
-//     ));
-
-
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
     secretOrKey: JWT_SECRET
@@ -219,16 +139,8 @@ passport.use(new JWTStrategy({
                 include: [
                     {
                         model: db.talents,
-                        include: [
-                            {
-                                model: db.event_talents,
-                                include: [
-                                    {
-                                        model: db.events,
-                                    }
-                                ]
-                            }
-                        ]
+                        include: TALENT_DATA
+                        
                     }
                 ]
             });
