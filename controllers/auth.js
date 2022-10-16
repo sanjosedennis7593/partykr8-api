@@ -299,7 +299,7 @@ const SignUpController = async (req, res, next) => {
 
         if (user && user.dataValues) {
             return res.status(400).json({
-                message: 'User already exist!'
+                message: 'Email already used!'
             });
         }
 
