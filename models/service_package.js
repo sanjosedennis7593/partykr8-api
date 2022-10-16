@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const ServicePackage = sequelize.define("service_package", {
+    const ServicePackage = sequelize.define("service_packages", {
         service_package_id: {
             type: Sequelize.INTEGER,
             autoIncrement: true,

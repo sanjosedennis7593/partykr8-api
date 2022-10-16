@@ -147,7 +147,9 @@ module.exports = (sequelize, Sequelize) => {
         area_coverage: {
             type: Sequelize.STRING
         },
-
+        led_dimension: {
+            type: Sequelize.STRING
+        },
 
         createdAt: {
             type: Sequelize.DATE,
