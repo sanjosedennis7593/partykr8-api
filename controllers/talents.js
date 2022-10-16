@@ -16,6 +16,7 @@ import sequelize, { Op } from 'sequelize';
 
 
 const EventTalent = new Table(db.event_talents);
+const ServicePackage = new Table(db.service_package);
 const Talent = new Table(db.talents);
 const TalentUpdateRequest = new Table(db.talent_update_request);
 const TalentRatings = new Table(db.talent_ratings);
@@ -80,6 +81,7 @@ const GetTalents = async (req, res, next) => {
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
         const userId = req.query.user_id || null;
+        const serviceType = req.query.service_type || 'talent';
 
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
 
@@ -87,9 +89,9 @@ const GetTalents = async (req, res, next) => {
         //     equipment_provided: req.query.equipment_provided
         // };
         let status = req.query.status || 'approved';
-        let eventRateField = EVENT_TYPE_RATE_FIELDS[req.query.event_type]
-        
-        let queries = {};
+        let eventRateField = serviceType === 'talent' && EVENT_TYPE_RATE_FIELDS[req.query.event_type]
+
+        // let queries = {};
         let userQueries = {};
 
 
@@ -110,19 +112,19 @@ const GetTalents = async (req, res, next) => {
             return accum;
         }, {});
 
-
-        if(eventRateField) {
+        if (eventRateField && serviceType === 'talent') {
             filters = {
                 ...filters,
                 [eventRateField]: {
-                    [Op.gt]: 0
+                    [Op.gt]: 0,
+
                 }
             }
         };
 
 
 
-   
+
         if (req.query.gender) {
             if (req.query.gender !== 'both') {
                 userQueries = {
@@ -140,8 +142,8 @@ const GetTalents = async (req, res, next) => {
             }
         };
 
-        if(userId) {
-            if(whereClause && whereClause.where) {
+        if (userId) {
+            if (whereClause && whereClause.where) {
                 whereClause = {
                     ...whereClause,
                     where: {
@@ -154,7 +156,6 @@ const GetTalents = async (req, res, next) => {
             }
         }
 
-        console.log('filters whereClause', whereClause)
         // console.log('whereClause', whereClause)
         // console.log('whereClause distanceOptions', distanceOptions)
         const talents = await Talent.GET_ALL({
@@ -203,6 +204,9 @@ const GetTalents = async (req, res, next) => {
                             ]
                         }
                     ]
+                },
+                {
+                    model: db.service_package
                 },
             ]
 
@@ -264,6 +268,10 @@ const GetTalent = async (req, res, next) => {
                         }
                     ]
                 },
+                {
+                    model: db.service_package
+                },
+
             ]
 
         });
@@ -349,36 +357,38 @@ const TalentSignUp = async (req, res, next) => {
             service_type: req.body.service_type,
             description: req.body.description,
             birthday_rate_per_day: req.body.birthday_rate_per_day || 0,
-            debut_rate_per_day:  req.body.debut_rate_per_day || 0,
-            wedding_rate_per_day:  req.body.wedding_rate_per_day || 0,
-            baptismal_rate_per_day:  req.body.baptismal_rate_per_day || 0,
-            seminar_rate_per_day:  req.body.seminar_rate_per_day || 0,
-            company_party_rate_per_day:  req.body.company_party_rate_per_day || 0,
-            school_event_rate_per_day:  req.body.school_event_rate_per_day || 0,
-            duration:  req.body.duration || 0,
+            debut_rate_per_day: req.body.debut_rate_per_day || 0,
+            wedding_rate_per_day: req.body.wedding_rate_per_day || 0,
+            baptismal_rate_per_day: req.body.baptismal_rate_per_day || 0,
+            seminar_rate_per_day: req.body.seminar_rate_per_day || 0,
+            company_party_rate_per_day: req.body.company_party_rate_per_day || 0,
+            school_event_rate_per_day: req.body.school_event_rate_per_day || 0,
+            duration: req.body.duration || 0,
         };
 
         const currentTalent = await Talent.CREATE({
             ...payload
         });
+
+        if (req.body.service_type === 'partners' && currentTalent) {
+            if (req.body.service_package && req.body.service_package.length > 0) {
+                let servicePackage = JSON.parse(req.body.service_package);
+                servicePackage = servicePackage.map(item => {
+                    return {
+                        ...item,
+                        talent_id: currentTalent.id
+                    }
+                })
+
+                await ServicePackage.CREATE_MANY(servicePackage);
+            }
+        }
+
         let avatarUrlKeys = {};
         if (Object.keys(req.files).length > 0) {
             for (let key of Object.keys(req.files)) {
                 if (key === 'talent_photos[]') {
-                    // if (req.files[key] && req.files[key][0]) {
-                    //     const s3Params = {
-                    //         Key: `talent/${currentTalent.id}/talent)/${key}_${currentTalent.id}.jpg`,
-                    //         Body: req.files[key][0].buffer,
-                    //     };
 
-                    //     const s3Response = await uploadFile(s3Params);
-                    //     if (s3Response) {
-                    //         avatarUrlKeys = {
-                    //             ...avatarUrlKeys,
-                    //             [key]: s3Response && s3Response.Key
-                    //         }
-                    //     }
-                    // }
                     if (req.files[key]) {
                         let idIndex = 1;
 
@@ -900,7 +910,7 @@ const GetServiceCounts = async (req, res, next) => {
         let serviceCount = {};
 
 
-        for(let key in TALENT_TYPES) {
+        for (let key in TALENT_TYPES) {
             const count = await Talent.COUNT({
                 type: key,
                 status: 'approved'
@@ -909,11 +919,11 @@ const GetServiceCounts = async (req, res, next) => {
                 ...serviceCount,
                 [key]: count
             }
-            
-        }
-       
 
-        
+        }
+
+
+
 
         return res.status(200).json({
             counts: serviceCount
@@ -932,8 +942,8 @@ const GetServiceCounts = async (req, res, next) => {
 
 
 const GetTalentPayout = async (req, res, next) => {
-    
-  try {
+
+    try {
         const { talent_id } = req.params;
 
         const eventTalents = await EventTalent.GET_ALL({
@@ -941,7 +951,7 @@ const GetTalentPayout = async (req, res, next) => {
                 talent_id
             },
             include: [
-    
+
                 {
                     model: db.events,
                     include: [
@@ -980,7 +990,7 @@ const GetTalentPayout = async (req, res, next) => {
                 }
             ]
         });
-    
+
         return res.status(200).json({
             talent_payouts: eventTalents
         });
@@ -999,10 +1009,10 @@ const GetTalentPayout = async (req, res, next) => {
 const UpdateTalentPayout = async (req, res, next) => {
 
     try {
-        const { event_id, talent_id, payout_received = 0  } = req.body;
+        const { event_id, talent_id, payout_received = 0 } = req.body;
 
-     
-        if(payout_received > 1 || payout_received < 0) {
+
+        if (payout_received > 1 || payout_received < 0) {
             return res.status(400).json({
                 message: 'Invalid Value'
             });
@@ -1020,7 +1030,7 @@ const UpdateTalentPayout = async (req, res, next) => {
                 event_id
             },
             include: [
-    
+
                 {
                     model: db.events,
                     include: [
@@ -1059,7 +1069,7 @@ const UpdateTalentPayout = async (req, res, next) => {
                 }
             ]
         });
-    
+
         return res.status(201).json({
             message: 'Event talent payout has been updated successfully!',
             event_talents: events

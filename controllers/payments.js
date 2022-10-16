@@ -103,8 +103,6 @@ const ConfirmSourcePayment = async (req, res, next) => {
             selected_talent = []
         } = req.body;
 
-        console.log('selected_talent', selected_talent)
-
         const eventPaymentResponse = await createPayment({
             id,
             type,
@@ -143,7 +141,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
                     event_id,
                     event_payment_id: currentEventPayment.dataValues.event_payment_id,
                     talent_id: talent.talent_id,
-                    amount: talent[talent.payment_type],
+                    amount: talent.amount_paid,
                     status: 1
                 })
             }

@@ -16,6 +16,7 @@ models.event_payment_details = require("./event_payment_details")(db.connection,
 models.talent_update_request = require("./talent_update_request")(db.connection, db.library);
 models.talent_ratings = require("./talent_ratings")(db.connection, db.library);
 models.user_ratings = require("./user_ratings")(db.connection, db.library);
+models.service_package = require("./service_package")(db.connection, db.library);
 
 models.Sequelize = db.library;
 models.sequelize = db.connection;
@@ -186,6 +187,19 @@ models.event_refund.belongsTo(models.events, {
     foreignKey: 'event_id',
     sourceKey: 'id'
 });
+
+models.talents.hasMany(models.service_package, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+
+
+models.service_package.belongsTo(models.talents, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+
+
 
 
 

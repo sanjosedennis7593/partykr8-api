@@ -181,7 +181,6 @@ const FacebookSignIn = async (req, res, next) => {
 const GoogleSignIn = async (req, res, next) => {
     try {
 
-        console.log('Reqqqq.body', req.body)
         const { google_id, email, firstname, lastname } = req.body;
 
         let user = await User.GET({
