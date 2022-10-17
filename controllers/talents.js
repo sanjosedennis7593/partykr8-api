@@ -1090,6 +1090,60 @@ const UpdateTalentPayout = async (req, res, next) => {
 
 };
 
+
+const TalentPackageUpdate = async (req, res, next) => {
+    try {
+
+        const { packages = [], deleted_package_ids = [] } = req.body;
+
+        const currentTalentId = req.user && req.user.talent && req.user.talent.dataValues && req.user.talent.dataValues.id;
+    
+        const updatedPackages = packages.map(item => {
+            return {
+                ...item,
+                talent_id: currentTalentId
+            }
+        })
+
+        if(updatedPackages && updatedPackages.length > 0) {
+            await ServicePackage.UPSERT_MANY('service_package_id',updatedPackages)
+        }
+
+        if(deleted_package_ids && deleted_package_ids.length > 0) {
+            for(let id of deleted_package_ids) {
+                await ServicePackage.DELETE(
+                    {
+                        service_package_id: id
+                    }
+                )
+            }
+        };
+
+
+        const talentPackages = await ServicePackage.GET_ALL({
+            where: {
+                talent_id: currentTalentId
+            }
+        })
+
+  
+        
+        return res.status(200).json({
+            packages: talentPackages
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
+
 export {
     GetTalent,
     GetTalents,
@@ -1104,5 +1158,6 @@ export {
     GetTalentRatings,
     GetServiceCounts,
     UpdateTalentPayout,
-    GetTalentPayout
+    GetTalentPayout,
+    TalentPackageUpdate
 }
