@@ -450,8 +450,6 @@ const UpdateEventTalents = async (req, res, next) => {
 
         const { event_talents } = req.body;
 
-        console.log('event_talents', event_talents)
-
         for (let talent of event_talents) {
             await EventTalent.UPSERT(
                 {
@@ -460,10 +458,11 @@ const UpdateEventTalents = async (req, res, next) => {
 
                 },
                 {
-                    talent: talent.talent_id,
+                    talent_id: talent.talent_id,
                     event_id: talent.event_id,
                     amount_paid: talent.amount_paid,
                     payment_type: talent.payment_type,
+                    invitation_expiration: talent.invitation_expiration,
                     status: 'pending'
                 }
             )
@@ -479,6 +478,36 @@ const UpdateEventTalents = async (req, res, next) => {
             include: [
                 {
                     model: db.talents,
+                    // include: [
+                    //     {
+                    //         model: db.users,
+                    //         attributes: [
+                    //             'email',
+                    //             'lastname',
+                    //             'firstname',
+                    //             'avatar_url'
+                    //         ]
+                    //     },
+                    //     {
+                    //         model: db.event_talents,
+                    //         attributes: [
+                    //             'event_id',
+                    //             'status',
+                    //             'id'
+                    //         ],
+                    //         include: [
+                    //             {
+                    //                 model: db.events,
+                    //                 attributes: [
+                    //                     'title',
+                    //                     'date',
+                    //                     'start_time',
+                    //                     'end_time',
+                    //                 ]
+                    //             }
+                    //         ]
+                    //     },
+                    // ]
                     include: [
                         {
                             model: db.users,
@@ -486,7 +515,19 @@ const UpdateEventTalents = async (req, res, next) => {
                                 'email',
                                 'lastname',
                                 'firstname',
-                                'avatar_url'
+                                'avatar_url',
+                            ]
+                        },
+                        {
+                            model: db.talent_valid_ids,
+                            attributes: [
+                                'valid_id_url'
+                            ]
+                        },
+                        {
+                            model: db.talent_photos,
+                            attributes: [
+                                'photo_url'
                             ]
                         },
                         {
@@ -507,6 +548,9 @@ const UpdateEventTalents = async (req, res, next) => {
                                     ]
                                 }
                             ]
+                        },
+                        {
+                            model: db.service_package
                         },
                     ]
                 }
