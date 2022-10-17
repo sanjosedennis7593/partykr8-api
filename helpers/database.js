@@ -90,8 +90,6 @@ export default class Table {
 			}
 		});
 
-		return Promise.all(promises).then(() => {
-			subscriber.complete();
-		});
+		return Promise.all(promises)
 	}
 }
