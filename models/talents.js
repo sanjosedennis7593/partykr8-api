@@ -51,27 +51,14 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
-
-        // birthday_rate_per_hour: {
-        //     type: Sequelize.INTEGER,
-        //     defaultValue: 0
-        // },
         birthday_rate_per_day: {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
-        // debut_rate_per_hour: {
-        //     type: Sequelize.INTEGER,
-        //     defaultValue: 0
-        // },
         debut_rate_per_day: {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
-        // wedding_rate_per_hour: {
-        //     type: Sequelize.INTEGER,
-        //     defaultValue: 0
-        // },
         wedding_rate_per_day: {
             type: Sequelize.INTEGER,
             defaultValue: 0
@@ -79,25 +66,13 @@ module.exports = (sequelize, Sequelize) => {
         baptismal_rate_per_day: {
             type: Sequelize.INTEGER
         },
-        // baptismal_rate_per_hour: {
-        //     type: Sequelize.INTEGER
-        // },
-        // seminar_rate_per_hour: {
-        //     type: Sequelize.INTEGER
-        // },
         seminar_rate_per_day: {
             type: Sequelize.INTEGER
         },
 
-        // company_party_rate_per_hour: {
-        //     type: Sequelize.INTEGER
-        // },
         company_party_rate_per_day: {
             type: Sequelize.INTEGER
         },
-        // school_event_rate_per_hour: {
-        //     type: Sequelize.INTEGER
-        // },
         school_event_rate_per_day: {
             type: Sequelize.INTEGER
         },

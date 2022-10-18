@@ -316,6 +316,13 @@ const CreateEvents = async (req, res, next) => {
             await EventTalent.CREATE_MANY(talents);
         }
 
+        const formattedDate = format(new Date(req.body.date),'yyyy-MM-dd');
+        const formattedStartTime =  format(new Date(`${formattedDate} ${req.body.start_time}`), 'hh:mm a')
+        const formattedEndTime =  format(new Date(`${formattedDate} ${req.body.end_time}`), 'hh:mm a')
+
+        console.log('Formatted Date', formattedDate)
+        console.log('Formatted Start Time', formattedStartTime)
+        console.log('Formatted End Time', formattedEndTime)
         if (req.body.send_invite_after_create) {
 
             await sendMessage({
@@ -327,8 +334,8 @@ const CreateEvents = async (req, res, next) => {
                     message_to_guest: req.body.message_to_guest,
                     location: req.body.location,
                     date: req.body.date,
-                    start_time: req.body.start_time,
-                    end_time: req.body.end_time,
+                    start_time: formattedStartTime,
+                    end_time: formattedEndTime,
                     user
                 })
             });
@@ -342,8 +349,8 @@ const CreateEvents = async (req, res, next) => {
                     title: req.body.title,
                     location: req.body.location,
                     date: req.body.date,
-                    start_time: req.body.start_time,
-                    end_time: req.body.end_time,
+                    start_time: formattedStartTime,
+                    end_time: formattedEndTime,
                     user
                 })
             });

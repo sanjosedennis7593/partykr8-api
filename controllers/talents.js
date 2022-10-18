@@ -60,6 +60,7 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
             'duration',
             'venue_type',
             'led_dimension',
+            'area_coverage',
             [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
         ],
         order: sequelize.col('distance'),
@@ -82,7 +83,7 @@ const GetTalents = async (req, res, next) => {
         const longitude = req.query.lng || null;
         const userId = req.query.user_id || null;
         const serviceType = req.query.service_type || 'talent';
-        console.log('serviceType',serviceType)
+
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
 
         // const equipmentProvided = req.query.equipment_provided  === 'both' || !req.query.equipment_provided ? {} : {
@@ -111,9 +112,6 @@ const GetTalents = async (req, res, next) => {
 
             return accum;
         }, {});
-
-        console.log('filterszzzzz @@@@@@@@@', filters)
-        console.log('filterszzzzz eventRateField', eventRateField)
 
         if (eventRateField && serviceType === 'talent') {
             filters = {
@@ -638,6 +636,7 @@ const GetTalentDetailsRequest = async (req, res, next) => {
                                 'email',
                                 'lastname',
                                 'firstname',
+                                'avatar_url'
                             ]
                         }
                     ]
@@ -673,7 +672,26 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             type,
             genre,
             gcash_no,
-            commission_rate
+            phone_number,
+            commission_rate,
+            equipment_provided,
+            venue_type,
+            area_coverage,
+            service_type,
+            description,
+            birthday_rate_per_day = 0,
+            debut_rate_per_day  = 0,
+            wedding_rate_per_day = 0,
+            baptismal_rate_per_day = 0,
+            seminar_rate_per_day = 0,
+            company_party_rate_per_day = 0,
+            school_event_rate_per_day = 0,
+            duration = 2,
+            led_dimension,
+            facebook_url,
+            instagram_url,
+            twitter_url,
+            tiktok_url,
         } = req.body;
         const curentRequest = await TalentUpdateRequest.GET({
             where: {
@@ -694,7 +712,26 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             type,
             genre,
             gcash_no,
+            phone_number,
             commission_rate,
+            equipment_provided,
+            venue_type,
+            area_coverage,
+            service_type,
+            description,
+            birthday_rate_per_day,
+            debut_rate_per_day,
+            wedding_rate_per_day,
+            baptismal_rate_per_day,
+            seminar_rate_per_day,
+            company_party_rate_per_day,
+            school_event_rate_per_day,
+            duration,
+            facebook_url,
+            instagram_url,
+            twitter_url,
+            tiktok_url,
+            led_dimension,
             status: 'pending'
         });
 
@@ -746,8 +783,24 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     lat: currentRequest.lat,
                     lng: currentRequest.lng,
                     commission_rate: currentRequest.commission_rate,
-                    gcash_no: currentRequest.gcash_no
+                    gcash_no: currentRequest.gcash_no,
+                    description: currentRequest.description,
+                    birthday_rate_per_day: currentRequest.birthday_rate_per_day,
+                    debut_rate_per_day: currentRequest.debut_rate_per_day,
+                    wedding_rate_per_day: currentRequest.wedding_rate_per_day,
+                    baptismal_rate_per_day: currentRequest.baptismal_rate_per_day,
+                    seminar_rate_per_day: currentRequest.seminar_rate_per_day,
+                    company_party_rate_per_day: currentRequest.company_party_rate_per_day,
+                    school_event_rate_per_day: currentRequest.school_event_rate_per_day,
+                    duration: currentRequest.duration,
+                    facebook_url: currentRequest.facebook_url,
+                    instagram_url: currentRequest.instagram_url,
+                    twitter_url: currentRequest.twitter_url,
+                    tiktok_url: currentRequest.tiktok_url,
+                    led_dimension: currentRequest.led_dimension,
                 });
+
+
 
             }
 

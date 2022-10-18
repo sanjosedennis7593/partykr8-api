@@ -18,24 +18,61 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         lat: {
-            type: Sequelize.FLOAT(10, 6),
+            type: Sequelize.DECIMAL(10, 7),
             defaultValue: null
         },
         lng: {
-            type: Sequelize.FLOAT(10, 6),
+            type: Sequelize.DECIMAL(10, 7),
             defaultValue: null
         },
 
         genre: {
             type: Sequelize.STRING
         },
-        private_fee: {
+        birthday_rate_per_day: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        debut_rate_per_day: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        wedding_rate_per_day: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        baptismal_rate_per_day: {
             type: Sequelize.INTEGER
         },
-        service_rate: {
+        seminar_rate_per_day: {
             type: Sequelize.INTEGER
         },
-        service_rate_type: {
+        company_party_rate_per_day: {
+            type: Sequelize.INTEGER
+        },
+        school_event_rate_per_day: {
+            type: Sequelize.INTEGER
+        },
+        duration: {
+            type: Sequelize.INTEGER
+        },
+
+        facebook_url: {
+            type: Sequelize.STRING
+        },
+        instagram_url: {
+            type: Sequelize.STRING
+        },
+
+
+        twitter_url: {
+            type: Sequelize.STRING
+        },
+        tiktok_url: {
+            type: Sequelize.STRING
+        },
+
+        phone_number: {
             type: Sequelize.STRING
         },
         gcash_no: {
@@ -46,6 +83,18 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
 
+
+        // PARTNERS
+        venue_type: {
+            type: Sequelize.STRING,
+            defaultValue: ''
+        },
+        area_coverage: {
+            type: Sequelize.STRING
+        },
+        led_dimension: {
+            type: Sequelize.STRING
+        },
         createdAt: {
             type: Sequelize.DATE,
         },

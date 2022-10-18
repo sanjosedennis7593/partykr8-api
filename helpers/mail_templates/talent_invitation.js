@@ -5,9 +5,11 @@ const TALENT_INVITATION_MESSAGE = ({
     title,
     location,
     date,
-    time,
+    start_time,
+    end_time,
     user
 }) => {
+  
 
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
   <html xmlns="http://www.w3.org/1999/xhtml" 
@@ -54,8 +56,8 @@ const TALENT_INVITATION_MESSAGE = ({
     Please be reminded that as a PARTYKR8 talent/partner, you have agreed and understood the terms and conditions that encompasses your agreement to be a service provider to PARTKR8’s users. 
     <br><br>
     Event: ${title}<br>
-    Date: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')}:<br>
-    Time: ${time} <br>
+    Date: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')}<br>
+    Time: ${start_time} - ${end_time} <br>
     Venue: ${location}<br>
     Client name: ${`${user.firstname} ${user.lastname}`}<br>
 
