@@ -52,11 +52,18 @@ const AdminCreateValidator = [
 
 ];
 
+const SetPasswordValidator = [
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 chars long').trim().escape(),
+    body('confirm_password').isLength({ min: 8 }).withMessage('Password must be at least 8 chars long').trim().escape(),
+];
+
+
 export {
     SignupValidator,
     UpdateUserDetailsValidator,
     TalentSignupValidator,
     ResetPasswordValidator,
-    AdminCreateValidator
+    AdminCreateValidator,
+    SetPasswordValidator
 }
 

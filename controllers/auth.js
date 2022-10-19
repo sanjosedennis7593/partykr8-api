@@ -34,7 +34,7 @@ const SignInController = (req, res, next) => {
                     email: data.user.email,
                     role: data.user.role
                 }, JWT_SECRET);
-
+                delete data.user.password;
                 return res.json({
                     user: {
                         ...data.user
@@ -60,9 +60,6 @@ const FacebookSignIn = async (req, res, next) => {
         let user = await User.GET({
             where: {
                 email
-            },
-            attributes: {
-                exclude: ['password']
             }
         });
 
@@ -86,6 +83,14 @@ const FacebookSignIn = async (req, res, next) => {
                     }
                 }
 
+                if(updatePayload && !updatePayload.password) {
+                    updatePayload = {
+                        ...updatePayload,
+                        is_password_empty: true
+                    }
+                };
+
+                delete updatePayload.password;
                 await User.UPDATE(
                     {
                         email
@@ -128,7 +133,9 @@ const FacebookSignIn = async (req, res, next) => {
 
             return res.json({
                 user: {
-                    ...newUser
+                    ...newUser,
+                    is_password_empty: true
+            
                 },
                 token
             });
@@ -186,17 +193,12 @@ const GoogleSignIn = async (req, res, next) => {
         let user = await User.GET({
             where: {
                 email
-            },
-            attributes: {
-                exclude: ['password']
             }
         });
 
         if (user && user.dataValues) {
-            delete user.dataValues.password;
+
             if (!user.dataValues.google_id) {
-
-
 
                 await User.UPDATE(
                     {
@@ -208,15 +210,19 @@ const GoogleSignIn = async (req, res, next) => {
                 );
             }
 
+
             const token = jwt.sign({
                 id: user.dataValues.id,
                 email: user.dataValues.email,
                 role: user.dataValues.role
             }, JWT_SECRET);
 
+            
+
             return res.json({
                 user: {
-                    ...user.dataValues
+                    ...user.dataValues,
+                    is_password_empty: !user.dataValues.password? true : false
                 },
                 token
             });
@@ -241,7 +247,8 @@ const GoogleSignIn = async (req, res, next) => {
 
             return res.json({
                 user: {
-                    ...newUser
+                    ...newUser,
+                    is_password_empty: true
                 },
                 token
             });
@@ -318,7 +325,9 @@ const SignUpController = async (req, res, next) => {
             lng: req.body.lng,
             zip: req.body.zip,
             phone_number: req.body.phone_number,
-            role: ROLES.user
+            role: ROLES.user,
+            security_question: req.body.security_question,
+            security_answer: req.body.security_answer
         };
 
         let newUser = await User.CREATE({
@@ -460,6 +469,38 @@ const GetSecurityQuestion = async (req, res, next) => {
 
 }
 
+
+const SetUserPassword = async (req, res, next) => {
+    try {
+
+        const user = await User.GET({
+            where: {
+                email: req.body.email
+            },
+            attributes: ['security_question'],
+        });
+
+        if(!user) {
+            return res.status(400).json({
+                message: 'User not exist!'
+            });
+        }
+
+        return res.status(200).json({
+            security_question: user && user.dataValues && user.dataValues.security_question
+        })
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+}
+
 export {
     SignInController,
     SignUpController,
@@ -468,5 +509,6 @@ export {
     GoogleSignIn,
     GoogleSignInCallback,
     ResetPassword,
-    GetSecurityQuestion
+    GetSecurityQuestion,
+    SetUserPassword
 }

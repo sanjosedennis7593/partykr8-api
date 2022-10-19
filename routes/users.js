@@ -8,12 +8,13 @@ import {
     UpdateUserPassword, 
     UpdateUserStatus,
     GetUserRatings,
-    CreateUserRatings
+    CreateUserRatings,
+    SetUserPassword
 
 } from '../controllers/users';
 
 import { fileRequest } from '../helpers/upload';
-import { UpdateUserDetailsValidator } from '../helpers/validator';
+import { UpdateUserDetailsValidator,SetPasswordValidator } from '../helpers/validator';
 
 const router = express.Router();
 
@@ -25,5 +26,6 @@ router.put('/password/update', UpdateUserPassword);
 router.put('/status/update', UpdateUserStatus);
 router.put('/avatar/update', fileRequest.single('profile_photo'), UpdateUserAvatar);
 router.post('/ratings/create', CreateUserRatings);
+router.post('/password/set', ...SetPasswordValidator, SetUserPassword);
 
 module.exports = router;

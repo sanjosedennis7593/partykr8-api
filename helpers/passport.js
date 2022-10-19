@@ -1,6 +1,6 @@
 import passport from 'passport';
 import passportJWT from 'passport-jwt';
-import FacebookStrategy from 'passport-facebook';
+// import FacebookStrategy from 'passport-facebook';
 
 
 import db from '../models';
@@ -109,7 +109,12 @@ passport.use(new LocalStrategy({
             if (user) {
                 const isPasswordCorrect = comparePassword(password, user.password);
                 if (isPasswordCorrect) {
-                    return callback(null, { user: user && user.dataValues, message: 'Logged In Successfully' })
+                    let updatedPayload = {
+                        ...user.dataValues,
+                    };
+
+                    delete updatedPayload.password;
+                    return callback(null, { user: updatedPayload, message: 'Logged In Successfully' })
                 }
                 return callback(null, { user: null, message: 'Incorrect Password' });
             }
@@ -133,9 +138,7 @@ passport.use(new JWTStrategy({
                 where: {
                     id: jwtPayload.id
                 },
-                attributes: {
-                    exclude: ['password']
-                },
+       
                 include: [
                     {
                         model: db.talents,
@@ -149,6 +152,15 @@ passport.use(new JWTStrategy({
                 let currentUser = {
                     ...user.dataValues
                 }
+
+                if(!user.dataValues.password) {
+                    currentUser = {
+                        ...currentUser,
+                        is_password_empty: true
+                    }
+                };
+
+                delete currentUser.password;
 
                 return callback(null, currentUser)
             }

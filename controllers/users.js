@@ -349,6 +349,44 @@ const GetUserRatings = async (req, res, next) => {
 
 };
 
+const SetUserPassword = async (req, res, next) => {
+    try {
+
+        const {
+            password,
+            confirm_password
+        } = req.body;
+
+        if (password !== confirm_password) {
+            return res.status(400).json({
+                message: 'Password not match!'
+            });
+        }
+
+        const updatedPassword = encryptPassword(password);
+        await User.UPDATE(
+            {
+                id: req.user.id
+            },
+            {
+                password: updatedPassword
+            }
+        );
+
+        return res.status(200).json({
+            message: 'Password has been updated successfully!'
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+}
+
 
 export {
     GetUser,
@@ -358,5 +396,6 @@ export {
     UpdateUserStatus,
     UpdateUserAvatar,
     CreateUserRatings,
-    GetUserRatings
+    GetUserRatings,
+    SetUserPassword
 };
