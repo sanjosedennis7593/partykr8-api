@@ -47,6 +47,12 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING,
             defaultValue: 'pending'
         },
+        no_of_guest: {
+            type: Sequelize.INTEGER
+        },
+        event_reminders: {
+            type: Sequelize.TEXT('long')
+        },
         createdAt: {
             type: Sequelize.DATE,
         },

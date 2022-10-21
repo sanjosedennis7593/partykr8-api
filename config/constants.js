@@ -37,7 +37,9 @@ const EVENT_TYPE_RATE_FIELDS = {
     baptismal: 'baptismal_rate_per_day',
     seminar: 'seminar_rate_per_day',
     company_party: 'company_party_rate_per_day',
-    school_event: 'school_rate_per_day'
+    school_event: 'school_rate_per_day',
+    hangout_get_together: 'hangout_get_together',
+    others: 'others'
 };
 
 

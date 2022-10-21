@@ -100,8 +100,6 @@ const WITH_USERS_AND_TALENTS = {
 
 const GetEvents = async (req, res, next) => {
     try {
-        console.log('req.user.id', req.user.id)
-
         const events = await Event.GET_ALL({
             where: {
                 user_id: req.user.id,
@@ -110,7 +108,7 @@ const GetEvents = async (req, res, next) => {
             ...WITH_USERS_AND_TALENTS
         })
 
-        console.log('req.user.id events', events)
+
         return res.status(200).json({
             data: events
         });
@@ -188,6 +186,8 @@ const CreateEvents = async (req, res, next) => {
             start_time: req.body.start_time,
             end_time: req.body.end_time,
             message_to_guest: req.body.message_to_guest,
+            no_of_guest: req.body.no_of_guest,
+            event_reminders: req.body.event_reminders,
             status: 'pending'
         };
 
@@ -320,9 +320,6 @@ const CreateEvents = async (req, res, next) => {
         const formattedStartTime =  format(new Date(`${formattedDate} ${req.body.start_time}`), 'hh:mm a')
         const formattedEndTime =  format(new Date(`${formattedDate} ${req.body.end_time}`), 'hh:mm a')
 
-        console.log('Formatted Date', formattedDate)
-        console.log('Formatted Start Time', formattedStartTime)
-        console.log('Formatted End Time', formattedEndTime)
         if (req.body.send_invite_after_create) {
 
             await sendMessage({
