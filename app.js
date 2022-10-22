@@ -9,6 +9,7 @@ import logger from 'morgan';
 
 
 import adminRouter from './routes/admins';
+import announcementRouter from './routes/announcements';
 import authRouter from './routes/auth';
 import indexRouter from './routes/index';
 import eventRouter from './routes/events';
@@ -45,6 +46,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', indexRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/announcements', passportAuthenticate, announcementRouter);
 app.use('/api/admins', passportAuthenticate,adminRouter);
 app.use('/api/events', passportAuthenticate,eventRouter);
 app.use('/api/payments', passportAuthenticate,paymentRouter);

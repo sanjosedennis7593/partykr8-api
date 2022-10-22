@@ -2,7 +2,7 @@ import db from '../config/database.js';
 
 const models = {};
 
-
+models.announcements = require("./announcements")(db.connection, db.library);
 models.users = require("./users")(db.connection, db.library);
 models.talents = require("./talents")(db.connection, db.library);
 models.talent_photos = require("./talent_photos")(db.connection, db.library);
@@ -196,6 +196,17 @@ models.talents.hasMany(models.service_package, {
 
 models.service_package.belongsTo(models.talents, {
     foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+
+
+models.announcements.belongsTo(models.users, {
+    foreignKey: 'user_id',
+    sourceKey: 'id'
+});
+
+models.users.hasMany(models.announcements, {
+    foreignKey: 'user_id',
     sourceKey: 'id'
 });
 
