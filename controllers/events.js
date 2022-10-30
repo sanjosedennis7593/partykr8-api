@@ -816,6 +816,11 @@ const SendEventInvite = async (req, res, next) => {
 
 
         if (send_invite) {
+
+            const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
+            const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
+            const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
+    
             await sendMessage({
                 to: guests,
                 subject: `PartyKr8 Event: ${event.title}`,
@@ -825,9 +830,9 @@ const SendEventInvite = async (req, res, next) => {
                     message_to_guest: custom_message || req.body.message_to_guest,
                     location: event.location,
                     date: event.date,
-                    start_time: event.start_time,
-                    end_time: event.end_time,
-                    user
+                    start_time: formattedStartTime,
+                    end_time: formattedEndTime,
+                    user: event.user
                 })
             });
 

@@ -19,7 +19,8 @@ const EVENT_INVITE_MESSAGE = ({
     day = 'Monday',
     location = '',
     date = '',
-    time = '',
+    start_time = '',
+    end_time = '',
     user
 }) => {
 
@@ -174,7 +175,7 @@ const EVENT_INVITE_MESSAGE = ({
                                                 </br>
 
                                                 I would like to invite you to join us for an event/party on ${format(new
-                                                Date(date), 'EEEE, MMMM dd, yyyy')} at ${time} in the evening as we
+                                                Date(date), 'EEEE, MMMM dd, yyyy')} at ${start_time} - ${end_time} in the evening as we
                                                 celebrate our ${title}.
                                                 The party will be held at (venue) ${location} .
                                                 <br><br>
