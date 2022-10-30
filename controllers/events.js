@@ -5,7 +5,7 @@ import { format, isAfter, isBefore, isEqual, addDays } from 'date-fns';
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { EVENT_INVITE_MESSAGE, TALENT_INVITATION_MESSAGE, UPDATE_TALENT_STATUS } from '../helpers/mail_templates';
+import { EVENT_INVITE_MESSAGE, TALENT_INVITATION_MESSAGE, UPDATE_TALENT_STATUS, CANCELLED_EVENT_MESSAGE } from '../helpers/mail_templates';
 import db from '../models';
 
 
@@ -316,9 +316,9 @@ const CreateEvents = async (req, res, next) => {
             await EventTalent.CREATE_MANY(talents);
         }
 
-        const formattedDate = format(new Date(req.body.date),'yyyy-MM-dd');
-        const formattedStartTime =  format(new Date(`${formattedDate} ${req.body.start_time}`), 'hh:mm a')
-        const formattedEndTime =  format(new Date(`${formattedDate} ${req.body.end_time}`), 'hh:mm a')
+        const formattedDate = format(new Date(req.body.date), 'yyyy-MM-dd');
+        const formattedStartTime = format(new Date(`${formattedDate} ${req.body.start_time}`), 'hh:mm a')
+        const formattedEndTime = format(new Date(`${formattedDate} ${req.body.end_time}`), 'hh:mm a')
 
         if (req.body.send_invite_after_create) {
 
@@ -657,7 +657,7 @@ const UpdateEventTalentStatus = async (req, res, next) => {
             ]
         });
 
-        if (event && event.dataValues && talent && talent.dataValues &&  talent.dataValues.event_talents[0].dataValues) {
+        if (event && event.dataValues && talent && talent.dataValues && talent.dataValues.event_talents[0].dataValues) {
 
             const currentTalent = talent.dataValues.user.dataValues;
             const talentName = `${currentTalent.firstname} ${currentTalent.lastname}`;
@@ -730,15 +730,34 @@ const UpdateEventStatus = async (req, res, next) => {
         });
 
         if (status === 'cancelled') {
+            const guestEmails = event.event_guests.map(guest => guest.email);
+            const talentEmails = event.event_talents && event.event_talents.map(eventTalent => {
+              const currentUser =  eventTalent.talent;
+                console.log('currentUser',currentUser.dataValues.user.email)
+                return currentUser.dataValues.user.email
+            });
+            const recipients  = [...new Set([...guestEmails, ...talentEmails])];
             await EventTalent.UPDATE({
                 event_id: req.body.event_id,
             },
                 {
                     status: 'cancelled'
-                });
+            });
+
+            await sendMessage({
+                to: recipients,
+                subject: `PartyKr8 Event ${event.title} has been cancelled`,
+                html: CANCELLED_EVENT_MESSAGE({
+                    title: event.title,
+                    type: event.type,
+                    location: event.location,
+                    date: event.date,
+                    start_time: event.start_time,
+                    end_time: event.end_time
+                })
+            });
+
         }
-
-
 
         return res.status(200).json({
             message: "Status has been updated successfully!",
