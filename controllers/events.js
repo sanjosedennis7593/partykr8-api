@@ -13,6 +13,7 @@ const Event = new Table(db.events);
 const EventGuest = new Table(db.event_guests);
 const EventTalent = new Table(db.event_talents);
 const Talent = new Table(db.talents);
+const TalentEventType = new Table(db.talent_event_type);
 const User = new Table(db.users);
 
 const WITH_USERS_AND_TALENTS = {
@@ -62,6 +63,9 @@ const WITH_USERS_AND_TALENTS = {
                                 'avatar_url',
                             ]
                         },
+                        // {
+                        //     model: db.talent_event_type
+                        // },
                         {
                             model: db.service_package
                         },
@@ -482,36 +486,7 @@ const UpdateEventTalents = async (req, res, next) => {
             include: [
                 {
                     model: db.talents,
-                    // include: [
-                    //     {
-                    //         model: db.users,
-                    //         attributes: [
-                    //             'email',
-                    //             'lastname',
-                    //             'firstname',
-                    //             'avatar_url'
-                    //         ]
-                    //     },
-                    //     {
-                    //         model: db.event_talents,
-                    //         attributes: [
-                    //             'event_id',
-                    //             'status',
-                    //             'id'
-                    //         ],
-                    //         include: [
-                    //             {
-                    //                 model: db.events,
-                    //                 attributes: [
-                    //                     'title',
-                    //                     'date',
-                    //                     'start_time',
-                    //                     'end_time',
-                    //                 ]
-                    //             }
-                    //         ]
-                    //     },
-                    // ]
+                
                     include: [
                         {
                             model: db.users,
@@ -621,6 +596,9 @@ const UpdateEventTalentStatus = async (req, res, next) => {
                         'firstname',
                         'avatar_url'
                     ]
+                },
+                {
+                    model: db.talent_event_type
                 },
                 {
                     model: db.event_talents,
@@ -980,12 +958,44 @@ const GetEventTalents = async (req, res, next) => {
 };
 
 
+const GetCustomEventTypes = async (req, res, next) => {
+    try {
+
+        const eventTalents = await TalentEventType.GET_ALL({
+            attributes: [
+                'event_type',
+                'event_type_label',
+                'amount'
+            ],
+            group: ['event_type']
+        });
+
+
+        
+        return res.status(200).json({
+            event_types: eventTalents
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
+
+
+
 
 
 export {
     CreateEvents,
     GetEvent,
     GetEvents,
+    GetCustomEventTypes,
     UpdateEventDetails,
     UpdateEventTalentStatus,
     UpdateEventStatus,

@@ -11,7 +11,8 @@ import {
     GetJoinedEvents, 
     GetAllEventsByStatus,
     GetEventTalents,
-    UpdateEventTalents
+    UpdateEventTalents,
+    GetCustomEventTypes
 } from '../controllers/events';
 
 // import { UpdateUserDetailsValidator } from '../helpers/validator';
@@ -21,6 +22,7 @@ const router = express.Router();
 router.get('/', GetEvents);
 router.get('/joined', GetJoinedEvents);
 router.get('/talents', GetEventTalents);
+router.get('/type', GetCustomEventTypes);
 router.get('/status/:status', GetAllEventsByStatus);
 router.get('/:id', GetEvent);
 router.post('/create', CreateEvents);

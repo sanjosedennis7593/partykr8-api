@@ -18,6 +18,7 @@ import sequelize, { Op } from 'sequelize';
 const EventTalent = new Table(db.event_talents);
 const ServicePackage = new Table(db.service_package);
 const Talent = new Table(db.talents);
+const TalentEventType = new Table(db.talent_event_type);
 const TalentUpdateRequest = new Table(db.talent_update_request);
 const TalentRatings = new Table(db.talent_ratings);
 const TalentPhotos = new Table(db.talent_photos);
@@ -86,9 +87,7 @@ const GetTalents = async (req, res, next) => {
 
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
 
-        // const equipmentProvided = req.query.equipment_provided  === 'both' || !req.query.equipment_provided ? {} : {
-        //     equipment_provided: req.query.equipment_provided
-        // };
+   
         let status = req.query.status || 'approved';
         let eventRateField = serviceType === 'talent' && EVENT_TYPE_RATE_FIELDS[req.query.event_type]
 
@@ -176,6 +175,9 @@ const GetTalents = async (req, res, next) => {
                     ]
                 },
                 {
+                    model: db.talent_event_type
+                },
+                {
                     model: db.talent_valid_ids,
                     attributes: [
                         'valid_id_url'
@@ -250,6 +252,9 @@ const GetTalent = async (req, res, next) => {
                         'avatar_url',
 
                     ]
+                },
+                {
+                    model: db.talent_event_type
                 },
                 {
                     model: db.talent_valid_ids,
@@ -372,6 +377,7 @@ const TalentSignUp = async (req, res, next) => {
             ...payload
         });
 
+
         if (req.body.service_type === 'partners' && currentTalent) {
             if (req.body.service_package && req.body.service_package.length > 0) {
                 let servicePackage = JSON.parse(req.body.service_package);
@@ -383,6 +389,19 @@ const TalentSignUp = async (req, res, next) => {
                 })
 
                 await ServicePackage.CREATE_MANY(servicePackage);
+            }
+        }
+        else if (req.body.service_type === 'talent' && currentTalent) {
+            if (req.body.talent_event_type && req.body.talent_event_type.length > 0) {
+                let talentEventType = JSON.parse(req.body.talent_event_type);
+                talentEventType = talentEventType.map(item => {
+                    return {
+                        ...item,
+                        talent_id: currentTalent.id
+                    }
+                })
+
+                await TalentEventType.CREATE_MANY(talentEventType);
             }
         }
 
@@ -853,7 +872,7 @@ const GetTalentEvents = async (req, res, next) => {
                     },
                     {
                         model: db.event_guests
-                    },
+                    }, 
                     {
                         model: db.event_talents,
                         attributes: [
@@ -871,7 +890,11 @@ const GetTalentEvents = async (req, res, next) => {
                                             'firstname',
                                             'avatar_url'
                                         ]
-                                    }
+                                    },
+                                    {
+                                        model: db.talent_event_type
+                                    },
+                                    
                                 ]
                             }
                         ]

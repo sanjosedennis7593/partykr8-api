@@ -17,6 +17,7 @@ models.talent_update_request = require("./talent_update_request")(db.connection,
 models.talent_ratings = require("./talent_ratings")(db.connection, db.library);
 models.user_ratings = require("./user_ratings")(db.connection, db.library);
 models.service_package = require("./service_package")(db.connection, db.library);
+models.talent_event_type = require("./talent_event_type")(db.connection, db.library);
 
 models.Sequelize = db.library;
 models.sequelize = db.connection;
@@ -209,6 +210,19 @@ models.users.hasMany(models.announcements, {
     foreignKey: 'user_id',
     sourceKey: 'id'
 });
+
+
+
+models.talents.hasMany(models.talent_event_type, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+models.talent_event_type.belongsTo(models.talents, {
+    foreignKey: 'talent_id',
+    sourceKey: 'id'
+});
+
+
 
 
 
