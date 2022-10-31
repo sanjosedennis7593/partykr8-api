@@ -95,6 +95,9 @@ module.exports = (sequelize, Sequelize) => {
         led_dimension: {
             type: Sequelize.STRING
         },
+        talent_event_types: {
+            type: Sequelize.TEXT('long')
+        },
         createdAt: {
             type: Sequelize.DATE,
         },

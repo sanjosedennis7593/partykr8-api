@@ -87,7 +87,7 @@ const GetTalents = async (req, res, next) => {
 
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
 
-   
+
         let status = req.query.status || 'approved';
         let eventRateField = serviceType === 'talent' && EVENT_TYPE_RATE_FIELDS[req.query.event_type]
 
@@ -699,7 +699,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             service_type,
             description,
             birthday_rate_per_day = 0,
-            debut_rate_per_day  = 0,
+            debut_rate_per_day = 0,
             wedding_rate_per_day = 0,
             baptismal_rate_per_day = 0,
             seminar_rate_per_day = 0,
@@ -711,6 +711,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             instagram_url,
             twitter_url,
             tiktok_url,
+            talent_event_types,
         } = req.body;
         const curentRequest = await TalentUpdateRequest.GET({
             where: {
@@ -751,6 +752,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             twitter_url,
             tiktok_url,
             led_dimension,
+            talent_event_types,
             status: 'pending'
         });
 
@@ -780,7 +782,6 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                 talent_request_id
             }
         });
-
 
 
         if (currentRequest) {
@@ -818,6 +819,23 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     tiktok_url: currentRequest.tiktok_url,
                     led_dimension: currentRequest.led_dimension,
                 });
+
+                if (currentRequest && currentRequest.talent_event_types) {
+                    const eventTalentTypes = JSON.parse(currentRequest.talent_event_types);
+                    if (eventTalentTypes && eventTalentTypes.event_type) {
+                        await TalentEventType.UPSERT_MANY('talent_event_type_id', eventTalentTypes.event_type)
+                    }
+                    if (eventTalentTypes && eventTalentTypes.deleted_event_type_ids) {
+                        for (let id of eventTalentTypes.deleted_event_type_ids) {
+                            await TalentEventType.DELETE(
+                                {
+                                    talent_event_type_id: id
+                                }
+                            )
+                        }
+                    };
+            
+                }
 
 
 
@@ -872,7 +890,7 @@ const GetTalentEvents = async (req, res, next) => {
                     },
                     {
                         model: db.event_guests
-                    }, 
+                    },
                     {
                         model: db.event_talents,
                         attributes: [
@@ -894,7 +912,7 @@ const GetTalentEvents = async (req, res, next) => {
                                     {
                                         model: db.talent_event_type
                                     },
-                                    
+
                                 ]
                             }
                         ]
@@ -1172,7 +1190,7 @@ const TalentPackageUpdate = async (req, res, next) => {
         const { packages = [], deleted_package_ids = [] } = req.body;
 
         const currentTalentId = req.user && req.user.talent && req.user.talent.dataValues && req.user.talent.dataValues.id;
-    
+
         const updatedPackages = packages.map(item => {
             return {
                 ...item,
@@ -1180,12 +1198,12 @@ const TalentPackageUpdate = async (req, res, next) => {
             }
         })
 
-        if(updatedPackages && updatedPackages.length > 0) {
-            await ServicePackage.UPSERT_MANY('service_package_id',updatedPackages)
+        if (updatedPackages && updatedPackages.length > 0) {
+            await ServicePackage.UPSERT_MANY('service_package_id', updatedPackages)
         }
 
-        if(deleted_package_ids && deleted_package_ids.length > 0) {
-            for(let id of deleted_package_ids) {
+        if (deleted_package_ids && deleted_package_ids.length > 0) {
+            for (let id of deleted_package_ids) {
                 await ServicePackage.DELETE(
                     {
                         service_package_id: id
@@ -1201,8 +1219,8 @@ const TalentPackageUpdate = async (req, res, next) => {
             }
         })
 
-  
-        
+
+
         return res.status(200).json({
             packages: talentPackages
         });
@@ -1230,12 +1248,12 @@ const TalentEventTypeUpdate = async (req, res, next) => {
             }
         });
 
-        if(updatedEventType && updatedEventType.length > 0) {
-            await TalentEventType.UPSERT_MANY('talent_event_type_id',updatedEventType)
+        if (updatedEventType && updatedEventType.length > 0) {
+            await TalentEventType.UPSERT_MANY('talent_event_type_id', updatedEventType)
         }
 
-        if(deleted_event_type_ids && deleted_event_type_ids.length > 0) {
-            for(let id of deleted_event_type_ids) {
+        if (deleted_event_type_ids && deleted_event_type_ids.length > 0) {
+            for (let id of deleted_event_type_ids) {
                 await TalentEventType.DELETE(
                     {
                         talent_event_type_id: id
@@ -1251,8 +1269,8 @@ const TalentEventTypeUpdate = async (req, res, next) => {
             }
         })
 
-  
-        
+
+
         return res.status(201).json({
             event_type: talentPackages
         });

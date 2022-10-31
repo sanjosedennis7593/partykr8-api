@@ -57,6 +57,9 @@ const TALENT_DATA = [
         ]
     },
     {
+        model: db.talent_event_type
+    },
+    {
         model: db.talent_photos,
         attributes: [
             'photo_url'
