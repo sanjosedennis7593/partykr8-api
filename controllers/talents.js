@@ -1166,7 +1166,6 @@ const UpdateTalentPayout = async (req, res, next) => {
 
 };
 
-
 const TalentPackageUpdate = async (req, res, next) => {
     try {
 
@@ -1219,6 +1218,57 @@ const TalentPackageUpdate = async (req, res, next) => {
 
 };
 
+const TalentEventTypeUpdate = async (req, res, next) => {
+    try {
+        const { event_type = [], deleted_event_type_ids = [] } = req.body;
+        const currentTalentId = req.user && req.user.talent && req.user.talent.dataValues && req.user.talent.dataValues.id;
+
+        const updatedEventType = event_type.map(item => {
+            return {
+                ...item,
+                talent_id: currentTalentId
+            }
+        });
+
+        if(updatedEventType && updatedEventType.length > 0) {
+            await TalentEventType.UPSERT_MANY('talent_event_type_id',updatedEventType)
+        }
+
+        if(deleted_event_type_ids && deleted_event_type_ids.length > 0) {
+            for(let id of deleted_event_type_ids) {
+                await TalentEventType.DELETE(
+                    {
+                        talent_event_type_id: id
+                    }
+                )
+            }
+        };
+
+
+        const talentPackages = await TalentEventType.GET_ALL({
+            where: {
+                talent_id: currentTalentId
+            }
+        })
+
+  
+        
+        return res.status(201).json({
+            event_type: talentPackages
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+}
+
+
 
 export {
     GetTalent,
@@ -1235,5 +1285,6 @@ export {
     GetServiceCounts,
     UpdateTalentPayout,
     GetTalentPayout,
-    TalentPackageUpdate
+    TalentPackageUpdate,
+    TalentEventTypeUpdate
 }
