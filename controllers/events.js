@@ -63,9 +63,9 @@ const WITH_USERS_AND_TALENTS = {
                                 'avatar_url',
                             ]
                         },
-                        // {
-                        //     model: db.talent_event_type
-                        // },
+                        {
+                            model: db.talent_event_type
+                        },
                         {
                             model: db.service_package
                         },
