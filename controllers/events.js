@@ -641,6 +641,11 @@ const UpdateEventTalentStatus = async (req, res, next) => {
             const talentName = `${currentTalent.firstname} ${currentTalent.lastname}`;
             const eventTalentInfo = talent.dataValues.event_talents[0].dataValues;
 
+            const formattedDate = format(new Date(event.dataValues.date), 'yyyy-MM-dd');
+            const formattedStartTime = format(new Date(`${formattedDate} ${event.dataValues.start_time}`), 'hh:mm a')
+            const formattedEndTime = format(new Date(`${formattedDate} ${event.dataValues.end_time}`), 'hh:mm a')
+    
+
             await sendMessage({
                 to: event.dataValues.user.email,
                 subject: `PartyKr8 Event: ${talentName} ${status} your event ${event.title} invitation`,
@@ -654,7 +659,9 @@ const UpdateEventTalentStatus = async (req, res, next) => {
                     talentName,
                     eventTalentInfo,
                     event: {
-                        ...event.dataValues
+                        ...event.dataValues,
+                        start_time: formattedStartTime,
+                        end_time: formattedEndTime,
                     },
                     status
 
