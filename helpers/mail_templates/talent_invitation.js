@@ -49,7 +49,7 @@ const TALENT_INVITATION_MESSAGE = ({
   
   <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
 
-    Dear Dear talent/partner,
+    Dear  talent/partner,
     <br><br>
     PARTYKR8 is pleased to inform you that you have been chosen to be part of our user’s event : ${title};  with the above details. Please be in the venue(${location}) in considering your ingress time to prepare your service in a professional manner in time for the event and do your duty and tasks as advertised. 
     <br><br>
