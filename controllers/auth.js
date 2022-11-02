@@ -12,6 +12,55 @@ import db from '../models';
 
 const User = new Table(db.users);
 
+const TALENT_DATA = [
+    {
+        model: db.users,
+        attributes: [
+            'email',
+            'lastname',
+            'firstname',
+            'avatar_url',
+        ]
+    },
+    {
+        model: db.talent_valid_ids,
+        attributes: [
+            'valid_id_url'
+        ]
+    },
+    {
+        model: db.talent_event_type
+    },
+    {
+        model: db.talent_photos,
+        attributes: [
+            'photo_url'
+        ]
+    },
+    {
+        model: db.event_talents,
+        attributes: [
+            'event_id',
+            'status',
+            'id'
+        ],
+        include: [
+            {
+                model: db.events,
+                attributes: [
+                    'title',
+                    'date',
+                    'start_time',
+                    'end_time',
+                ]
+            }
+        ]
+    },
+    {
+        model: db.service_package
+    },
+];
+
 
 const SignInController = (req, res, next) => {
 
@@ -60,7 +109,14 @@ const FacebookSignIn = async (req, res, next) => {
         let user = await User.GET({
             where: {
                 email
-            }
+            },
+            include: [
+                {
+                    model: db.talents,
+                    include: TALENT_DATA
+
+                }
+            ]
         });
 
         if (user && user.dataValues) {
@@ -193,7 +249,14 @@ const GoogleSignIn = async (req, res, next) => {
         let user = await User.GET({
             where: {
                 email
-            }
+            },
+            include: [
+                {
+                    model: db.talents,
+                    include: TALENT_DATA
+
+                }
+            ]
         });
 
         if (user && user.dataValues) {
