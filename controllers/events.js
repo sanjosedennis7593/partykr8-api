@@ -383,12 +383,16 @@ const UpdateEventDetails = async (req, res, next) => {
             title: req.body.title,
             type: req.body.type,
             venue_type: req.body.venue_type,
+            no_of_guest: req.body.no_of_guest,
             location: req.body.location,
+            lat: req.body.lat,
+            lng: req.body.lng,
             date: req.body.date,
             start_time: req.body.start_time,
             end_time: req.body.end_time,
             message_to_guest: req.body.message_to_guest
         };
+    
 
         await Event.UPDATE({
             id: eventPayload.event_id,
@@ -397,6 +401,9 @@ const UpdateEventDetails = async (req, res, next) => {
             title: eventPayload.title,
             type: eventPayload.type,
             location: eventPayload.location,
+            lat: eventPayload.lat,
+            lng: eventPayload.lng,
+            no_of_guest: eventPayload.no_of_guest,
             date: eventPayload.date,
             start_time: eventPayload.start_time,
             end_time: eventPayload.end_time,
