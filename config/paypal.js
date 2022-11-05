@@ -1,0 +1,9 @@
+const PAYPAL_CLIENT_KEY = process.env.PAYPAL_CLIENT_KEY;
+const PAYPAL_SECRET_KEY =  process.env.PAYPAL_SECRET_KEY;
+const PAYPAL_API_ROOT_URL =  process.env.PAYPAL_API_ROOT_URL;
+
+export {
+    PAYPAL_CLIENT_KEY,
+    PAYPAL_SECRET_KEY,
+    PAYPAL_API_ROOT_URL
+};

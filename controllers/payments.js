@@ -1,3 +1,5 @@
+import { API_URL } from '../config/api';
+
 import {
     createPayment,
     createPaymentIntent,
@@ -9,7 +11,15 @@ import {
     retrievePaymentById,
     retrievePaymentSource,
     rerievePaymentIntentById,
-    retrieveRefundById
+    retrieveRefundById,
+
+    paypalCreateToken,
+    paypalCreateOrder,
+    paypalCaptureOrder,
+    paypalGetOrderDetails,
+    paypalRefundOrder,
+    paypalGetRefundDetails,
+
 } from '../services/payment';
 
 import Table from '../helpers/database';
@@ -274,6 +284,22 @@ const PaymentFailedCallback = async (req, res, next) => {
     }
 };
 
+const PaymentCancelCallback = async (req, res, next) => {
+
+    try {
+        return res.status(200).json({
+            message: 'Cancelled'
+        });
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+};
+
 
 const CreatePaymentIntent = async (req, res, next) => {
 
@@ -330,7 +356,6 @@ const GetPaymentIntentById = async (req, res, next) => {
             id
         } = req.params;
 
-            console.log('idddddddd', id)
         const paymentIntentResponse = await rerievePaymentIntentById(id);
 
         return res.status(200).json({
@@ -529,6 +554,214 @@ const GetRefunds = async (req, res, next) => {
 
 
 
+const CreatePaypalToken = async (req, res, next) => {
+    try {
+        const response = await paypalCreateToken();
+        return res.status(200).json({
+            data: response
+        });
+    }
+    catch (err) {
+        console.log('Error CreatePaypalToken', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response
+        });
+    }
+};
+
+
+const CreatePaypalOrder = async (req, res, next) => {
+
+    try {
+        const { order_items = [], amount } = req.body;
+
+        const items = order_items;
+
+        const amountPayload = {
+            currency_code: "PHP",
+            value: amount,
+            breakdown: {
+                item_total: {
+                    currency_code: "PHP",
+                    value: amount
+                }
+            }
+        };
+
+        const payload = {
+            intent: "CAPTURE",
+            purchase_units: [
+                {
+                    items,
+                    amount: amountPayload
+                }
+            ],
+            application_context: {
+                return_url: `${API_URL}/callback/payment/success?type=paypal`,
+                cancel_url: `${API_URL}/callback/payment/cancel`,
+            }
+        }
+
+        const response = await paypalCreateOrder(payload);
+
+        return res.status(200).json({
+            data: response
+        });
+    }
+    catch (err) {
+        console.log('Error CreatePaypalOrder', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response
+        });
+    }
+};
+
+const CapturePaypalOrder = async (req, res, next) => {
+
+    try {
+        const { order_id } = req.params;
+        const { event_id, amount, selected_talent = [] } = req.body;
+        const response = await paypalCaptureOrder(order_id);
+
+        if (response) {
+            const status = response && response.status === 'COMPLETED' ? 'paid' : 'failed';
+
+            const captureId = response && response.purchase_units && response.purchase_units[0] && response.purchase_units[0].payments && response.purchase_units[0].payments.captures &&  response.purchase_units[0].payments.captures[0].id;
+            await EventPayments.CREATE({
+                event_id,
+                amount: amount * 100,
+                payment_type: 'paypal',
+                ref_id: response && response.id, // ORDER ID
+                payment_id: captureId,
+                status: status
+            })
+
+
+            const currentEventPayment = await EventPayments.GET(
+                {
+                    where: {
+                        event_id,
+                        ref_id: order_id
+                    }
+                }
+            );
+
+            if (currentEventPayment && currentEventPayment.dataValues) {
+                for (let talent of selected_talent) {
+                    await EventPaymentDetails.CREATE({
+                        event_id,
+                        event_payment_id: currentEventPayment.dataValues.event_payment_id,
+                        talent_id: talent.talent_id,
+                        amount: talent.amount_paid,
+                        status: 1
+                    })
+                }
+
+            }
+
+
+
+        }
+
+        return res.status(200).json({
+            data: response
+        });
+    }
+    catch (err) {
+        console.log('Error CreatePaypalOrder', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response
+        });
+    }
+};
+
+
+const GetPaypalOrderDetails = async (req, res, next) => {
+
+    try {
+        const { order_id } = req.params;
+        const response = await paypalGetOrderDetails(order_id);
+
+        return res.status(200).json({
+            data: response
+        });
+    }
+    catch (err) {
+        console.log('Error CreatePaypalOrder', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response
+        });
+    }
+};
+
+const RefundPaypalOrder = async (req, res, next) => {
+
+    try {
+        const { capture_id } = req.params;
+        const { amount, event_id } = req.body;
+
+        const payload = {
+            amount: {
+                value: amount / 100,
+                currency_code: "PHP"
+            },
+            note_to_payer: "Refund Payment"
+        };
+
+        const response = await paypalRefundOrder(capture_id, payload);
+
+
+        EventRefund.CREATE({
+            event_id,
+            refund_id: response.id,
+            amount: amount / 100,
+            reason: "refund"
+        });
+
+        return res.status(200).json({
+            data: []
+        });
+    }
+    catch (err) {
+        console.log('Error CreatePaypalOrder', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response
+        });
+    }
+};
+
+
+
+const GetPaypalRefundById = async (req, res, next) => {
+
+    try {
+        const {
+            refund_id
+        } = req.params;
+
+        console.log('refund_id',req.params)
+
+        const refundResponse = await paypalGetRefundDetails(refund_id);
+        return res.status(200).json({
+            refund: refundResponse
+        });
+    }
+    catch (err) {
+        // console.log('Error ', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response
+        });
+    }
+}
+
+
+
 export {
     GetPayments,
     GetPaymentIntentById,
@@ -543,5 +776,14 @@ export {
     CreateRefund,
     GetRefundById,
     GetRefunds,
-    UpdatePaymentIntentStatus
+    UpdatePaymentIntentStatus,
+
+
+    CreatePaypalToken,
+    CreatePaypalOrder,
+    CapturePaypalOrder,
+    GetPaypalOrderDetails,
+    RefundPaypalOrder,
+    PaymentCancelCallback,
+    GetPaypalRefundById
 };

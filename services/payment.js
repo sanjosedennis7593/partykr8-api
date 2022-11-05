@@ -5,10 +5,18 @@ import {
     PAYMONGO_PUBLIC_KEY,
     PAYMONGO_SECRET_KEY
 } from '../config/paymongo';
-
+import {
+    PAYPAL_API_ROOT_URL,
+    PAYPAL_CLIENT_KEY,
+    PAYPAL_SECRET_KEY
+} from '../config/paypal';
 
 const PAYMONGO_ROOT_URL = 'https://api.paymongo.com';
 const PAYMONGO_API = `${PAYMONGO_ROOT_URL}/v1`
+
+
+const PAYPAL_API_ROOT_URL_V1 = `${PAYPAL_API_ROOT_URL}/v1`;
+const PAYPAL_API_ROOT_URL_V2 = `${PAYPAL_API_ROOT_URL}/v2`;
 
 let ENCODED_SECRET_KEY = new Buffer.from(PAYMONGO_SECRET_KEY)
 ENCODED_SECRET_KEY = ENCODED_SECRET_KEY.toString('base64');
@@ -17,8 +25,26 @@ let ENCODED_PUBLIC_KEY = new Buffer.from(PAYMONGO_PUBLIC_KEY)
 ENCODED_PUBLIC_KEY = ENCODED_PUBLIC_KEY.toString('base64');
 
 
+let ENCODED_PAYPAL_KEY = new Buffer.from(`${PAYPAL_CLIENT_KEY}:${PAYPAL_SECRET_KEY}`);
+ENCODED_PAYPAL_KEY = ENCODED_PAYPAL_KEY.toString('base64');
 
-const setHeaders = key => {
+
+
+console.log('ENCODED_PAYPAL_KEY',ENCODED_PAYPAL_KEY)
+
+
+const getPaypalApiCredentials = () => {
+    return {
+
+        // username: PAYPAL_CLIENT_KEY,
+        // password: PAYPAL_SECRET_KEY
+        Accept: 'application/json',
+        Authorization: `Basic ${ENCODED_PAYPAL_KEY}`
+    }
+}
+
+
+const setPaymongoHeader = key => {
     return {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -45,7 +71,7 @@ const createPaymentIntent = async ({
     const options = {
         method: 'POST',
         url: `${PAYMONGO_API}/payment_intents`,
-        headers: setHeaders(ENCODED_SECRET_KEY),
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
         data: {
             data: {
                 attributes: {
@@ -69,7 +95,7 @@ const rerievePaymentIntentById = async id => {
     const options = {
         method: 'GET',
         url: `${PAYMONGO_API}/payment_intents/${id}`,
-        headers: setHeaders(ENCODED_SECRET_KEY),
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
     };
 
     return await axios
@@ -90,7 +116,7 @@ const confirmPaymentIntent = async ({
     const options = {
         method: 'POST',
         url: `${PAYMONGO_API}/payment_intents/${payment_intent_id}/attach`,
-        headers: setHeaders(ENCODED_SECRET_KEY),
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
         data: {
             data: {
                 attributes: {
@@ -135,7 +161,7 @@ const createPaymentSource = async ({
     const options = {
         method: 'POST',
         url: `${PAYMONGO_API}/sources`,
-        headers: setHeaders(ENCODED_SECRET_KEY),
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
         data: {
             data: {
                 attributes: {
@@ -166,7 +192,7 @@ const retrievePaymentSource = async id => {
     const options = {
         method: 'GET',
         url: `${PAYMONGO_API}/sources/${id}`,
-        headers: setHeaders(ENCODED_SECRET_KEY)
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY)
     };
 
     return await axios
@@ -186,7 +212,7 @@ const createPayment = async ({
     const options = {
         method: 'POST',
         url: `${PAYMONGO_API}/payments`,
-        headers: setHeaders(ENCODED_SECRET_KEY),
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
         data: {
             data: {
                 attributes: {
@@ -209,7 +235,7 @@ const listPayments = async (limit = '10') => {
     const options = {
         method: 'GET',
         url: `${PAYMONGO_API}/payments`,
-        headers: setHeaders(ENCODED_SECRET_KEY),
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
     };
 
     return await axios
@@ -221,7 +247,7 @@ const retrievePaymentById = async id => {
     const options = {
         method: 'GET',
         url: `${PAYMONGO_API}/payments/${id}`,
-        headers: setHeaders(ENCODED_PUBLIC_KEY)
+        headers: setPaymongoHeader(ENCODED_PUBLIC_KEY)
     };
 
     return await axios
@@ -239,7 +265,7 @@ const createRefund = async ({
     const options = {
         method: 'POST',
         url: `${PAYMONGO_ROOT_URL}/refunds`,
-        headers: setHeaders(ENCODED_SECRET_KEY),
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
         data: {
             data: {
                 attributes: {
@@ -261,7 +287,7 @@ const retrieveRefundById = async id => {
     const options = {
         method: 'GET',
         url: `${PAYMONGO_ROOT_URL}/refunds/${id}`,
-        headers: setHeaders(ENCODED_SECRET_KEY)
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY)
     };
 
     return await axios
@@ -273,15 +299,147 @@ const listRefunds = async () => {
     const options = {
         method: 'GET',
         url: `${PAYMONGO_ROOT_URL}/refunds`,
-        headers: setHeaders(ENCODED_SECRET_KEY)
-      };
-      
-      return await axios
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY)
+    };
+
+    return await axios
         .request(options)
         .then(response => response && response.data)
-  
+
 }
 
+
+/* END OF PAYMONGO API */
+
+/* PAYPAL API */
+
+const paypalCreateToken = async () => {
+    const apiCredentials = getPaypalApiCredentials();
+
+    const options = {
+        method: 'POST',
+        url: `${PAYPAL_API_ROOT_URL_V1}/oauth2/token?grant_type=client_credentials`,
+        //auth: apiCredentials
+        headers: {
+            ...apiCredentials,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    };
+
+    return await axios
+        .request(options)
+        .then(response => response.data);
+
+}
+
+const paypalCreateOrder = async data => {
+    const apiCredentials = getPaypalApiCredentials();
+ 
+    const options = {
+        method: 'POST',
+        url: `${PAYPAL_API_ROOT_URL_V2}/checkout/orders`,
+        data: {
+            ...data
+        },
+        headers: {
+            ...apiCredentials,
+            'Content-Type': 'application/json',
+        }
+    };
+
+    const response =  await axios
+        .request(options)
+        .then(response => response && response.data);
+
+    return response;
+
+}
+
+const paypalCaptureOrder = async orderId => {
+    const apiCredentials = getPaypalApiCredentials();
+
+    const options = {
+        method: 'POST',
+        url: `${PAYPAL_API_ROOT_URL_V2}/checkout/orders/${orderId}/capture`,
+
+        headers: {
+            ...apiCredentials,
+            'Content-Type': 'application/json',
+        }
+    };
+
+    const response =  await axios
+        .request(options)
+        .then(response => response && response.data);
+
+    return response;
+
+}
+
+const paypalGetOrderDetails = async orderId => {
+    const apiCredentials = getPaypalApiCredentials();
+
+    const options = {
+        method: 'GET',
+        url: `${PAYPAL_API_ROOT_URL_V2}/checkout/orders/${orderId}`,
+
+        headers: {
+            ...apiCredentials,
+            'Content-Type': 'application/json',
+        }
+    };
+
+    const response =  await axios
+        .request(options)
+        .then(response => response && response.data);
+
+    return response;
+
+}
+
+
+const paypalRefundOrder = async (captureId, data) => {
+    const apiCredentials = getPaypalApiCredentials();
+
+    const options = {
+        method: 'POST',
+        url: `${PAYPAL_API_ROOT_URL_V2}/payments/captures/${captureId}/refund`,
+        data,
+        headers: {
+            ...apiCredentials,
+            'Content-Type': 'application/json',
+        }
+    };
+
+    const response =  await axios
+        .request(options)
+        .then(response => response && response.data);
+
+    return response;
+
+}
+const paypalGetRefundDetails = async refundId => {
+    const apiCredentials = getPaypalApiCredentials();
+ 
+    const options = {
+        method: 'GET',
+        url: `${PAYPAL_API_ROOT_URL_V2}/payments/refunds/${refundId}`,
+
+        headers: {
+            ...apiCredentials,
+            'Content-Type': 'application/json',
+        }
+    };
+
+    const response =  await axios
+        .request(options)
+        .then(response => response && response.data);
+    return response;
+
+}
+
+
+/* END OF PAYPAL API */
 
 
 export {
@@ -295,5 +453,12 @@ export {
     rerievePaymentIntentById,
     createRefund,
     retrieveRefundById,
-    listRefunds
+    listRefunds,
+
+    paypalCreateToken,
+    paypalCreateOrder,
+    paypalCaptureOrder,
+    paypalGetOrderDetails,
+    paypalRefundOrder,
+    paypalGetRefundDetails
 }
