@@ -49,61 +49,61 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         birthday_rate_per_day: {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
         birthday_duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         debut_rate_per_day: {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
         debut_duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         wedding_rate_per_day: {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
         wedding_duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         baptismal_rate_per_day: {
             type: Sequelize.INTEGER
         },
         baptismal_duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         seminar_rate_per_day: {
             type: Sequelize.INTEGER
         },
         seminar_duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
 
         company_party_rate_per_day: {
             type: Sequelize.INTEGER
         },
         company_duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         school_event_rate_per_day: {
             type: Sequelize.INTEGER
         },
         school_event_duration: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         address: {
             type: Sequelize.STRING

@@ -386,13 +386,13 @@ const TalentSignUp = async (req, res, next) => {
             paypal_account: req.body.paypal_account,
 
 
-            birthday_duration:  req.body.birthday_duration || 0,
-            debut_duration: req.body.debut_duration || 0,
-            wedding_duration: req.body.wedding_duration || 0,
-            baptismal_duration: req.body.baptismal_duration || 0,
-            seminar_duration: req.body.seminar_duration || 0,
-            company_duration: req.body.company_duration || 0,
-            school_event_duration: req.body.school_event_duration || 0,
+            birthday_duration:  req.body.birthday_duration || '',
+            debut_duration: req.body.debut_duration || '',
+            wedding_duration: req.body.wedding_duration || '',
+            baptismal_duration: req.body.baptismal_duration || '',
+            seminar_duration: req.body.seminar_duration || '',
+            company_duration: req.body.company_duration || '',
+            school_event_duration: req.body.school_event_duration || '',
             
         };
 
@@ -728,13 +728,13 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             seminar_rate_per_day = 0,
             company_party_rate_per_day = 0,
             school_event_rate_per_day = 0,
-            birthday_duration = 0,
-            debut_duration = 0,
-            wedding_duration = 0,
-            baptismal_duration = 0,
-            seminar_duration = 0,
-            company_duration = 0,
-            school_event_duration = 0,
+            birthday_duration = '',
+            debut_duration = '',
+            wedding_duration = '',
+            baptismal_duration = '',
+            seminar_duration = '',
+            company_duration = '',
+            school_event_duration = '',
             duration = 2,
             led_dimension,
             facebook_url,
@@ -743,6 +743,11 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             tiktok_url,
             youtube_url,
             talent_event_types,
+
+            bank_account_no,
+            bank_account_name,
+            paypal_account
+
         } = req.body;
         const curentRequest = await TalentUpdateRequest.GET({
             where: {
@@ -793,6 +798,11 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             youtube_url,
             led_dimension,
             talent_event_types,
+
+            bank_account_no,
+            bank_account_name,
+            paypal_account,
+
             status: 'pending'
         });
 
@@ -822,7 +832,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                 talent_request_id
             }
         });
-
+        
 
         if (currentRequest) {
             await TalentUpdateRequest.UPDATE({
@@ -868,6 +878,10 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     tiktok_url: currentRequest.tiktok_url,
                     youtube_url:  currentRequest.youtube_url,
                     led_dimension: currentRequest.led_dimension,
+
+                    bank_account_no: currentRequest.bank_account_no,
+                    bank_account_name: currentRequest.bank_account_name,
+                    paypal_account: currentRequest.paypal_account,
                 });
 
                 if (currentRequest && currentRequest.talent_event_types) {

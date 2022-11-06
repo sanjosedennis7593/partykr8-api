@@ -34,7 +34,7 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: 0
         },
         birthday_duration: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             defaultValue: 0
         },
         debut_rate_per_day: {
@@ -42,7 +42,7 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: 0
         },
         debut_duration: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             defaultValue: 0
         },
         wedding_rate_per_day: {
@@ -50,21 +50,21 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: 0
         },
         wedding_duration: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             defaultValue: 0
         },
         baptismal_rate_per_day: {
             type: Sequelize.INTEGER
         },
         baptismal_duration: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             defaultValue: 0
         },
         seminar_rate_per_day: {
             type: Sequelize.INTEGER
         },
         seminar_duration: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             defaultValue: 0
         },
 
@@ -72,14 +72,14 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         company_duration: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             defaultValue: 0
         },
         school_event_rate_per_day: {
             type: Sequelize.INTEGER
         },
         school_event_duration: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.STRING,
             defaultValue: 0
         },
         duration: {
@@ -115,6 +115,16 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
 
+
+        bank_account_no: {
+            type: Sequelize.STRING
+        },
+        bank_account_name: {
+            type: Sequelize.STRING
+        },
+        paypal_account: {
+            type: Sequelize.STRING
+        },
 
         // PARTNERS
         venue_type: {
