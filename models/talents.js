@@ -28,7 +28,8 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         genre: {
-            type: Sequelize.STRING
+            type: Sequelize.STRING,
+            defaultValue: ''
         },
         commission_rate: {
             type: Sequelize.INTEGER,
@@ -55,7 +56,15 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
+        birthday_duration: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
         debut_rate_per_day: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
+        debut_duration: {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
@@ -63,18 +72,38 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             defaultValue: 0
         },
+        wedding_duration: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
         baptismal_rate_per_day: {
             type: Sequelize.INTEGER
         },
+        baptismal_duration: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
         seminar_rate_per_day: {
             type: Sequelize.INTEGER
+        },
+        seminar_duration: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
         },
 
         company_party_rate_per_day: {
             type: Sequelize.INTEGER
         },
+        company_duration: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
+        },
         school_event_rate_per_day: {
             type: Sequelize.INTEGER
+        },
+        school_event_duration: {
+            type: Sequelize.INTEGER,
+            defaultValue: 0
         },
         address: {
             type: Sequelize.STRING
@@ -106,7 +135,19 @@ module.exports = (sequelize, Sequelize) => {
         tiktok_url: {
             type: Sequelize.STRING
         },
+        youtube_url: {
+            type: Sequelize.STRING
+        },
         gcash_no: {
+            type: Sequelize.STRING
+        },
+        bank_account_no: {
+            type: Sequelize.STRING
+        },
+        bank_account_name: {
+            type: Sequelize.STRING
+        },
+        paypal_account: {
             type: Sequelize.STRING
         },
         status: {

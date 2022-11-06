@@ -62,6 +62,18 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
             'venue_type',
             'led_dimension',
             'area_coverage',
+            // 'gcash_no',
+            // 'bank_account_no',
+            // 'bank_account_name',
+            // 'paypal_account'
+
+            'birthday_duration',
+            'debut_duration',
+            'wedding_duration',
+            'baptismal_duration',
+            'seminar_duration',
+            'company_duration',
+            'school_event_duration',
             [sequelize.literal(`round(${haversine}, 2)`), 'distance'],
         ],
         order: sequelize.col('distance'),
@@ -341,15 +353,13 @@ const TalentSignUp = async (req, res, next) => {
         const payload = {
             type: req.body.type,
             genre: req.body.genre,
-            // private_fee: req.body.private_fee,
-            // service_rate: req.body.service_rate,
-            // service_rate_type: req.body.service_rate_type,
             address: req.body.address,
             phone_number: req.body.phone_number,
             facebook_url: req.body.facebook_url,
             instagram_url: req.body.instagram_url,
             twitter_url: req.body.twitter_url,
             tiktok_url: req.body.tiktok_url,
+            youtube_url: req.body.youtube_url,
             status: TALENT_STATUS[req.body.status],
             user_id: req.user.id,
             commission_rate: req.body.commission_rate,
@@ -371,6 +381,19 @@ const TalentSignUp = async (req, res, next) => {
             school_event_rate_per_day: req.body.school_event_rate_per_day || 0,
             duration: req.body.duration || 0,
             led_dimension: req.body.led_dimension || '',
+            bank_account_no: req.body.bank_account_no,
+            bank_account_name: req.body.bank_account_name,
+            paypal_account: req.body.paypal_account,
+
+
+            birthday_duration:  req.body.birthday_duration || 0,
+            debut_duration: req.body.debut_duration || 0,
+            wedding_duration: req.body.wedding_duration || 0,
+            baptismal_duration: req.body.baptismal_duration || 0,
+            seminar_duration: req.body.seminar_duration || 0,
+            company_duration: req.body.company_duration || 0,
+            school_event_duration: req.body.school_event_duration || 0,
+            
         };
 
         const currentTalent = await Talent.CREATE({
@@ -711,6 +734,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             instagram_url,
             twitter_url,
             tiktok_url,
+            youtube_url,
             talent_event_types,
         } = req.body;
         const curentRequest = await TalentUpdateRequest.GET({
@@ -751,6 +775,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
             instagram_url,
             twitter_url,
             tiktok_url,
+            youtube_url,
             led_dimension,
             talent_event_types,
             status: 'pending'

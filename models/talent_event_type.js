@@ -14,6 +14,9 @@ module.exports = (sequelize, Sequelize) => {
         event_type_label: {
             type: Sequelize.STRING
         },
+        duration: {
+            type: Sequelize.INTEGER
+        },
         amount: {
             type: Sequelize.INTEGER
         },
