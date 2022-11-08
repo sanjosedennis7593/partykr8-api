@@ -5,7 +5,13 @@ import { format, isAfter, isBefore, isEqual, addDays } from 'date-fns';
 import { EVENT_STATUS, TALENT_STATUS } from '../config/constants';
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { EVENT_INVITE_MESSAGE, TALENT_INVITATION_MESSAGE, UPDATE_TALENT_STATUS, CANCELLED_EVENT_MESSAGE } from '../helpers/mail_templates';
+import {
+    EVENT_INVITE_MESSAGE,
+    TALENT_INVITATION_MESSAGE,
+    UPDATE_TALENT_STATUS,
+    CANCELLED_EVENT_MESSAGE,
+    UPDATE_EVENT_MESSAGE
+} from '../helpers/mail_templates';
 import db from '../models';
 
 
@@ -178,6 +184,7 @@ const GetAllEventsByStatus = async (req, res, next) => {
 
 const CreateEvents = async (req, res, next) => {
     try {
+
         let event = {
             user_id: req.user.id,
             title: req.body.title,
@@ -337,22 +344,24 @@ const CreateEvents = async (req, res, next) => {
                     date: req.body.date,
                     start_time: formattedStartTime,
                     end_time: formattedEndTime,
-                    user
+                    user: req.user
                 })
             });
         }
 
         if (talentEmails.length > 0) {
+          
             await sendMessage({
                 to: talentEmails,
                 subject: `Talent Invitation`,
                 html: TALENT_INVITATION_MESSAGE({
                     title: req.body.title,
+                    type: req.body.type,
                     location: req.body.location,
                     date: req.body.date,
                     start_time: formattedStartTime,
                     end_time: formattedEndTime,
-                    user
+                    user: req.user
                 })
             });
 
@@ -392,7 +401,15 @@ const UpdateEventDetails = async (req, res, next) => {
             end_time: req.body.end_time,
             message_to_guest: req.body.message_to_guest
         };
-    
+
+        const defaultEvent = await Event.GET({
+            where: {
+                id: eventPayload.event_id,
+                user_id: req.user.id,
+            },
+            ...WITH_USERS_AND_TALENTS
+        });
+
 
         await Event.UPDATE({
             id: eventPayload.event_id,
@@ -409,6 +426,36 @@ const UpdateEventDetails = async (req, res, next) => {
             end_time: eventPayload.end_time,
             // message_to_guest: eventPayload.message_to_guest
         });
+
+        if (defaultEvent) {
+
+            const formattedDate = format(new Date(eventPayload.date), 'yyyy-MM-dd');
+            const formattedStartTime = format(new Date(`${formattedDate} ${eventPayload.start_time}`), 'hh:mm a')
+            const formattedEndTime = format(new Date(`${formattedDate} ${eventPayload.end_time}`), 'hh:mm a')
+
+            const guestEmails = defaultEvent.event_guests.map(guest => guest.email);
+            const talentEmails = defaultEvent.event_talents ? defaultEvent.event_talents.map(eventTalent => {
+                const currentUser = eventTalent.talent;
+                return currentUser.dataValues.user.email
+            }) : [];
+
+            const recipients = [...new Set([...guestEmails, ...talentEmails])];
+            await sendMessage({
+                to: recipients,
+                subject: `PartyKr8 Event ${defaultEvent.title} details has been changed`,
+                html: UPDATE_EVENT_MESSAGE({
+                    title: eventPayload.title,
+                    type: eventPayload.type,
+                    location: eventPayload.location,
+                    date: eventPayload.date,
+                    start_time: formattedStartTime,
+                    end_time: formattedEndTime
+                })
+            });
+        }
+
+
+
 
         // for (let guest of guests) {
         //     await EventGuest.UPSERT(
@@ -493,7 +540,7 @@ const UpdateEventTalents = async (req, res, next) => {
             include: [
                 {
                     model: db.talents,
-                
+
                     include: [
                         {
                             model: db.users,
@@ -651,7 +698,7 @@ const UpdateEventTalentStatus = async (req, res, next) => {
             const formattedDate = format(new Date(event.dataValues.date), 'yyyy-MM-dd');
             const formattedStartTime = format(new Date(`${formattedDate} ${event.dataValues.start_time}`), 'hh:mm a')
             const formattedEndTime = format(new Date(`${formattedDate} ${event.dataValues.end_time}`), 'hh:mm a')
-    
+
 
             await sendMessage({
                 to: event.dataValues.user.email,
@@ -724,17 +771,22 @@ const UpdateEventStatus = async (req, res, next) => {
         if (status === 'cancelled') {
             const guestEmails = event.event_guests.map(guest => guest.email);
             const talentEmails = event.event_talents && event.event_talents.map(eventTalent => {
-              const currentUser =  eventTalent.talent;
-                console.log('currentUser',currentUser.dataValues.user.email)
+                const currentUser = eventTalent.talent;
                 return currentUser.dataValues.user.email
             });
-            const recipients  = [...new Set([...guestEmails, ...talentEmails])];
+            const recipients = [...new Set([...guestEmails, ...talentEmails])];
             await EventTalent.UPDATE({
                 event_id: req.body.event_id,
             },
                 {
                     status: 'cancelled'
-            });
+                });
+
+
+            const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
+            const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
+            const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
+
 
             await sendMessage({
                 to: recipients,
@@ -744,8 +796,8 @@ const UpdateEventStatus = async (req, res, next) => {
                     type: event.type,
                     location: event.location,
                     date: event.date,
-                    start_time: event.start_time,
-                    end_time: event.end_time
+                    start_time: formattedStartTime,
+                    end_time: formattedEndTime
                 })
             });
 
@@ -812,7 +864,7 @@ const SendEventInvite = async (req, res, next) => {
             const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
             const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
             const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
-    
+
             await sendMessage({
                 to: guests,
                 subject: `PartyKr8 Event: ${event.title}`,
@@ -851,14 +903,14 @@ const SendEventInvite = async (req, res, next) => {
 
 const GetJoinedEvents = async (req, res, next) => {
     try {
-        console.log('response email', email)
+
         if (!req.query.email) {
             return res.status(400).json({
                 message: 'Email parameter is required'
             });
         }
         const { email } = req.query;
-        console.log('response email', email)
+
 
         const response = await EventGuest.GET_ALL({
             where: {
@@ -890,8 +942,6 @@ const GetJoinedEvents = async (req, res, next) => {
 
             ]
         });
-
-        console.log('response', response)
 
 
         return res.status(200).json({
@@ -985,7 +1035,7 @@ const GetCustomEventTypes = async (req, res, next) => {
         });
 
 
-        
+
         return res.status(200).json({
             event_types: eventTalents
         });

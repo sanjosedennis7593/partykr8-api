@@ -1,14 +1,12 @@
 import { format } from 'date-fns';
 import styles from './styles';
 
-const TALENT_INVITATION_MESSAGE = ({
+const UPDATE_EVENT_MESSAGE = ({
     title,
-    type,
     location,
     date,
     start_time,
-    end_time,
-    user
+    end_time
 }) => {
   
 
@@ -45,33 +43,23 @@ const TALENT_INVITATION_MESSAGE = ({
           <tr>
             <td class="container-padding content" align="left" style="padding-left:24px;padding-right:24px;padding-top:12px;padding-bottom:12px;background-color:#ffffff">
               <br>
-
-  <br>
+              <br>
   
-  <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
+                <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
 
-    Dear talent/partner,
-    <br><br>
-    PARTYKR8 is pleased to inform you that you have been chosen to be part of our user’s event : ${title};  with the above details. Please be in the venue ${location} in considering your ingress time to prepare your service in a professional manner in time for the event and do your duty and tasks as advertised. 
-    <br><br>
-    Please be reminded that as a PARTYKR8 talent/partner, you have agreed and understood the terms and conditions that encompasses your agreement to be a service provider to PARTKR8’s users. 
-    <br><br>
-    Event: ${title}<br>
-    Type: ${type}<br>
-    Date: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')}<br>
-    Time: ${start_time} - ${end_time} <br>
-    Venue: ${location}<br>
-    Organizer Name: ${`${user.firstname} ${user.lastname}`}<br>
+                  Dear guest/talent,
+                  <br><br>
+                  PARTYKR8 is pleased to inform you that you that the event ${title} details has been changed.
 
-    
-    <br/><br/>
-    Congratulations and enjoy the party!
-    <br><br>
-    Make memorable events, 
-    <br><br>
-    PARTYKR8 TEAM
+                  <br><br>
 
-  </div>
+                  Event: ${title}<br>
+                  Date and Time: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time}<br>
+                  Venue: ${location}<br>
+                  <br><br>
+                  PARTYKR8 TEAM
+
+                  </div>
   
             </td>
           </tr>
@@ -93,4 +81,4 @@ const TALENT_INVITATION_MESSAGE = ({
   </html>`;
 };
 
-export default TALENT_INVITATION_MESSAGE;
+export default UPDATE_EVENT_MESSAGE;
