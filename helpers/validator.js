@@ -6,8 +6,8 @@ const SignupValidator = [
     body('firstname').not().isEmpty().trim().escape(),
     body('lastname').not().isEmpty().trim().escape(),
     body('address').not().isEmpty().trim().escape(),
-    body('city').not().isEmpty().trim().escape(),
-    body('state').not().isEmpty().trim().escape(),
+    // body('city').not().isEmpty().trim().escape(),
+    // body('state').not().isEmpty().trim().escape(),
     body('phone_number').not().isEmpty().trim().escape()
 ];
 
@@ -16,8 +16,8 @@ const UpdateUserDetailsValidator = [
     body('firstname').not().isEmpty().trim().escape(),
     body('lastname').not().isEmpty().trim().escape(),
     body('address').not().isEmpty().trim().escape(),
-    body('city').not().isEmpty().trim().escape(),
-    body('state').not().isEmpty().trim().escape(),
+    // body('city').not().isEmpty().trim().escape(),
+    // body('state').not().isEmpty().trim().escape(),
     body('phone_number').not().isEmpty().trim().escape()
 ];
 
