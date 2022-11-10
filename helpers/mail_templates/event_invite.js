@@ -177,7 +177,7 @@ const EVENT_INVITE_MESSAGE = ({
                                                 I would like to invite you to join us for an event/party on ${format(new
                                                 Date(date), 'EEEE, MMMM dd, yyyy')} at ${start_time} - ${end_time} in the evening as we
                                                 celebrate our ${title}.
-                                                The party will be held at (venue) ${location} .
+                                                The party will be held at ${location}.
                                                 <br><br>
                                                 I hope to see you in our simple party with the rest of our friends. We
                                                 are pretty sure that with your presence, our very special day would be
