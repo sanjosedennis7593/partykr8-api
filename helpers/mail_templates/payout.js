@@ -1,14 +1,11 @@
 import { format } from 'date-fns';
 import styles from './styles';
 
-const TALENT_APPLICATION_MESSAGE = ({
-    title,
-    location,
-    date,
-    start_time,
-    end_time
+const TALENT_PAYOUT_MESSAGE = ({
+    talent,
+    event
 }) => {
-  
+
 
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
   <html xmlns="http://www.w3.org/1999/xhtml" 
@@ -47,18 +44,31 @@ const TALENT_APPLICATION_MESSAGE = ({
   
                 <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
 
-                  Dear guest/talent,
-                  <br><br>
-                  PARTYKR8 is pleased to inform you that you that the event ${title} details has been changed.
+                PAYOUT EMAIL: ${talent.user.email}<br>
+                ${talent.user.firstname} ${talent.user.lastname}<br>
+                 ${`${talent.bank_account_name && talent.bank_account_no ? `Registered account number: ${talent.bank_account_name} - ${talent.bank_account_no} <br>` : ''}`}
+                Registered gcash number: ${talent.gcash_no || ''}<br>
 
-                  <br><br>
-
-                  Event: ${title}<br>
-                  Date and Time: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time}<br>
-                  Venue: ${location}<br>
-                  <br><br>
-                  PARTYKR8 TEAM
-
+                <br/><br/>
+                Dear talent/partner,
+                <br><br>
+                PARTYKR8 would like to congratulate you on a very successful event and service you provided for this event:<br>
+                Client/ User name: ${event.user.firstname}  ${event.user.lastname}<br>
+                 Event: ${event.title}<br>
+                 Date and time: ${event.date} | ${event.start_time} -  ${event.end_time}<br>
+                 Venue: ${event.location}<br><br>
+                
+                With the client’s validation of a successful service in PARTYKR8 APP, we would like to inform you that your payout will be available 10 days from receipt of this email to your registered bank account. <br><br>
+                
+                
+                Make memorable events,<br><br> 
+                
+                PARTYKR8 TEAM<br><br>
+                
+                
+                Please be reminded that as a PARTYKR8 talent/partner, you have agreed and understood the terms and conditions that encompasses your agreement to be a service provider to PARTKR8’s users. <br><br>
+                
+                
                   </div>
   
             </td>
@@ -81,4 +91,5 @@ const TALENT_APPLICATION_MESSAGE = ({
   </html>`;
 };
 
-export default TALENT_APPLICATION_MESSAGE;
+export default TALENT_PAYOUT_MESSAGE;
+

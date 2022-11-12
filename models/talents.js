@@ -8,6 +8,10 @@ module.exports = (sequelize, Sequelize) => {
         user_id: {
             type: Sequelize.INTEGER
         },
+        alias: {
+            type: Sequelize.STRING,
+            defaultValue: ''
+        },
         service_type: {
             type: Sequelize.STRING
         },

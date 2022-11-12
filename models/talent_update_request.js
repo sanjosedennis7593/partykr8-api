@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
         talent_id: {
             type: Sequelize.INTEGER
         },
+        alias: {
+            type: Sequelize.STRING
+        },
         type: {
             type: Sequelize.STRING
         },

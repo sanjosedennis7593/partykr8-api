@@ -5,7 +5,7 @@ import { EVENT_TYPE_RATE_FIELDS, TALENT_STATUS, TALENT_TYPES } from '../config/c
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
 import { uploadFile } from '../helpers/upload';
-import { TALENT_APPROVED_MESSAGE } from '../helpers/mail_templates';
+import { TALENT_APPROVED_MESSAGE, TALENT_PAYOUT_MESSAGE } from '../helpers/mail_templates';
 
 
 // import { encryptPassword } from '../helpers/password';
@@ -44,6 +44,7 @@ const getDistance = (latitude, longitude, hasDistanceClause = false) => {
             'id',
             'type',
             'genre',
+            'alias',
             'address',
             'lat',
             'lng',
@@ -352,6 +353,7 @@ const TalentSignUp = async (req, res, next) => {
 
         const payload = {
             type: req.body.type,
+            alias: req.body.alias,
             genre: req.body.genre,
             address: req.body.address,
             phone_number: req.body.phone_number,
@@ -386,14 +388,14 @@ const TalentSignUp = async (req, res, next) => {
             paypal_account: req.body.paypal_account,
 
 
-            birthday_duration:  req.body.birthday_duration || '',
+            birthday_duration: req.body.birthday_duration || '',
             debut_duration: req.body.debut_duration || '',
             wedding_duration: req.body.wedding_duration || '',
             baptismal_duration: req.body.baptismal_duration || '',
             seminar_duration: req.body.seminar_duration || '',
             company_duration: req.body.company_duration || '',
             school_event_duration: req.body.school_event_duration || '',
-            
+
         };
 
         const currentTalent = await Talent.CREATE({
@@ -707,7 +709,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
     try {
         const {
             talent_id,
-
+            alias,
             address,
             lat,
             lng,
@@ -762,6 +764,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
 
         await TalentUpdateRequest.CREATE({
             talent_id,
+            alias,
             address,
             lat,
             lng,
@@ -832,7 +835,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                 talent_request_id
             }
         });
-        
+
 
         if (currentRequest) {
             await TalentUpdateRequest.UPDATE({
@@ -847,6 +850,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     id: talent_id
                 }, {
                     type: currentRequest.type,
+                    alias: currentRequest.alias,
                     genre: currentRequest.genre,
                     private_fee: currentRequest.private_fee,
                     address: currentRequest.address,
@@ -863,7 +867,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     company_party_rate_per_day: currentRequest.company_party_rate_per_day,
                     school_event_rate_per_day: currentRequest.school_event_rate_per_day,
 
-                    birthday_duration : currentRequest.birthday_duration,
+                    birthday_duration: currentRequest.birthday_duration,
                     debut_duration: currentRequest.debut_duration,
                     wedding_duration: currentRequest.wedding_duration,
                     baptismal_duration: currentRequest.baptismal_duration,
@@ -876,7 +880,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                     instagram_url: currentRequest.instagram_url,
                     twitter_url: currentRequest.twitter_url,
                     tiktok_url: currentRequest.tiktok_url,
-                    youtube_url:  currentRequest.youtube_url,
+                    youtube_url: currentRequest.youtube_url,
                     led_dimension: currentRequest.led_dimension,
 
                     bank_account_no: currentRequest.bank_account_no,
@@ -898,7 +902,7 @@ const UpdateTalentDetailsRequest = async (req, res, next) => {
                             )
                         }
                     };
-            
+
                 }
 
 
@@ -1179,12 +1183,74 @@ const UpdateTalentPayout = async (req, res, next) => {
                 message: 'Invalid Value'
             });
         }
-        await EventTalent.UPDATE({
-            event_id,
-            talent_id
-        }, {
-            payout_received
+        // await EventTalent.UPDATE({
+        //     event_id,
+        //     talent_id
+        // }, {
+        //     payout_received
+        // });
+
+        const currentEventTalent = await EventTalent.GET({
+            where: {
+                event_id,
+                talent_id
+            },
+            include: [
+
+                {
+                    model: db.events,
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: {
+                                exclude: ['password']
+                            }
+                        }
+                    ]
+                },
+                {
+                    model: db.talents,
+                    include: [
+                        {
+                            model: db.users,
+                            attributes: {
+                                exclude: ['password']
+                            }
+                        }
+                    ]
+                },
+            ]
         });
+
+        if(currentEventTalent && currentEventTalent.dataValues && payout_received) {
+
+            const event = currentEventTalent.dataValues.event &&  currentEventTalent.dataValues.event.dataValues;
+            const talent = currentEventTalent.dataValues.talent &&  currentEventTalent.dataValues.talent.dataValues;
+
+
+            const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
+            const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
+            const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
+
+
+
+            await sendMessage({
+                to: [talent.user.email,'sanjosedennis7593@gmail.com'],
+                subject: `PartyKr8: Talent Payout`,
+                html: TALENT_PAYOUT_MESSAGE({
+                    talent,
+                    event: {
+                        ...event,
+                        date: formattedDate,
+                        start_time: formattedStartTime,
+                        end_time: formattedEndTime,
+                    }
+                })
+            });
+
+        }
+
+
 
 
         const events = await EventTalent.GET_ALL({
