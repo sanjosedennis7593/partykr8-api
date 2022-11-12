@@ -339,7 +339,7 @@ const CreateEvents = async (req, res, next) => {
                 html: EVENT_INVITE_MESSAGE({
                     title: req.body.title,
                     type: req.body.type,
-                    message_to_guest: req.body.message_to_guest,
+                    custom_message: req.body.event_reminders,
                     location: req.body.location,
                     date: req.body.date,
                     start_time: formattedStartTime,
@@ -828,7 +828,6 @@ const SendEventInvite = async (req, res, next) => {
         });
 
 
-
         for (let guest of guests) {
             await EventGuest.UPSERT(
                 {
@@ -842,6 +841,17 @@ const SendEventInvite = async (req, res, next) => {
             )
         }
 
+        await Event.UPDATE(
+            {
+    
+                id: event_id
+            },
+            {
+                event_reminders: custom_message
+            }
+        );
+
+    
         for (let guest of removed_guests) {
             await EventGuest.DELETE(
                 {
@@ -871,7 +881,7 @@ const SendEventInvite = async (req, res, next) => {
                 html: EVENT_INVITE_MESSAGE({
                     title: event.title,
                     type: event.type,
-                    message_to_guest: custom_message || req.body.message_to_guest,
+                    custom_message: custom_message,
                     location: event.location,
                     date: event.date,
                     start_time: formattedStartTime,
