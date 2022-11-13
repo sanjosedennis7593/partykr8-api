@@ -246,7 +246,7 @@ const EVENT_INVITE_MESSAGE = ({
                                             PartyKr8.
                                             <br><br>
 
-                                            You are receiving this email because a PartyKr8 user invited you to his/her
+                                            You are receiving this email because ${user.firstname} ${user.lastname} invited you to his/her
                                             upcoming event..
                                             <br><br>
                                         </td>
@@ -309,7 +309,7 @@ const EVENT_INVITE_MESSAGE = ({
                                             Play store for
                                             download. Please click this link to view our booking - LINK If you like
                                             to experience hassle free
-                                            party experience use PARTKR8. Download the app now and register! Several
+                                            party experience use PartyKr8. Download the app now and register! Several
                                             Party service
                                             providers such as lights and sounds provider, DJs, singers, hosts,
                                             magicians, bands and many
@@ -339,7 +339,7 @@ const EVENT_INVITE_MESSAGE = ({
                                             PartyKr8, Inc.
                                         <br><br>
 
-                                        You are receiving this email because a PartyKr8 user invited you to his/her
+                                        You are receiving this email because ${user.firstname} ${user.lastname} invited you to his/her
                                         upcoming event..
                                         <br><br>
                                     </td>

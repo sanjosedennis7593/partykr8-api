@@ -59,11 +59,11 @@ const TALENT_UPDATE_STATUS = ({
     Location/venue: ${event.location}  <br/>
     Date: ${format(new Date(event.date),'PPP')} <br/>
     Time: ${event.start_time} - ${event.end_time} <br/>
-    Booked PartyKr8 Partener: ${talentName} <br/>
+    Booked PartyKr8 Partner: ${talentName} <br/>
     Booked Prefessional Fee: PHP ${eventTalentInfo.amount_paid}<br/> <br/>
     You may now coordinate the details directly to partene/talent name using the PartyKr8 Application messaging service inside the app to discuss in details your requirement based on the booking rate you made. <br/> 
     Please be reminded that your direct interaction with PartyKr8 professional partners are governed by the terms and conditions that  you have agreed upon downloading and  by using the application. You are also protected under the privacy policy stamement of PartyKr8 Application. <br/> <br/>
-    Thanks you so much for using PartyKr8 Application, have a blast in your event!
+    Thank you so much for using PartyKr8 Application, have a blast in your event!
 
     <br/> <br/>
     Enjoy life,<br/>
