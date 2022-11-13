@@ -243,7 +243,7 @@ const EVENT_INVITE_MESSAGE = ({
                                         <td class="container-padding footer-text" align="left"
                                             style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;padding-left:24px;padding-right:24px">
                                             <br><br>
-                                            2022 PartyKr8.
+                                            PartyKr8.
                                             <br><br>
 
                                             You are receiving this email because a PartyKr8 user invited you to his/her
@@ -336,7 +336,7 @@ const EVENT_INVITE_MESSAGE = ({
                                     <td class="container-padding footer-text" align="left"
                                         style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;padding-left:24px;padding-right:24px">
                                         <br><br>
-                                        2022 PartyKr8.
+                                        PartyKr8.
                                         <br><br>
 
                                         You are receiving this email because a PartyKr8 user invited you to his/her
