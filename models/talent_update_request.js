@@ -20,6 +20,15 @@ module.exports = (sequelize, Sequelize) => {
         address: {
             type: Sequelize.STRING
         },
+        city: {
+            type: Sequelize.STRING,
+            defaultValue: ''
+        },
+        state: {
+            type: Sequelize.STRING,
+            defaultValue: ''
+        },
+
         lat: {
             type: Sequelize.DECIMAL(10, 7),
             defaultValue: null
