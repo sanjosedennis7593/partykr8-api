@@ -246,8 +246,7 @@ const EVENT_INVITE_MESSAGE = ({
                                             PartyKr8.
                                             <br><br>
 
-                                            You are receiving this email because ${user.firstname} ${user.lastname} invited you to his/her
-                                            upcoming event..
+                                            You are receiving this email because ${user.firstname} ${user.lastname} invited you to event.
                                             <br><br>
                                         </td>
                                     </tr>

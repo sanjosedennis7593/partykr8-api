@@ -2,16 +2,16 @@ import { format } from 'date-fns';
 import styles from './styles';
 
 const CANCELLED_EVENT_MESSAGE = ({
-    title,
-    location,
-    date,
-    start_time,
-    end_time,
-    user
+  title,
+  location,
+  date,
+  start_time,
+  end_time,
+  user
 }) => {
-  
 
-    return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+  return `<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
   <html xmlns="http://www.w3.org/1999/xhtml" 
    xmlns:v="urn:schemas-microsoft-com:vml"
    xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -51,9 +51,11 @@ const CANCELLED_EVENT_MESSAGE = ({
 
     Dear guest/talent,
     <br><br>
-    PARTYKR8 is pleased to inform you that you that the event ${title} (${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time}) has been cancelled by the organizer
-
+    PARTYKR8 would like to inform you that the event ${title} which suppose to happen on  ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time} has been cancelled by the event organizer.
     <br><br>
+    For your information.
+    <br><br><br>
+
     PARTYKR8 TEAM
 
   </div>
