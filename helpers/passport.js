@@ -75,11 +75,16 @@ const TALENT_DATA = [
         include: [
             {
                 model: db.events,
-                attributes: [
-                    'title',
-                    'date',
-                    'start_time',
-                    'end_time',
+                include:[
+                    {
+                        model: db.users,
+                        attributes: [
+                            'email',
+                            'lastname',
+                            'firstname',
+                            'avatar_url',
+                        ]
+                    }
                 ]
             }
         ]
@@ -141,12 +146,12 @@ passport.use(new JWTStrategy({
                 where: {
                     id: jwtPayload.id
                 },
-       
+
                 include: [
                     {
                         model: db.talents,
                         include: TALENT_DATA
-                        
+
                     }
                 ]
             });
@@ -156,7 +161,7 @@ passport.use(new JWTStrategy({
                     ...user.dataValues
                 }
 
-                if(!user.dataValues.password) {
+                if (!user.dataValues.password) {
                     currentUser = {
                         ...currentUser,
                         is_password_empty: true
