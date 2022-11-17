@@ -99,8 +99,9 @@ const GetTalents = async (req, res, next) => {
         const longitude = req.query.lng || null;
         const userId = req.query.user_id || null;
         const serviceType = req.query.service_type || 'talent';
+        const globalMode = req.query.global_mode;
 
-        let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, true) : {};
+        let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, globalMode ? false : true) : {};
 
 
         let status = req.query.status || 'approved';
@@ -111,7 +112,7 @@ const GetTalents = async (req, res, next) => {
 
 
         let filters = Object.keys(req.query).reduce((accum, key) => {
-            if (key !== 'lat' && key !== 'lng' && key !== 'status' && key !== 'gender' && key !== 'address' && key !== 'event_type') {
+            if (key !== 'lat' && key !== 'lng' && key !== 'status' && key !== 'gender' && key !== 'address' && key !== 'event_type' && key !== 'global_mode') {
 
                 if (key === 'equipment_provided' && req.query[key] === 'both') {
                     return {
