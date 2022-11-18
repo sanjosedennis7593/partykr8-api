@@ -424,6 +424,9 @@ const UpdateEventDetails = async (req, res, next) => {
             title: eventPayload.title,
             type: eventPayload.type,
             location: eventPayload.location,
+            full_event_address:eventPayload.full_event_address,
+            city: eventPayload.city,
+            state: eventPayload.state,
             lat: eventPayload.lat,
             lng: eventPayload.lng,
             no_of_guest: eventPayload.no_of_guest,
@@ -446,18 +449,21 @@ const UpdateEventDetails = async (req, res, next) => {
             }) : [];
 
             const recipients = [...new Set([...guestEmails, ...talentEmails])];
-            await sendMessage({
-                to: recipients,
-                subject: `PartyKr8 Event ${defaultEvent.title} details has been changed`,
-                html: UPDATE_EVENT_MESSAGE({
-                    title: eventPayload.title,
-                    type: eventPayload.type,
-                    location: eventPayload.location,
-                    date: eventPayload.date,
-                    start_time: formattedStartTime,
-                    end_time: formattedEndTime
-                })
-            });
+            if(recipients.length > 0) {
+                await sendMessage({
+                    to: recipients,
+                    subject: `PartyKr8 Event ${defaultEvent.title} details has been changed`,
+                    html: UPDATE_EVENT_MESSAGE({
+                        title: eventPayload.title,
+                        type: eventPayload.type,
+                        location: eventPayload.full_event_address,
+                        date: eventPayload.date,
+                        start_time: formattedStartTime,
+                        end_time: formattedEndTime
+                    })
+                });
+            }
+          
         }
 
 
