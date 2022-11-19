@@ -4,6 +4,7 @@ import styles from './styles';
 const UPDATE_EVENT_MESSAGE = ({
     title,
     location,
+    full_event_address,
     date,
     start_time,
     end_time
@@ -55,7 +56,7 @@ const UPDATE_EVENT_MESSAGE = ({
 
                   Event: ${title}<br>
                   Date and Time: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time}<br>
-                  Venue: ${location}<br>
+                  Venue: ${location}, ${full_event_address} <br>
                   <br><br>
                   PARTYKR8 TEAM
 

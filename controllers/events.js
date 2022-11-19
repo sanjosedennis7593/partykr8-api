@@ -334,6 +334,7 @@ const CreateEvents = async (req, res, next) => {
         const formattedStartTime = format(new Date(`${formattedDate} ${req.body.start_time}`), 'hh:mm a')
         const formattedEndTime = format(new Date(`${formattedDate} ${req.body.end_time}`), 'hh:mm a')
 
+            console.log(';req.body.full_event_address',req.body.full_event_address)
         if (req.body.send_invite_after_create) {
 
             await sendMessage({
@@ -343,7 +344,8 @@ const CreateEvents = async (req, res, next) => {
                     title: req.body.title,
                     type: req.body.type,
                     custom_message: req.body.event_reminders,
-                    location: req.body.full_event_address,
+                    location: req.body.location,
+                    full_event_address: req.body.full_event_address,
                     date: req.body.date,
                     start_time: formattedStartTime,
                     end_time: formattedEndTime,
@@ -456,7 +458,8 @@ const UpdateEventDetails = async (req, res, next) => {
                     html: UPDATE_EVENT_MESSAGE({
                         title: eventPayload.title,
                         type: eventPayload.type,
-                        location: eventPayload.full_event_address,
+                        location: eventPayload.location,
+                        full_event_address: eventPayload.full_event_address,
                         date: eventPayload.date,
                         start_time: formattedStartTime,
                         end_time: formattedEndTime
@@ -895,6 +898,7 @@ const SendEventInvite = async (req, res, next) => {
                     type: event.type,
                     custom_message: custom_message,
                     location: event.location,
+                    full_event_address: event.full_event_address,
                     date: event.date,
                     start_time: formattedStartTime,
                     end_time: formattedEndTime,

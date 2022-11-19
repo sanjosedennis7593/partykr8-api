@@ -18,12 +18,13 @@ const EVENT_INVITE_MESSAGE = ({
     custom_message = '',
     day = 'Monday',
     location = '',
+    full_event_address = '',
     date = '',
     start_time = '',
     end_time = '',
     user
 }) => {
-
+    console.log('full_event_addresszzzzzzzzzzzzz', full_event_address)
     return `
     <!doctype html>
     <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
@@ -186,6 +187,7 @@ const EVENT_INVITE_MESSAGE = ({
                                                 style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:20px;font-weight:bold;line-height:1;text-align:center;color:#555;">
 
                                                 <h4>${location}</h4>
+                                                <h4>${full_event_address}</h4>
                                             </div>
 
 
@@ -279,6 +281,7 @@ const EVENT_INVITE_MESSAGE = ({
                                             style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:20px;font-weight:bold;line-height:1;text-align:center;color:#555;">
 
                                             <h4>${location}</h4>
+                                            <h4>${full_event_address}</h4>
                                         </div>
 
 
