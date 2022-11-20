@@ -38,6 +38,9 @@ const WITH_USERS_AND_TALENTS = {
             model: db.event_guests
         },
         {
+            model: db.talent_ratings
+        },
+        {
             model: db.event_refund
         },
         {
@@ -334,7 +337,6 @@ const CreateEvents = async (req, res, next) => {
         const formattedStartTime = format(new Date(`${formattedDate} ${req.body.start_time}`), 'hh:mm a')
         const formattedEndTime = format(new Date(`${formattedDate} ${req.body.end_time}`), 'hh:mm a')
 
-            console.log(';req.body.full_event_address',req.body.full_event_address)
         if (req.body.send_invite_after_create) {
 
             await sendMessage({
@@ -355,7 +357,7 @@ const CreateEvents = async (req, res, next) => {
         }
 
         if (talentEmails.length > 0) {
-          
+
             await sendMessage({
                 to: talentEmails,
                 subject: `Talent Invitation`,
@@ -401,7 +403,7 @@ const UpdateEventDetails = async (req, res, next) => {
             location: req.body.location,
             full_event_address: req.body.full_event_address,
             city: req.body.city,
-            state:  req.body.state,
+            state: req.body.state,
             lat: req.body.lat,
             lng: req.body.lng,
             date: req.body.date,
@@ -417,6 +419,35 @@ const UpdateEventDetails = async (req, res, next) => {
             },
             ...WITH_USERS_AND_TALENTS
         });
+
+        if (defaultEvent) {
+
+            const defaultDate = format(new Date(defaultEvent.date), 'yyyy-MM-dd');
+            const defaultStartTime = format(new Date(`${defaultDate} ${defaultEvent.start_time}`), 'hh:mm a')
+            const defaultEndTime = format(new Date(`${defaultDate} ${defaultEvent.end_time}`), 'hh:mm a')
+
+
+            const updatedDate = format(new Date(eventPayload.date), 'yyyy-MM-dd');
+            const updatedStartTime = format(new Date(`${updatedDate} ${eventPayload.start_time}`), 'hh:mm a')
+            const updatedEndTime = format(new Date(`${updatedDate} ${eventPayload.end_time}`), 'hh:mm a')
+
+            if (
+                defaultEvent.location !== eventPayload.location ||
+                defaultEvent.full_event_address !== eventPayload.full_event_address ||
+                defaultDate !== updatedDate ||
+                defaultStartTime !== updatedStartTime ||
+                defaultEndTime !== updatedEndTime
+            ) {
+
+
+                await EventTalent.UPDATE({
+                    event_id: req.body.event_id,
+                    status: 'approved'
+                }, {
+                    status: 'pending'
+                })
+            }
+        }
 
 
         await Event.UPDATE({
@@ -466,7 +497,7 @@ const UpdateEventDetails = async (req, res, next) => {
                     })
                 });
             }
-          
+
         }
 
 
@@ -858,7 +889,6 @@ const SendEventInvite = async (req, res, next) => {
 
         await Event.UPDATE(
             {
-    
                 id: event_id
             },
             {
@@ -866,7 +896,6 @@ const SendEventInvite = async (req, res, next) => {
             }
         );
 
-    
         for (let guest of removed_guests) {
             await EventGuest.DELETE(
                 {

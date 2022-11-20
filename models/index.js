@@ -139,11 +139,22 @@ models.talents.hasMany(models.talent_ratings, {
     sourceKey: 'id'
 });
 
+models.events.hasMany(models.talent_ratings, {
+    foreignKey: 'event_id',
+    sourceKey: 'id'
+});
 
 models.talent_ratings.belongsTo(models.talents, {
     foreignKey: 'talent_id',
     sourceKey: 'id'
 });
+
+models.talent_ratings.belongsTo(models.events, {
+    foreignKey: 'event_id',
+    sourceKey: 'id'
+});
+
+
 
 models.users.hasMany(models.talent_ratings, {
     foreignKey: 'user_id',

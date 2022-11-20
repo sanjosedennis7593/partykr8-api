@@ -11,6 +11,9 @@ module.exports = (sequelize, Sequelize) => {
         user_id: {
             type: Sequelize.INTEGER
         },
+        event_id: {
+            type: Sequelize.INTEGER
+        },
         rating: {
             type: Sequelize.INTEGER
         },
