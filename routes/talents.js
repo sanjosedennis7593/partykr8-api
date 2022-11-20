@@ -16,7 +16,8 @@ import {
     UpdateTalentPayout,
     GetTalentPayout,
     TalentPackageUpdate,
-    TalentEventTypeUpdate
+    TalentEventTypeUpdate,
+    GetTalentLocations
 } from '../controllers/talents';
 
 import { fileRequest } from '../helpers/upload';
@@ -40,6 +41,7 @@ const avatarRequest = fileRequest.fields(avatarUrlRequests);
 
 router.get('/', GetTalents);
 router.get('/counts', GetServiceCounts);
+router.get('/locations', GetTalentLocations);
 router.get('/payouts/:talent_id', GetTalentPayout);
 router.get('/:id', GetTalent);
 router.get('/:id/events', GetTalentEvents);

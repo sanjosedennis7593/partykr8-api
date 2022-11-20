@@ -1449,6 +1449,78 @@ const TalentEventTypeUpdate = async (req, res, next) => {
 }
 
 
+const GetTalentLocations = async (req, res, next) => {
+
+    try {
+        const country = req.query.country || null;
+        const lat = req.query.lat || null;
+        const lng = req.query.lng || null;
+
+        let talentUsers = [];
+        if (!country && !lat && !lng) {
+            talentUsers = await User.GET_ALL({
+                attributes: {
+                    exclude: ['password']
+                },
+                where: {
+                    role: 'talent'
+                },
+                include: [
+                    {
+                        model: db.talents,
+                    }
+                ]
+            });
+        }
+        else {
+
+            const distanceOptions = getDistance(lat, lng, true);
+            //  
+            talentUsers = await User.GET_ALL({
+                attributes: {
+                    exclude: ['password']
+                },
+                where: {
+                    country,
+                    role: 'talent'
+                },
+                include: [
+                    {
+                        model: db.talents,
+                        ...distanceOptions
+
+                    }
+                ]
+            })
+        }
+
+
+        talentUsers = talentUsers.map(user => {
+            return {
+                lat: user.dataValues.talent && user.dataValues.talent.dataValues.lat,
+                lng: user.dataValues.talent && user.dataValues.talent.dataValues.lng,
+                address: user.dataValues.talent && user.dataValues.talent.dataValues.address,
+                city: user.dataValues.talent && user.dataValues.talent.dataValues.city,
+                state: user.dataValues.talent && user.dataValues.talent.dataValues.state
+            }
+        });
+
+
+
+        return res.status(200).json({
+            talent_locations: talentUsers
+        })
+
+
+    } catch (err) {
+        console.log('Err', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+
+};
 
 export {
     GetTalent,
@@ -1466,5 +1538,6 @@ export {
     UpdateTalentPayout,
     GetTalentPayout,
     TalentPackageUpdate,
-    TalentEventTypeUpdate
+    TalentEventTypeUpdate,
+    GetTalentLocations
 }
