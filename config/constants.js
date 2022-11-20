@@ -26,7 +26,23 @@ const TALENT_TYPES = {
     band: 'band',
     magician: 'magician',
     lights_and_sounds: 'lights_and_sounds',
-    led_wall: 'led_wall'
+    led_wall: 'led_wall',
+    choreographer: 'Choreographer',
+    choir_instructor: 'Choir Instructor',
+    acoustic_band: 'Acoustic Band',
+    dance_group: 'Dance Group',
+    bubble_show: 'Bubble Show',
+    face_painter: 'Face Painter',
+    photo_video: 'Photo Video',
+    bouncy_castle: 'Bouncy Castle',
+    gensets: 'Gensets',
+    event_stylist: 'Event Stylist',
+    event_coordinator: 'Event Coordinator',
+    wedding_planner: 'Wedding Planner',
+    band_equipment: 'Band Equipment',
+    dj_equipment: 'DJ Equipment',
+    mobile_bar: 'Mobile Bar',
+    table_and_chairs: 'Table and Chairs',
 };
 
 
