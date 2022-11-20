@@ -105,14 +105,23 @@ const GetTalents = async (req, res, next) => {
 
 
         let status = req.query.status || 'approved';
-        let eventRateField = serviceType === 'talent' && EVENT_TYPE_RATE_FIELDS[req.query.event_type]
+        let eventRateField = serviceType === 'talent' && EVENT_TYPE_RATE_FIELDS[req.query.event_type];
+        let customEventTypeFilter = null;
 
         // let queries = {};
         let userQueries = {};
 
 
         let filters = Object.keys(req.query).reduce((accum, key) => {
-            if (key !== 'lat' && key !== 'lng' && key !== 'status' && key !== 'gender' && key !== 'address' && key !== 'event_type' && key !== 'global_mode') {
+            if (
+                key !== 'lat' &&
+                key !== 'lng' &&
+                key !== 'status' &&
+                key !== 'gender' &&
+                key !== 'address' &&
+                key !== 'event_type' &&
+                key !== 'global_mode'
+            ) {
 
                 if (key === 'equipment_provided' && req.query[key] === 'both') {
                     return {
@@ -136,8 +145,15 @@ const GetTalents = async (req, res, next) => {
 
                 }
             }
-        };
-
+        }
+        else if (!eventRateField && req.query.event_type && serviceType === 'talent') {
+            customEventTypeFilter = {
+                event_type: req.query.event_type,
+                amount: {
+                    [Op.gt]: 0
+                }
+            }
+        }
 
 
 
@@ -191,7 +207,12 @@ const GetTalents = async (req, res, next) => {
                     ]
                 },
                 {
-                    model: db.talent_event_type
+                    model: db.talent_event_type,
+                    ...(customEventTypeFilter ? {
+                        where: {
+                            ...customEventTypeFilter
+                        }
+                    } : {})
                 },
                 {
                     model: db.talent_valid_ids,
@@ -1233,10 +1254,10 @@ const UpdateTalentPayout = async (req, res, next) => {
             ]
         });
 
-        if(currentEventTalent && currentEventTalent.dataValues && payout_received) {
+        if (currentEventTalent && currentEventTalent.dataValues && payout_received) {
 
-            const event = currentEventTalent.dataValues.event &&  currentEventTalent.dataValues.event.dataValues;
-            const talent = currentEventTalent.dataValues.talent &&  currentEventTalent.dataValues.talent.dataValues;
+            const event = currentEventTalent.dataValues.event && currentEventTalent.dataValues.event.dataValues;
+            const talent = currentEventTalent.dataValues.talent && currentEventTalent.dataValues.talent.dataValues;
 
 
             const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
@@ -1246,7 +1267,7 @@ const UpdateTalentPayout = async (req, res, next) => {
 
 
             await sendMessage({
-                to: [talent.user.email,'sanjosedennis7593@gmail.com'],
+                to: [talent.user.email, 'sanjosedennis7593@gmail.com'],
                 subject: `PartyKr8: Talent Payout`,
                 html: TALENT_PAYOUT_MESSAGE({
                     talent,
