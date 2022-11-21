@@ -1501,7 +1501,8 @@ const GetTalentLocations = async (req, res, next) => {
                 lng: user.dataValues.talent && user.dataValues.talent.dataValues.lng,
                 address: user.dataValues.talent && user.dataValues.talent.dataValues.address,
                 city: user.dataValues.talent && user.dataValues.talent.dataValues.city,
-                state: user.dataValues.talent && user.dataValues.talent.dataValues.state
+                state: user.dataValues.talent && user.dataValues.talent.dataValues.state,
+                country: user.dataValues.country
             }
         });
 
