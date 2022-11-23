@@ -120,7 +120,8 @@ const GetTalents = async (req, res, next) => {
                 key !== 'gender' &&
                 key !== 'address' &&
                 key !== 'event_type' &&
-                key !== 'global_mode'
+                key !== 'global_mode' &&
+                key !== 'country'
             ) {
 
                 if (key === 'equipment_provided' && req.query[key] === 'both') {
@@ -160,12 +161,19 @@ const GetTalents = async (req, res, next) => {
         if (req.query.gender) {
             if (req.query.gender !== 'both') {
                 userQueries = {
+                    ...userQueries,
                     gender: req.query.gender
                 }
             }
 
         }
 
+        if (req.query.country) {
+            userQueries = {
+                ...userQueries,
+                country: req.query.country
+            }
+        }
 
         let whereClause = status === 'all' ? {} : {
             where: {
