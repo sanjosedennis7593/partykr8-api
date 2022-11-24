@@ -98,7 +98,7 @@ const GetTalents = async (req, res, next) => {
         const latitude = req.query.lat || null;
         const longitude = req.query.lng || null;
         const userId = req.query.user_id || null;
-        const serviceType = req.query.service_type || 'talent';
+        const serviceType = req.query.service_type || 'any';
         const globalMode = req.query.global_mode;
 
         let distanceOptions = (latitude && longitude) ? getDistance(latitude, longitude, globalMode ? false : true) : {};
@@ -124,11 +124,12 @@ const GetTalents = async (req, res, next) => {
                 key !== 'country'
             ) {
 
-                if (key === 'equipment_provided' && req.query[key] === 'both') {
+                if (key === 'equipment_provided' && req.query[key] === 'both' || (key === 'service_type' && serviceType === 'any')) {
                     return {
                         ...accum
                     }
                 }
+            
                 return {
                     ...accum,
                     [key]: req.query[key]
@@ -138,20 +139,26 @@ const GetTalents = async (req, res, next) => {
             return accum;
         }, {});
 
-        if (eventRateField && serviceType === 'talent') {
-            filters = {
-                ...filters,
-                [eventRateField]: {
-                    [Op.gt]: 0,
 
+        if(serviceType === 'any') {
+
+        }
+        else {
+            if (eventRateField && serviceType === 'talent') {
+                filters = {
+                    ...filters,
+                    [eventRateField]: {
+                        [Op.gt]: 0,
+    
+                    }
                 }
             }
-        }
-        else if (!eventRateField && req.query.event_type && serviceType === 'talent') {
-            customEventTypeFilter = {
-                event_type: req.query.event_type,
-                amount: {
-                    [Op.gt]: 0
+            else if (!eventRateField && req.query.event_type && serviceType === 'talent') {
+                customEventTypeFilter = {
+                    event_type: req.query.event_type,
+                    amount: {
+                        [Op.gt]: 0
+                    }
                 }
             }
         }
@@ -196,6 +203,7 @@ const GetTalents = async (req, res, next) => {
             }
         }
 
+        
         // console.log('whereClause', whereClause)
         // console.log('whereClause distanceOptions', distanceOptions)
         const talents = await Talent.GET_ALL({
