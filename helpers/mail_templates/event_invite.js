@@ -245,10 +245,9 @@ const EVENT_INVITE_MESSAGE = ({
                                         <td class="container-padding footer-text" align="left"
                                             style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;padding-left:24px;padding-right:24px">
                                             <br><br>
-                                            PartyKr8.
-                                            <br><br>
-
                                             You are receiving this email because ${user.firstname} ${user.lastname} invited you to the event.
+                                            <br><br>
+                                            PartyKr8.
                                             <br><br>
                                         </td>
                                     </tr>
@@ -338,10 +337,10 @@ const EVENT_INVITE_MESSAGE = ({
                                     <td class="container-padding footer-text" align="left"
                                         style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;padding-left:24px;padding-right:24px">
                                         <br><br>
-                                            PartyKr8, Inc.
+                                        You are receiving this email because ${user.firstname} ${user.lastname} invited you to the event.
                                         <br><br>
 
-                                        You are receiving this email because ${user.firstname} ${user.lastname} invited you to the event.
+                                        PartyKr8, Inc.
                                         <br><br>
                                     </td>
                                 </tr>
