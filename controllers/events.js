@@ -337,7 +337,7 @@ const CreateEvents = async (req, res, next) => {
         const formattedStartTime = format(new Date(`${formattedDate} ${req.body.start_time}`), 'hh:mm a')
         const formattedEndTime = format(new Date(`${formattedDate} ${req.body.end_time}`), 'hh:mm a')
 
-        if (req.body.send_invite_after_create) {
+        if (req.body.send_invite_after_create && req.body.guests && req.body.guests.length > 0) {
 
             await sendMessage({
                 to: req.body.guests,
