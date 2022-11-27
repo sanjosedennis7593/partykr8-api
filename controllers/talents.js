@@ -1231,12 +1231,12 @@ const UpdateTalentPayout = async (req, res, next) => {
                 message: 'Invalid Value'
             });
         }
-        // await EventTalent.UPDATE({
-        //     event_id,
-        //     talent_id
-        // }, {
-        //     payout_received
-        // });
+        await EventTalent.UPDATE({
+            event_id,
+            talent_id
+        }, {
+            payout_received
+        });
 
         const currentEventTalent = await EventTalent.GET({
             where: {
@@ -1283,7 +1283,7 @@ const UpdateTalentPayout = async (req, res, next) => {
 
 
             await sendMessage({
-                to: [talent.user.email, 'sanjosedennis7593@gmail.com'],
+                to: [talent.user.email],
                 subject: `PartyKr8: Talent Payout`,
                 html: TALENT_PAYOUT_MESSAGE({
                     talent,
