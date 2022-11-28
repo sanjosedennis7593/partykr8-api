@@ -571,7 +571,7 @@ const UpdateEventTalents = async (req, res, next) => {
                     amount_paid: talent.amount_paid,
                     payment_type: talent.payment_type,
                     invitation_expiration: talent.invitation_expiration,
-                    status: 'pending'
+                    status: talent.status || 'pending'
                 }
             )
         }
@@ -986,6 +986,10 @@ const GetJoinedEvents = async (req, res, next) => {
                         'start_time',
                         'end_time',
                         'status',
+                        'full_event_address',
+                        'city',
+                        'state'
+                        
                     ],
                     where: {
                         [Op.or]: [{ status: 'pending' }, { status: 'finished' }]
@@ -1035,7 +1039,10 @@ const GetEventTalents = async (req, res, next) => {
                     model: db.events,
                     attributes: [
                         'title',
-                        'status'
+                        'status',
+                        'date',
+                        'start_time',
+                        'end_time'
                     ]
                 },
                 {
