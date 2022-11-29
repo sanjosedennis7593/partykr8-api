@@ -433,6 +433,7 @@ const AttachPaymentIntent = async (req, res, next) => {
         );
 
 
+
         if (currentEventPayment && currentEventPayment.dataValues) {
 
             for (let talent of selected_talent) {
@@ -473,7 +474,8 @@ const CreateRefund = async (req, res, next) => {
             payment_id,
             notes,
             reason,
-            event_id
+            event_id,
+            event_payment_detail_id = null
         } = req.body;
 
 
@@ -490,6 +492,17 @@ const CreateRefund = async (req, res, next) => {
                 refund_id: refundResponse.data.id,
                 amount: amount / 100,
                 reason: notes
+            });
+        }
+
+        console.log('EventPayment details id', event_payment_detail_id)
+
+        if (event_payment_detail_id) {
+            console.log('EventPayment details id 222', event_payment_detail_id)
+            await EventPaymentDetails.UPDATE({
+                event_payment_detail_id
+            }, {
+                status: 0
             });
         }
 
@@ -628,7 +641,7 @@ const CapturePaypalOrder = async (req, res, next) => {
         if (response) {
             const status = response && response.status === 'COMPLETED' ? 'paid' : 'failed';
 
-            const captureId = response && response.purchase_units && response.purchase_units[0] && response.purchase_units[0].payments && response.purchase_units[0].payments.captures &&  response.purchase_units[0].payments.captures[0].id;
+            const captureId = response && response.purchase_units && response.purchase_units[0] && response.purchase_units[0].payments && response.purchase_units[0].payments.captures && response.purchase_units[0].payments.captures[0].id;
             await EventPayments.CREATE({
                 event_id,
                 amount: amount * 100,
@@ -744,7 +757,7 @@ const GetPaypalRefundById = async (req, res, next) => {
             refund_id
         } = req.params;
 
-        console.log('refund_id',req.params)
+        console.log('refund_id', req.params)
 
         const refundResponse = await paypalGetRefundDetails(refund_id);
         return res.status(200).json({

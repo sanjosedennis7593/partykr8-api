@@ -46,6 +46,7 @@ const WITH_USERS_AND_TALENTS = {
         {
             model: db.event_payments,
             attributes: [
+                'event_payment_id',
                 'amount',
                 'payment_type',
                 'payment_id',
