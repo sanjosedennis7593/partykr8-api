@@ -18,7 +18,8 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         status: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER,
+            default: 0
         },
         createdAt: {
             type: Sequelize.DATE,

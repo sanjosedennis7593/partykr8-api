@@ -224,7 +224,7 @@ const GetSourceById = async (req, res, next) => {
 
 const UpdatePaymentIntentStatus = async (req, res, next) => {
     try {
-        const { payment_intent_id, event_id, payment_id } = req.body;
+        const { payment_intent_id, event_id, payment_id, selected_talent } = req.body;
 
         await EventPayments.UPSERT(
             {
@@ -236,6 +236,28 @@ const UpdatePaymentIntentStatus = async (req, res, next) => {
                 status: 'succeeded'
             }
         );
+        const currentEventPayment = await EventPayments.GET(
+            {
+                where: {
+                    event_id,
+                    ref_id: payment_intent_id
+                }
+            }
+        );
+
+        if (selected_talent) {
+
+            for (let talent of selected_talent) {
+
+                await EventPaymentDetails.UPDATE({
+                    talent_id: talent.talent_id,
+                    event_payment_id:  currentEventPayment.event_payment_id
+                }, {
+                    status: 1
+                });
+            }
+        }
+
 
 
         return res.status(200).json({
@@ -384,7 +406,8 @@ const AttachPaymentIntent = async (req, res, next) => {
             event_id,
             payment_method_id,
             selected_talent,
-            return_url
+            return_url,
+            payment_type
         } = req.body;
 
 
@@ -442,7 +465,7 @@ const AttachPaymentIntent = async (req, res, next) => {
                     event_payment_id: currentEventPayment.dataValues.event_payment_id,
                     talent_id: talent.talent_id,
                     amount: talent.service_rate,
-                    status: 1
+                    status: payment_type === 'card' ? 1 : 0
                 })
             }
 
@@ -495,10 +518,8 @@ const CreateRefund = async (req, res, next) => {
             });
         }
 
-        console.log('EventPayment details id', event_payment_detail_id)
-
         if (event_payment_detail_id) {
-            console.log('EventPayment details id 222', event_payment_detail_id)
+
             await EventPaymentDetails.UPDATE({
                 event_payment_detail_id
             }, {
