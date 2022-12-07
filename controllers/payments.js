@@ -12,6 +12,8 @@ import {
     retrievePaymentSource,
     rerievePaymentIntentById,
     retrieveRefundById,
+    createPaymentLinks,
+    retrievePaymentLinks,
 
     paypalCreateToken,
     paypalCreateOrder,
@@ -107,22 +109,23 @@ const ConfirmSourcePayment = async (req, res, next) => {
 
         const {
             id,
-            type,
+            // type,
             amount,
-            description,
+            // description,
+            payment_id,
             event_id,
-            payment_intent_id,
+            // payment_intent_id,
             selected_talent = [],
             event
         } = req.body;
         const { user } = req;
 
-        const eventPaymentResponse = await createPayment({
-            id,
-            type,
-            amount,
-            description
-        });
+        // const eventPaymentResponse = await createPayment({
+        //     id,
+        //     type,
+        //     amount,
+        //     description
+        // });
 
 
         await EventPayments.UPSERT(
@@ -130,10 +133,12 @@ const ConfirmSourcePayment = async (req, res, next) => {
                 event_id
             },
             {
+                payment_type: 'paymongo',
                 amount,
                 event_id,
-                payment_id: eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.id,
-                status: eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.attributes && eventPaymentResponse.data.attributes.status
+                payment_id,
+                ref_id:id,
+                status: 1 // eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.attributes && eventPaymentResponse.data.attributes.status
             }
         );
 
@@ -142,7 +147,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
             {
                 where: {
                     event_id,
-                    ref_id: payment_intent_id
+                    payment_id
                 }
             }
         );
@@ -169,8 +174,8 @@ const ConfirmSourcePayment = async (req, res, next) => {
                 html: PAYMENT_MESSAGE({
                     talents: selected_talent,
                     event,
-                    id: eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.id,
-                    type: 'gcash',
+                    id: payment_id,
+                    type: 'paymongo',
                     totalAmount,
                     user
                 })
@@ -182,7 +187,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
 
         return res.status(201).json({
             message: 'Payment has been confirm successfully!',
-            data: eventPaymentResponse,
+            data: currentEventPayment,
             event_id
         });
     }
@@ -405,7 +410,7 @@ const GetPaymentIntentById = async (req, res, next) => {
         });
     }
     catch (err) {
-        console.log('errrrr', err)
+        console.log('Error', err)
         // console.log('Error ', err.response.data)
         return res.status(400).json({
             error: err.code,
@@ -527,6 +532,65 @@ const AttachPaymentIntent = async (req, res, next) => {
 
 
 
+const CreatePaymentLinks = async (req, res, next) => {
+
+    try {
+
+        const {
+            amount,
+            description,
+            remarks = '',
+           
+        } = req.body;
+
+        const paymentLinkResponse = await createPaymentLinks({
+            amount,
+            description,
+            remarks
+        });
+
+
+        return res.status(200).json({
+            message: 'Success',
+            data: {
+                ...paymentLinkResponse.data
+            }
+        });
+    }
+    catch (err) {
+        console.log('Error', err.response.data)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response.data
+        });
+    }
+};
+
+
+const GetPaymentLinks = async (req, res, next) => {
+
+    try {
+        const {
+            id
+        } = req.params;
+
+        const paymentLinkResponse = await retrievePaymentLinks(id);
+
+        return res.status(200).json({
+            paymentLinks: paymentLinkResponse
+        });
+    }
+    catch (err) {
+        // console.log('Error ', err.response.data)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response.data
+        });
+    }
+}
+
+
+
 const CreateRefund = async (req, res, next) => {
 
     try {
@@ -541,7 +605,7 @@ const CreateRefund = async (req, res, next) => {
 
 
         const refundResponse = await createRefund({
-            amount: amount / 100,
+            amount: amount,
             payment_id,
             notes,
             reason
@@ -868,6 +932,8 @@ export {
     GetRefundById,
     GetRefunds,
     UpdatePaymentIntentStatus,
+    CreatePaymentLinks,
+    GetPaymentLinks,
 
 
     CreatePaypalToken,

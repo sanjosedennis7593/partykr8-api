@@ -13,6 +13,8 @@ import {
     GetRefundById,
     GetRefunds,
     UpdatePaymentIntentStatus,
+    CreatePaymentLinks,
+    GetPaymentLinks,
     CreatePaypalToken,
     CreatePaypalOrder,
     CapturePaypalOrder,
@@ -37,6 +39,8 @@ router.post('/intent', CreatePaymentIntent);
 router.post('/intent/:payment_intent_id/attach', AttachPaymentIntent);
 router.post('/refund', CreateRefund);
 
+router.post('/links', CreatePaymentLinks);
+router.get('/links/:id', GetPaymentLinks);
 
 router.post('/paypal/token/create', CreatePaypalToken);
 router.post('/paypal/order/create', CreatePaypalOrder);

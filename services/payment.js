@@ -30,7 +30,7 @@ ENCODED_PAYPAL_KEY = ENCODED_PAYPAL_KEY.toString('base64');
 
 
 
-console.log('ENCODED_PAYPAL_KEY',ENCODED_PAYPAL_KEY)
+console.log('ENCODED_PAYPAL_KEY', ENCODED_PAYPAL_KEY)
 
 
 const getPaypalApiCredentials = () => {
@@ -309,6 +309,49 @@ const listRefunds = async () => {
 }
 
 
+const createPaymentLinks = async ({
+    amount,
+    description,
+    remarks = ''
+
+}) => {
+
+    const options = {
+        method: 'POST',
+        url: `${PAYMONGO_API}/links`,
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY),
+        data: {
+            data: {
+                attributes: {
+                    amount,
+                    description,
+                    remarks
+                }
+            }
+        }
+    };
+
+    return await axios
+        .request(options)
+        .then(response => response && response.data)
+};
+
+
+const retrievePaymentLinks = async id => {
+
+    const options = {
+        method: 'GET',
+        url: `${PAYMONGO_API}/links/${id}`,
+        headers: setPaymongoHeader(ENCODED_SECRET_KEY)
+    };
+
+    return await axios
+        .request(options)
+        .then(response => response && response.data)
+};
+
+
+
 /* END OF PAYMONGO API */
 
 /* PAYPAL API */
@@ -334,7 +377,7 @@ const paypalCreateToken = async () => {
 
 const paypalCreateOrder = async data => {
     const apiCredentials = getPaypalApiCredentials();
- 
+
     const options = {
         method: 'POST',
         url: `${PAYPAL_API_ROOT_URL_V2}/checkout/orders`,
@@ -347,7 +390,7 @@ const paypalCreateOrder = async data => {
         }
     };
 
-    const response =  await axios
+    const response = await axios
         .request(options)
         .then(response => response && response.data);
 
@@ -368,7 +411,7 @@ const paypalCaptureOrder = async orderId => {
         }
     };
 
-    const response =  await axios
+    const response = await axios
         .request(options)
         .then(response => response && response.data);
 
@@ -389,7 +432,7 @@ const paypalGetOrderDetails = async orderId => {
         }
     };
 
-    const response =  await axios
+    const response = await axios
         .request(options)
         .then(response => response && response.data);
 
@@ -411,7 +454,7 @@ const paypalRefundOrder = async (captureId, data) => {
         }
     };
 
-    const response =  await axios
+    const response = await axios
         .request(options)
         .then(response => response && response.data);
 
@@ -420,7 +463,7 @@ const paypalRefundOrder = async (captureId, data) => {
 }
 const paypalGetRefundDetails = async refundId => {
     const apiCredentials = getPaypalApiCredentials();
- 
+
     const options = {
         method: 'GET',
         url: `${PAYPAL_API_ROOT_URL_V2}/payments/refunds/${refundId}`,
@@ -431,7 +474,7 @@ const paypalGetRefundDetails = async refundId => {
         }
     };
 
-    const response =  await axios
+    const response = await axios
         .request(options)
         .then(response => response && response.data);
     return response;
@@ -454,6 +497,8 @@ export {
     createRefund,
     retrieveRefundById,
     listRefunds,
+    createPaymentLinks,
+    retrievePaymentLinks,
 
     paypalCreateToken,
     paypalCreateOrder,
