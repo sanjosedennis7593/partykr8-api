@@ -137,7 +137,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
                 amount,
                 event_id,
                 payment_id,
-                ref_id:id,
+                ref_id: id,
                 status: 1 // eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.attributes && eventPaymentResponse.data.attributes.status
             }
         );
@@ -537,6 +537,7 @@ const CreatePaymentLinks = async (req, res, next) => {
     try {
 
         const {
+            event_id,
             amount,
             description,
             remarks = '',
@@ -548,6 +549,22 @@ const CreatePaymentLinks = async (req, res, next) => {
             description,
             remarks
         });
+
+
+        
+        await EventPayments.UPSERT(
+            {
+                event_id
+            },
+            {
+                payment_type: 'paymongo',
+                amount,
+                event_id,
+                payment_id: '',
+                ref_id: '',
+                status: 0 // eventPaymentResponse && eventPaymentResponse.data && eventPaymentResponse.data.attributes && eventPaymentResponse.data.attributes.status
+            }
+        );
 
 
         return res.status(200).json({
