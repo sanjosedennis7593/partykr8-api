@@ -31,6 +31,7 @@ const WITH_USERS_AND_TALENTS = {
                 'email',
                 'lastname',
                 'firstname',
+                'email',
                 'avatar_url'
             ]
         },
