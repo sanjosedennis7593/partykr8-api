@@ -25,7 +25,7 @@ import {
 } from '../services/payment';
 
 import Table from '../helpers/database';
-import { sendMessage } from '../helpers/mail';
+import { sendMessage, PAYMENT_SMTP_USER } from '../helpers/mail';
 import { PAYMENT_MESSAGE } from '../helpers/mail_templates';
 
 import db from '../models';
@@ -169,7 +169,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
 
 
             await sendMessage({
-                to: user.email,
+                to: [user.email,PAYMENT_SMTP_USER],
                 subject: `PartyKr8: Talent Payment`,
                 html: PAYMENT_MESSAGE({
                     talents: selected_talent,
@@ -499,7 +499,7 @@ const AttachPaymentIntent = async (req, res, next) => {
             const totalAmount = selected_talent.reduce((accum, talent) => accum + talent.service_rate, 0)
 
             await sendMessage({
-                to: user.email,
+                to: [user.email,PAYMENT_SMTP_USER],
                 subject: `PartyKr8: Talent Payment`,
                 html: PAYMENT_MESSAGE({
                     talents: selected_talent,
@@ -551,7 +551,6 @@ const CreatePaymentLinks = async (req, res, next) => {
         });
 
 
-        
         await EventPayments.UPSERT(
             {
                 event_id
@@ -819,7 +818,7 @@ const CapturePaypalOrder = async (req, res, next) => {
 
                 
                 await sendMessage({
-                    to: user.email,
+                    to: [user.email,PAYMENT_SMTP_USER],
                     subject: `PartyKr8: Talent Payment`,
                     html: PAYMENT_MESSAGE({
                         talents: selected_talent,
