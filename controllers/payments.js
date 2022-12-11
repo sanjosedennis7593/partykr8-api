@@ -903,16 +903,9 @@ const RefundPaypalOrder = async (req, res, next) => {
             }
         });
    
-        if (currentEventPayments) {
+        if (currentEventPayments && typeof talent_id === 'string') {
    
-            // await EventPayments.CREATE({
-            //     event_id,
-            //     amount: amount * 100,
-            //     payment_type: 'paypal',
-            //     ref_id: response && response.id, // ORDER ID
-            //     payment_id: captureId,
-            //     status: status
-            // })
+    
             await EventPaymentDetails.UPDATE({
                 event_payment_id:  currentEventPayments.dataValues.event_payment_id,
                 talent_id
