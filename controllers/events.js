@@ -248,7 +248,7 @@ const CreateEvents = async (req, res, next) => {
                                 'start_time',
                                 'end_time',
                                 'status',
-                            ]
+                            ],
                         }
                     ]
                 }
@@ -1045,6 +1045,12 @@ const GetEventTalents = async (req, res, next) => {
                         'date',
                         'start_time',
                         'end_time'
+                    ],
+                    include: [
+                        {
+                            model: db.event_payments,
+                            include: db.event_payment_details
+                        }
                     ]
                 },
                 {

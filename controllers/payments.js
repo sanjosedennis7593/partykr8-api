@@ -24,8 +24,10 @@ import {
 
 } from '../services/payment';
 
+import { PAYMENT_SMTP_USER } from "../config/mail";
+
 import Table from '../helpers/database';
-import { sendMessage, PAYMENT_SMTP_USER } from '../helpers/mail';
+import { sendMessage } from '../helpers/mail';
 import { PAYMENT_MESSAGE } from '../helpers/mail_templates';
 
 import db from '../models';
@@ -109,7 +111,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
 
         const {
             id,
-            // type,
+            type,
             amount,
             // description,
             payment_id,
@@ -133,7 +135,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
                 event_id
             },
             {
-                payment_type: 'paymongo',
+                payment_type: type,
                 amount,
                 event_id,
                 payment_id,
@@ -168,18 +170,18 @@ const ConfirmSourcePayment = async (req, res, next) => {
             const totalAmount = selected_talent.reduce((accum, talent) => accum + talent.amount_paid, 0)
 
 
-            await sendMessage({
-                to: [user.email,PAYMENT_SMTP_USER],
+            const mailResponse = await sendMessage({
+                to: [user.email, PAYMENT_SMTP_USER],
                 subject: `PartyKr8: Talent Payment`,
                 html: PAYMENT_MESSAGE({
                     talents: selected_talent,
                     event,
+                    type,
                     id: payment_id,
-                    type: 'paymongo',
                     totalAmount,
                     user
                 })
-            },'payment');
+            }, 'payment');
 
         }
 
@@ -499,7 +501,7 @@ const AttachPaymentIntent = async (req, res, next) => {
             const totalAmount = selected_talent.reduce((accum, talent) => accum + talent.service_rate, 0)
 
             await sendMessage({
-                to: [user.email,PAYMENT_SMTP_USER],
+                to: [user.email, PAYMENT_SMTP_USER],
                 subject: `PartyKr8: Talent Payment`,
                 html: PAYMENT_MESSAGE({
                     talents: selected_talent,
@@ -509,7 +511,7 @@ const AttachPaymentIntent = async (req, res, next) => {
                     totalAmount,
                     user
                 })
-            },'payment');
+            }, 'payment');
 
 
         }
@@ -541,7 +543,7 @@ const CreatePaymentLinks = async (req, res, next) => {
             amount,
             description,
             remarks = '',
-           
+
         } = req.body;
 
         const paymentLinkResponse = await createPaymentLinks({
@@ -816,9 +818,9 @@ const CapturePaypalOrder = async (req, res, next) => {
                 console.log('selected_talent', selected_talent)
                 const totalAmount = selected_talent.reduce((accum, talent) => accum + talent.amount_paid, 0)
 
-                
+
                 await sendMessage({
-                    to: [user.email,PAYMENT_SMTP_USER],
+                    to: [user.email, PAYMENT_SMTP_USER],
                     subject: `PartyKr8: Talent Payment`,
                     html: PAYMENT_MESSAGE({
                         talents: selected_talent,
@@ -828,7 +830,7 @@ const CapturePaypalOrder = async (req, res, next) => {
                         totalAmount,
                         user
                     })
-                },'payment');
+                }, 'payment');
 
             }
 
@@ -873,11 +875,11 @@ const RefundPaypalOrder = async (req, res, next) => {
 
     try {
         const { capture_id } = req.params;
-        const { amount, event_id } = req.body;
-
+        const { amount, event_id, talent_id } = req.body;
+        console.log('talent_id', talent_id)
         const payload = {
             amount: {
-                value: amount / 100,
+                value: amount,
                 currency_code: "PHP"
             },
             note_to_payer: "Refund Payment"
@@ -889,9 +891,39 @@ const RefundPaypalOrder = async (req, res, next) => {
         EventRefund.CREATE({
             event_id,
             refund_id: response.id,
-            amount: amount / 100,
+            amount: amount,
             reason: "refund"
         });
+
+
+        const currentEventPayments = await EventPayments.GET({
+            where: {
+                payment_id: capture_id,
+                event_id
+            }
+        });
+   
+        if (currentEventPayments) {
+   
+            // await EventPayments.CREATE({
+            //     event_id,
+            //     amount: amount * 100,
+            //     payment_type: 'paypal',
+            //     ref_id: response && response.id, // ORDER ID
+            //     payment_id: captureId,
+            //     status: status
+            // })
+            await EventPaymentDetails.UPDATE({
+                event_payment_id:  currentEventPayments.dataValues.event_payment_id,
+                talent_id
+            }, {
+                status: 0
+            });
+
+        }
+
+
+
 
         return res.status(200).json({
             data: []
@@ -914,8 +946,6 @@ const GetPaypalRefundById = async (req, res, next) => {
         const {
             refund_id
         } = req.params;
-
-        console.log('refund_id', req.params)
 
         const refundResponse = await paypalGetRefundDetails(refund_id);
         return res.status(200).json({

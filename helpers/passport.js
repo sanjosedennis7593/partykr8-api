@@ -75,7 +75,8 @@ const TALENT_DATA = [
         include: [
             {
                 model: db.events,
-                include:[
+
+                include: [
                     {
                         model: db.users,
                         attributes: [
@@ -84,7 +85,13 @@ const TALENT_DATA = [
                             'firstname',
                             'avatar_url',
                         ]
+                    },
+
+                    {
+                        model: db.event_payments,
+                        include: db.event_payment_details
                     }
+
                 ]
             }
         ]
