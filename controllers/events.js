@@ -478,7 +478,7 @@ const UpdateEventDetails = async (req, res, next) => {
             const formattedEndTime = format(new Date(`${formattedDate} ${eventPayload.end_time}`), 'hh:mm a')
 
             const guestEmails = defaultEvent.event_guests.map(guest => guest.email);
-            const talentEmails = defaultEvent.event_talents ? defaultEvent.event_talents.map(eventTalent => {
+            const talentEmails = defaultEvent.event_talents ? defaultEvent.event_talents.filter(eventTalent => eventTalent.status === 'approved').map(eventTalent => {
                 const currentUser = eventTalent.talent;
                 return currentUser.dataValues.user.email
             }) : [];
