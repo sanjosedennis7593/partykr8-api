@@ -3,6 +3,7 @@ import db from '../config/database.js';
 const models = {};
 
 models.announcements = require("./announcements")(db.connection, db.library);
+models.announcement_photos = require("./announcement_photos")(db.connection, db.library);
 models.users = require("./users")(db.connection, db.library);
 models.talents = require("./talents")(db.connection, db.library);
 models.talent_photos = require("./talent_photos")(db.connection, db.library);
@@ -221,6 +222,17 @@ models.announcements.belongsTo(models.users, {
 models.users.hasMany(models.announcements, {
     foreignKey: 'user_id',
     sourceKey: 'id'
+});
+
+
+models.announcement_photos.belongsTo(models.announcements, {
+    foreignKey: 'announcement_id',
+    sourceKey: 'announcement_id'
+});
+
+models.announcements.hasMany(models.announcement_photos, {
+    foreignKey: 'announcement_id',
+    sourceKey: 'announcement_id'
 });
 
 
