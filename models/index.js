@@ -19,6 +19,7 @@ models.talent_ratings = require("./talent_ratings")(db.connection, db.library);
 models.user_ratings = require("./user_ratings")(db.connection, db.library);
 models.service_package = require("./service_package")(db.connection, db.library);
 models.talent_event_type = require("./talent_event_type")(db.connection, db.library);
+models.features = require("./features")(db.connection, db.library);
 models.faq = require("./faq")(db.connection, db.library);
 
 models.Sequelize = db.library;
