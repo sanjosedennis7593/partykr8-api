@@ -189,7 +189,7 @@ const FacebookSignIn = async (req, res, next) => {
 
             return res.json({
                 user: {
-                    ...newUser,
+                    ...(newUser ? newUser.dataValues : {}),
                     is_password_empty: true
             
                 },
@@ -310,13 +310,14 @@ const GoogleSignIn = async (req, res, next) => {
 
             return res.json({
                 user: {
-                    ...newUser,
+                    ...(newUser ? newUser.dataValues : {}),
                     is_password_empty: true
                 },
                 token
             });
         }
     } catch (err) {
+
         return res.status(400).json({
             message:'Invalid Login'
         });
