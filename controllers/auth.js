@@ -187,6 +187,9 @@ const FacebookSignIn = async (req, res, next) => {
                 role: newUser.role
             }, JWT_SECRET);
 
+            console.log('Facebook newUser', newUser)
+            console.log('Facebook token', token)
+
             return res.json({
                 user: {
                     ...(newUser ? newUser.dataValues : {}),
@@ -197,6 +200,7 @@ const FacebookSignIn = async (req, res, next) => {
             });
         }
     } catch (err) {
+        console.log('Facebook Login Error', err)
         return res.status(400).json({
             message:'Invalid Login'
         });
