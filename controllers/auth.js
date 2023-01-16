@@ -518,7 +518,7 @@ const GetSecurityQuestion = async (req, res, next) => {
 
         if(!user) {
             return res.status(400).json({
-                message: 'User not exist!'
+                message: 'User does not exist!'
             });
         }
 
@@ -550,7 +550,7 @@ const SetUserPassword = async (req, res, next) => {
 
         if(!user) {
             return res.status(400).json({
-                message: 'User not exist!'
+                message: 'User does not exist!'
             });
         }
 

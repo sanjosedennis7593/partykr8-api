@@ -561,7 +561,7 @@ const TalentUpdateStatus = async (req, res, next) => {
 
 
         if (!talent) {
-            return res.status(400).json({ message: 'Talent not exist!' });
+            return res.status(400).json({ message: 'Talent does not exist!' });
         }
 
         await Talent.UPDATE(
@@ -655,7 +655,7 @@ const TalentUpdateAvatar = async (req, res, next) => {
 
 
         if (!talent) {
-            return res.status(400).json({ message: 'Talent not exist!' });
+            return res.status(400).json({ message: 'Talent does not exist!' });
         }
 
         let avatarUrlKeys = {};

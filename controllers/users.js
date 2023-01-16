@@ -213,7 +213,7 @@ const UpdateUserAvatar = async (req, res, next) => {
 
     try {
         if (!req.user) {
-            return res.status(400).json({ message: 'User not exist!' });
+            return res.status(400).json({ message: 'User does not exist!' });
         }
 
         const userId = req.user.id;

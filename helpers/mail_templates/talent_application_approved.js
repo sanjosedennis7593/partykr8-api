@@ -54,7 +54,7 @@ const TALENT_APPROVED_MESSAGE = ({
     <br><br>
     Thank you for taking time to register with PARTYKR8 as a Talent/Partner. It was a pleasure to learn more about your talent, skills and accomplishments in your field. 
     <br><br>
-    You may start to enjoy bookings by PARTYKR8 users on your registered talent and services using the application, update you profile and manage your account. 
+    You may start to enjoy bookings by PARTYKR8 users on your registered talent and services using the application, update your profile and manage your account in the PartyKr8 application (changes made subject to Admin screening and approvals). 
     <br><br>
     Do not forget to boost your profile by sharing your PARTYKR8 profile to your social media accounts!
     

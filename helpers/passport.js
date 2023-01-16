@@ -133,7 +133,7 @@ passport.use(new LocalStrategy({
                 }
                 return callback(null, { user: null, message: 'Incorrect Password' });
             }
-            return callback(null, { user: null, message: 'User not exist!' });
+            return callback(null, { user: null, message: 'User does not exist!' });
         }
         catch (err) {
             return callback(null, { user: null, message: 'Something went wrong' })
