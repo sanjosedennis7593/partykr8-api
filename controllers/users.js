@@ -178,11 +178,11 @@ const UpdateUserStatus = async (req, res, next) => {
         });
 
         if (!user) {
-            return res.status(400).json({ message: 'User not exist!' });
+            return res.status(400).json({ message: 'User does not exist!' });
         }
 
         if (!ROLES[req.body.role]) {
-            return res.status(400).json({ message: 'Invalid role value' });
+            return res.status(400).json({ message: 'Invalid role' });
         }
 
 

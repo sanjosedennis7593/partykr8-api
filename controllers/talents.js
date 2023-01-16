@@ -856,7 +856,7 @@ const CreateTalentDetailsRequest = async (req, res, next) => {
         });
 
         return res.status(201).json({
-            message: 'Your details request has been sent to the admin for approval!'
+            message: 'Your details request has been sent to the admin. It is subject to approval!'
         });
 
     }

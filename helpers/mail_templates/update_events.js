@@ -50,7 +50,7 @@ const UPDATE_EVENT_MESSAGE = ({
 
                   Dear guest/talent,
                   <br><br>
-                  PARTYKR8 is pleased to inform you that you that the event ${title} details has been changed.
+                  PARTYKR8 is pleased to inform you that you that the event: ${title} details has been changed.
 
                   <br><br>
 

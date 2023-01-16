@@ -373,7 +373,7 @@ const SignUpController = async (req, res, next) => {
 
         if (user && user.dataValues) {
             return res.status(400).json({
-                message: 'Email already used!'
+                message: 'Email already in used!'
             });
         }
 
@@ -456,7 +456,7 @@ const ResetPassword = async (req, res, next) => {
 
         if (!user) {
             return res.status(400).json({
-                message: 'User not exist!'
+                message: 'User does not exist!'
             });
         }
 

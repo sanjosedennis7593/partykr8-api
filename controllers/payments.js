@@ -654,7 +654,7 @@ const CreateRefund = async (req, res, next) => {
         });
     }
     catch (err) {
-        console.log('Error ', err.response.data)
+        console.log('Error ', err.response.data.errors[0])
         return res.status(400).json({
             error: err.code,
             message: err.response.data
