@@ -48,9 +48,9 @@ const UPDATE_EVENT_MESSAGE = ({
   
                 <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
 
-                  Dear guest/talent,
+                  Dear guest,
                   <br><br>
-                  PARTYKR8 is pleased to inform you that you that the event: ${title} details has been changed.
+                  PARTYKR8 is pleased to inform you that the event: ${title} details has been changed.
 
                   <br><br>
 
