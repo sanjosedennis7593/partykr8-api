@@ -835,20 +835,23 @@ const UpdateEventStatus = async (req, res, next) => {
                 const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
                 const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
                 const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
+                    
+                if(recipients && recipients.length > 0) {
+                    await sendMessage({
+                        to: recipients,
+                        subject: `PartyKr8 Event ${event.title} has been cancelled`,
+                        html: CANCELLED_EVENT_MESSAGE({
+                            title: event.title,
+                            type: event.type,
+                            location: event.location,
+                            date: event.date,
+                            start_time: formattedStartTime,
+                            end_time: formattedEndTime
+                        })
+                    });
+                }
     
-    
-                await sendMessage({
-                    to: recipients,
-                    subject: `PartyKr8 Event ${event.title} has been cancelled`,
-                    html: CANCELLED_EVENT_MESSAGE({
-                        title: event.title,
-                        type: event.type,
-                        location: event.location,
-                        date: event.date,
-                        start_time: formattedStartTime,
-                        end_time: formattedEndTime
-                    })
-                });
+              
             }
      
 
