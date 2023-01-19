@@ -822,32 +822,35 @@ const UpdateEventStatus = async (req, res, next) => {
                 const currentUser = eventTalent.talent;
                 return currentUser.dataValues.user.email
             });
-            const recipients = [...new Set([...guestEmails, ...talentEmails])];
-            await EventTalent.UPDATE({
-                event_id: req.body.event_id,
-            },
-                {
-                    status: 'cancelled'
+            if(guestEmails || talentEmails) {
+                const recipients = [...new Set([...(guestEmails || []),...(talentEmails || [])])];
+                await EventTalent.UPDATE({
+                    event_id: req.body.event_id,
+                },
+                    {
+                        status: 'cancelled'
+                    });
+    
+    
+                const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
+                const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
+                const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
+    
+    
+                await sendMessage({
+                    to: recipients,
+                    subject: `PartyKr8 Event ${event.title} has been cancelled`,
+                    html: CANCELLED_EVENT_MESSAGE({
+                        title: event.title,
+                        type: event.type,
+                        location: event.location,
+                        date: event.date,
+                        start_time: formattedStartTime,
+                        end_time: formattedEndTime
+                    })
                 });
-
-
-            const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
-            const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
-            const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
-
-
-            await sendMessage({
-                to: recipients,
-                subject: `PartyKr8 Event ${event.title} has been cancelled`,
-                html: CANCELLED_EVENT_MESSAGE({
-                    title: event.title,
-                    type: event.type,
-                    location: event.location,
-                    date: event.date,
-                    start_time: formattedStartTime,
-                    end_time: formattedEndTime
-                })
-            });
+            }
+     
 
         }
 
