@@ -90,6 +90,15 @@ const TALENT_DATA = [
                     {
                         model: db.event_payments,
                         include: db.event_payment_details
+                    },
+                    {
+                        model: db.event_talents,
+                        attributes: [
+                            'talent_id',
+                            'event_id',
+                            'status',
+                            'id'
+                        ],
                     }
 
                 ]
