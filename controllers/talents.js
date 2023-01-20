@@ -223,6 +223,15 @@ const GetTalents = async (req, res, next) => {
                     ]
                 },
                 {
+                    model: db.talent_ratings,
+                    attributes: [
+                        'feedback',
+                        'rating',
+                        'status',
+                        'talent_id',
+                    ]
+                },
+                {
                     model: db.talent_event_type,
                     ...(customEventTypeFilter ? {
                         where: {
@@ -308,6 +317,15 @@ const GetTalent = async (req, res, next) => {
                 },
                 {
                     model: db.talent_event_type
+                },
+                {
+                    model: db.talent_ratings,
+                    attributes: [
+                        'feedback',
+                        'rating',
+                        'status',
+                        'talent_id',
+                    ]
                 },
                 {
                     model: db.talent_valid_ids,
