@@ -280,7 +280,7 @@ const EVENT_INVITE_MESSAGE = ({
                                             style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:20px;font-weight:bold;line-height:1;text-align:center;color:#555;">
 
                                             <h4>${location}</h4>
-                                            <h4>${full_event_address}</h4>
+                                           
                                         </div>
 
 
@@ -301,7 +301,7 @@ const EVENT_INVITE_MESSAGE = ({
                                         <br /><br />
                                         <div
                                         style="margin-top:24px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:20px;line-height:22px;text-align:left;color:black; padding: 5px">
-                                            ${custom_message}
+                                            ${custom_message || ''}
                                          </div>
                                         <br /><br />
                                         <div
