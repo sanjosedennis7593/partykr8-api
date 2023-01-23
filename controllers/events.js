@@ -350,6 +350,8 @@ const CreateEvents = async (req, res, next) => {
                     custom_message: req.body.event_reminders,
                     location: req.body.location,
                     full_event_address: req.body.full_event_address,
+                    city: req.body.city,
+                    state: req.body.state,
                     date: req.body.date,
                     start_time: formattedStartTime,
                     end_time: formattedEndTime,
@@ -357,6 +359,8 @@ const CreateEvents = async (req, res, next) => {
                 })
             });
         }
+
+        console.log('talentEmailssss', talentEmails)
 
         if (talentEmails.length > 0) {
 
@@ -367,6 +371,9 @@ const CreateEvents = async (req, res, next) => {
                     title: req.body.title,
                     type: req.body.type,
                     location: req.body.location,
+                    full_event_address: req.body.full_event_address,
+                    city: req.body.city,
+                    state: req.body.state,
                     date: req.body.date,
                     start_time: formattedStartTime,
                     end_time: formattedEndTime,
@@ -440,7 +447,7 @@ const UpdateEventDetails = async (req, res, next) => {
                 defaultStartTime !== updatedStartTime ||
                 defaultEndTime !== updatedEndTime
             ) {
-
+                console.log('Updateeeeeeeeeee')
 
                 await EventTalent.UPDATE({
                     event_id: req.body.event_id,
@@ -493,6 +500,8 @@ const UpdateEventDetails = async (req, res, next) => {
                         type: eventPayload.type,
                         location: eventPayload.location,
                         full_event_address: eventPayload.full_event_address,
+                        city: eventPayload.city,
+                        state: eventPayload.state,
                         date: eventPayload.date,
                         start_time: formattedStartTime,
                         end_time: formattedEndTime

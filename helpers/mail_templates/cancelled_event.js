@@ -51,7 +51,7 @@ const CANCELLED_EVENT_MESSAGE = ({
 
     Dear guest/talent,
     <br><br>
-    PARTYKR8 would like to inform you that the event: ${title} which suppose to happen on  ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time} has been cancelled by the event organizer.
+    PARTYKR8 would like to inform you that the event: ${title} which suppose to happen on ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time} has been cancelled by the event organizer.
     <br><br>
     For your information.
     <br><br><br>

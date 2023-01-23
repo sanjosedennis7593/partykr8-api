@@ -56,7 +56,7 @@ const TALENT_UPDATE_STATUS = ({
     <br/> <br/>
     Event Details: <br/>
     Event name:  ${event.title} <br/>
-    Location/venue: ${event.location}  <br/>
+    Location/venue: ${event.location}, ${event.full_event_address}, ${event.city}, ${event.state}  <br/>
     Date: ${format(new Date(event.date),'PPP')} <br/>
     Time: ${event.start_time} - ${event.end_time} <br/>
     Booked PartyKr8 Partner: ${talentName} <br/>

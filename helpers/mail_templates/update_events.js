@@ -5,6 +5,8 @@ const UPDATE_EVENT_MESSAGE = ({
     title,
     location,
     full_event_address,
+    city,
+    state,
     date,
     start_time,
     end_time
@@ -56,7 +58,7 @@ const UPDATE_EVENT_MESSAGE = ({
 
                   Event: ${title}<br>
                   Date and Time: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time}<br>
-                  Venue: ${location}, ${full_event_address} <br>
+                  Venue: ${location}, ${full_event_address}, ${full_event_address}, ${city}, ${state}   <br>
                   <br><br>
                   PARTYKR8 TEAM
 

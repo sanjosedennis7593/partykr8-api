@@ -5,6 +5,9 @@ const TALENT_INVITATION_MESSAGE = ({
     title,
     type,
     location,
+    full_event_address,
+    city,
+    state,
     date,
     start_time,
     end_time,
@@ -60,7 +63,7 @@ const TALENT_INVITATION_MESSAGE = ({
     Type: ${type}<br>
     Date: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')}<br>
     Time: ${start_time} - ${end_time} <br>
-    Venue: ${location}<br>
+    Venue: ${location}, ${full_event_address}, ${city}, ${state}<br>
     Organizer Name: ${`${user.firstname} ${user.lastname}`}<br>
 
     

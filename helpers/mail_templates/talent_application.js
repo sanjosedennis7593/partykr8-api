@@ -4,6 +4,9 @@ import styles from './styles';
 const TALENT_APPLICATION_MESSAGE = ({
     title,
     location,
+    full_event_address,
+    city,
+    state,
     date,
     start_time,
     end_time
@@ -49,13 +52,13 @@ const TALENT_APPLICATION_MESSAGE = ({
 
                   Dear guest/talent,
                   <br><br>
-                  PARTYKR8 is pleased to inform you that you that the event: ${title} details has been changed.
+                  PARTYKR8 is pleased to inform you that the event: ${title} details has been changed.
 
                   <br><br>
 
                   Event: ${title}<br>
                   Date and Time: ${format(new Date(date), 'EEEE, MMMM dd, yyyy')} | ${start_time} - ${end_time}<br>
-                  Venue: ${location}<br>
+                  Venue: ${location}, ${full_event_address}, ${city}, ${state}<br>
                   <br><br>
                   PARTYKR8 TEAM
 
