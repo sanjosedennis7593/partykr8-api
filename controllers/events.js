@@ -360,8 +360,6 @@ const CreateEvents = async (req, res, next) => {
             });
         }
 
-        console.log('talentEmailssss', talentEmails)
-
         if (talentEmails.length > 0) {
 
             await sendMessage({
