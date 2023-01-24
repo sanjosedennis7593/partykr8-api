@@ -19,7 +19,7 @@ module.exports = (sequelize, Sequelize) => {
         },
 
         status: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         createdAt: {
             type: Sequelize.DATE,

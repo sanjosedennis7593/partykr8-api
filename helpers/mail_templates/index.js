@@ -7,6 +7,7 @@ import CANCELLED_EVENT_MESSAGE from './cancelled_event';
 import UPDATE_EVENT_MESSAGE from './update_events';
 import TALENT_PAYOUT_MESSAGE from './payout';
 import PAYMENT_MESSAGE from './payment';
+import REFUND_MESSAGE from './refund';
 
 export {
     CANCELLED_EVENT_MESSAGE,
@@ -17,5 +18,6 @@ export {
     TALENT_PAYOUT_MESSAGE,
     UPDATE_TALENT_STATUS,
     UPDATE_EVENT_MESSAGE,
-    PAYMENT_MESSAGE
+    PAYMENT_MESSAGE,
+    REFUND_MESSAGE
 }

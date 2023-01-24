@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { API_URL } from '../config/api';
 
 import {
@@ -28,12 +29,15 @@ import { PAYMENT_SMTP_USER } from "../config/mail";
 
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { PAYMENT_MESSAGE } from '../helpers/mail_templates';
+import { PAYMENT_MESSAGE, REFUND_MESSAGE } from '../helpers/mail_templates';
 
 import db from '../models';
 
+const { nanoid } = require('nanoid');
 
-// const Events = new Table(db.events);
+
+
+const Event = new Table(db.events);
 const EventPayments = new Table(db.event_payments);
 const EventPaymentDetails = new Table(db.event_payment_details);
 const EventRefund = new Table(db.event_refund);
@@ -175,7 +179,7 @@ const ConfirmSourcePayment = async (req, res, next) => {
                 subject: `PartyKr8: Talent Payment`,
                 html: PAYMENT_MESSAGE({
                     talents: selected_talent,
-                    event,
+                    event: event,
                     type,
                     id: payment_id,
                     totalAmount,
@@ -439,7 +443,6 @@ const AttachPaymentIntent = async (req, res, next) => {
         const { user } = req;
 
 
-        console.log('event', event)
         const paymentIntentResponse = await confirmPaymentIntent({
             payment_intent_id,
             payment_method_id,
@@ -620,23 +623,78 @@ const CreateRefund = async (req, res, next) => {
             event_id,
             event_payment_detail_id = null
         } = req.body;
+        const { user } = req;
 
 
-        const refundResponse = await createRefund({
-            amount: amount,
-            payment_id,
-            notes,
-            reason
+        // const refundResponse = await createRefund({
+        //     amount: amount,
+        //     payment_id,
+        //     notes,
+        //     reason
+        // });
+
+        // if (refundResponse && refundResponse.data) {
+        //     EventRefund.CREATE({
+        //         event_id,
+        //         refund_id: refundResponse.data.id,
+        //         amount: amount / 100,
+        //         reason: notes
+        //     });
+        // }
+        console.log('amount',amount)
+
+        
+
+        const referenceId = nanoid();
+        const refundPayload = {
+            event_id,
+            refund_id: referenceId,
+            amount: amount / 100,
+            reason: notes,
+            status: 0
+        }
+
+        EventRefund.CREATE(refundPayload);
+
+        let event = await Event.GET({
+            where: {
+                id: event_id,
+                user_id: req.user.id,
+            },
         });
 
-        if (refundResponse && refundResponse.data) {
-            EventRefund.CREATE({
-                event_id,
-                refund_id: refundResponse.data.id,
-                amount: amount / 100,
-                reason: notes
-            });
+
+        if(event && event.dataValues) {
+            event = {
+                ...event.dataValues
+            };
+            const formattedDate = format(new Date(event.date), 'yyyy-MM-dd');
+            const formattedStartTime = format(new Date(`${formattedDate} ${event.start_time}`), 'hh:mm a')
+            const formattedEndTime = format(new Date(`${formattedDate} ${event.end_time}`), 'hh:mm a')
+             
+            event = {
+                ...event,
+                date: formattedDate,
+                start_time: formattedStartTime,
+                end_time: formattedEndTime
+            }
         }
+
+
+        
+        const mailResponse = await sendMessage({
+            to: [user.email, PAYMENT_SMTP_USER],
+            subject: `PartyKr8: Refund Payment`,
+            html: REFUND_MESSAGE({
+                referenceId,
+                amount: amount / 100,
+                event: event,
+                user
+            })
+        }, 'payment');
+
+        console.log(';mailResponse',mailResponse)
+
 
         if (event_payment_detail_id) {
 
@@ -650,11 +708,12 @@ const CreateRefund = async (req, res, next) => {
 
         return res.status(200).json({
             message: 'Refund has been made successfully!',
-            data: refundResponse
+            data: refundPayload // refundResponse
         });
     }
     catch (err) {
-        console.log('Error ', err.response.data.errors[0])
+        console.log('Error ', err)
+        // console.log('Error ', err.response.data.errors[0])
         return res.status(400).json({
             error: err.code,
             message: err.response.data
@@ -902,12 +961,12 @@ const RefundPaypalOrder = async (req, res, next) => {
                 event_id
             }
         });
-   
+
         if (currentEventPayments && typeof talent_id === 'string') {
-   
-    
+
+
             await EventPaymentDetails.UPDATE({
-                event_payment_id:  currentEventPayments.dataValues.event_payment_id,
+                event_payment_id: currentEventPayments.dataValues.event_payment_id,
                 talent_id
             }, {
                 status: 0

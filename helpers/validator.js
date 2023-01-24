@@ -2,7 +2,7 @@ import { body } from 'express-validator';
 
 const SignupValidator = [
     body('email').isEmail().withMessage('Invalid email format').trim().escape(),
-    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 character long').trim().escape(),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 char long').trim().escape(),
     body('firstname').not().isEmpty().trim().escape(),
     body('lastname').not().isEmpty().trim().escape(),
     body('address').not().isEmpty().trim().escape(),
