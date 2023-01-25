@@ -9,6 +9,7 @@ import TALENT_PAYOUT_MESSAGE from './payout';
 import PAYMENT_MESSAGE from './payment';
 import REFUND_MESSAGE from './refund'; // SEND TO ADMIN EMAIL
 import REFUND_USER_MESSAGE from './refund_user'; // SEND TO USER
+import REFUND_USER_REQUEST_MESSAGE from './refund_user_request';
 
 export {
     CANCELLED_EVENT_MESSAGE,
@@ -21,5 +22,6 @@ export {
     UPDATE_EVENT_MESSAGE,
     PAYMENT_MESSAGE,
     REFUND_MESSAGE,
-    REFUND_USER_MESSAGE
+    REFUND_USER_MESSAGE,
+    REFUND_USER_REQUEST_MESSAGE
 }

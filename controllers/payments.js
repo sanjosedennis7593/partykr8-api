@@ -29,7 +29,7 @@ import { PAYMENT_SMTP_USER } from "../config/mail";
 
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { PAYMENT_MESSAGE, REFUND_MESSAGE, REFUND_USER_MESSAGE } from '../helpers/mail_templates';
+import { PAYMENT_MESSAGE, REFUND_MESSAGE, REFUND_USER_MESSAGE, REFUND_USER_REQUEST_MESSAGE } from '../helpers/mail_templates';
 
 import db from '../models';
 
@@ -679,7 +679,7 @@ const CreateRefund = async (req, res, next) => {
 
 
         await sendMessage({
-            to: [user.email,PAYMENT_SMTP_USER],
+            to: [PAYMENT_SMTP_USER],
             subject: `PartyKr8: Refund Request`,
             html: REFUND_MESSAGE({
                 referenceId,
@@ -687,6 +687,13 @@ const CreateRefund = async (req, res, next) => {
                 event: event,
                 user
             })
+        }, 'payment');
+
+        
+        await sendMessage({
+            to: [user.email],
+            subject: `PartyKr8: Refund Request`,
+            html: REFUND_USER_REQUEST_MESSAGE()
         }, 'payment');
 
     
