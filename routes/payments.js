@@ -20,7 +20,8 @@ import {
     CapturePaypalOrder,
     GetPaypalOrderDetails,
     RefundPaypalOrder,
-    GetPaypalRefundById
+    GetPaypalRefundById,
+    UpdateRefundStatus
 } from '../controllers/payments';
 
 
@@ -38,6 +39,7 @@ router.post('/source/confirm', ConfirmSourcePayment);
 router.post('/intent', CreatePaymentIntent);
 router.post('/intent/:payment_intent_id/attach', AttachPaymentIntent);
 router.post('/refund', CreateRefund);
+router.put('/refund/status', UpdateRefundStatus);
 
 router.post('/links', CreatePaymentLinks);
 router.get('/links/:id', GetPaymentLinks);

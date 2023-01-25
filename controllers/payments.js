@@ -29,7 +29,7 @@ import { PAYMENT_SMTP_USER } from "../config/mail";
 
 import Table from '../helpers/database';
 import { sendMessage } from '../helpers/mail';
-import { PAYMENT_MESSAGE, REFUND_MESSAGE } from '../helpers/mail_templates';
+import { PAYMENT_MESSAGE, REFUND_MESSAGE, REFUND_USER_MESSAGE } from '../helpers/mail_templates';
 
 import db from '../models';
 
@@ -186,7 +186,6 @@ const ConfirmSourcePayment = async (req, res, next) => {
                     user
                 })
             }, 'payment');
-
         }
 
 
@@ -641,9 +640,7 @@ const CreateRefund = async (req, res, next) => {
         //         reason: notes
         //     });
         // }
-        console.log('amount',amount)
-
-        
+ 
 
         const referenceId = nanoid();
         const refundPayload = {
@@ -681,10 +678,9 @@ const CreateRefund = async (req, res, next) => {
         }
 
 
-        
-        const mailResponse = await sendMessage({
-            to: [user.email, PAYMENT_SMTP_USER],
-            subject: `PartyKr8: Refund Payment`,
+        await sendMessage({
+            to: [user.email,PAYMENT_SMTP_USER],
+            subject: `PartyKr8: Refund Request`,
             html: REFUND_MESSAGE({
                 referenceId,
                 amount: amount / 100,
@@ -693,8 +689,7 @@ const CreateRefund = async (req, res, next) => {
             })
         }, 'payment');
 
-        console.log(';mailResponse',mailResponse)
-
+    
 
         if (event_payment_detail_id) {
 
@@ -1013,6 +1008,45 @@ const GetPaypalRefundById = async (req, res, next) => {
     }
 }
 
+const UpdateRefundStatus = async (req, res, next) => {
+
+    try {
+        const {
+            refund_id, 
+            status,
+            email
+        } = req.body;
+    
+
+        await EventRefund.UPDATE({
+            refund_id: refund_id
+        }, {
+            status
+        });
+
+        if(status) {
+            await sendMessage({
+                to: [email],
+                subject: `PartyKr8: Refund Request`,
+                html: REFUND_USER_MESSAGE()
+            }, 'payment');
+    
+        }
+   
+        return res.status(200).json({
+            message: 'Refund status has been updated successfully!'
+        });
+    }
+    catch (err) {
+        // console.log('Error ', err.response.data)
+        return res.status(400).json({
+            error: err.code,
+            message: err.response.data
+        });
+    }
+}
+
+
 
 
 export {
@@ -1040,5 +1074,6 @@ export {
     GetPaypalOrderDetails,
     RefundPaypalOrder,
     PaymentCancelCallback,
-    GetPaypalRefundById
+    GetPaypalRefundById,
+    UpdateRefundStatus
 };

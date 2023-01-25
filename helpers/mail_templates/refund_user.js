@@ -1,19 +1,8 @@
-// import { format } from 'date-fns';
+import { format } from 'date-fns';
 import styles from './styles';
 
-import { convertToCurrencyFormat } from '../currency';
+const REFUND_USER_MESSAGE = () => {
 
-const REFUND_MESSAGE = ({
-  referenceId,
-  amount,
-  event,
-  user
-}) => {
-
-  console.log('REFUND_MESSAGE referenceId', referenceId)
-  console.log('REFUND_MESSAGE  amount', amount)
-  console.log('REFUND_MESSAGE event', event)
-  console.log('REFUND_MESSAGE user', user)
 
   // PAYOUT EMAIL: ${user.email}<br>
   // ${user.firstname} ${user.lastname}<br>
@@ -52,16 +41,14 @@ const REFUND_MESSAGE = ({
  
           <tr>
             <td class="container-padding content" align="left" style="padding-left:24px;padding-right:24px;padding-top:12px;padding-bottom:12px;background-color:#ffffff">
-      
-  
-                <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">   
-  
-                Refund Reference ID: ${referenceId}<br>
-                Refundable Amount: P${convertToCurrencyFormat(amount)}<br>
-                Event: ${event.title}<br>
-                Created By: ${user.firstname} ${user.lastname}<br>
-                Date and time: ${event.date} | ${event.start_time} -  ${event.end_time}<br>
-         
+                <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333;text-align:justify;">   
+                Dear valued PartyKr8 user,<br/><br/>
+
+                We are pleased to inform you that your refund request for PartyKr8 has been approved. Please note that a service fee may be applied by the payment facility, and any associated bank fees or penalties will be deducted from the refunded amount. Your account will be credited with the adjusted amount within 3-5 business days. We apologize for any inconvenience this may have caused and thank you for your patience.
+                <br/> <br/>
+                You can check your account balance or track the transaction by logging into the PartyKr8 app. We value your patronage and appreciate your continued support of our service. If you have any further questions or concerns, please do not hesitate to contact our customer support team.
+                <br/> <br/>  <br/>
+                Thank you for choosing PartyKr8, we hope to see you again soon inside the app!
                 </div>
   
             </td>
@@ -69,8 +56,8 @@ const REFUND_MESSAGE = ({
           <tr>
             <td class="container-padding footer-text" align="left" style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;color:#aaaaaa;padding-left:24px;padding-right:24px">
               <br><br>
-                PartyKr8, Inc.
-            
+              Sincerely,
+              PartyKr8 Team.
               <br><br>
             </td>
           </tr>
@@ -84,5 +71,5 @@ const REFUND_MESSAGE = ({
   </html>`;
 };
 
-export default REFUND_MESSAGE;
+export default REFUND_USER_MESSAGE;
 
