@@ -44,7 +44,7 @@ const REFUND_USER_REQUEST_MESSAGE = () => {
                 <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333;text-align:justify;">   
                 Dear valued PartyKr8 user,<br/><br/>
 
-                Your refund request has been received! We're currently reviewing it and we'll make sure to credit your account within 3-5 business days once it's approved. You'll be notified via the app as soon as the process is completed. Thank you for your patience.
+                Your refund request has been received! We're currently reviewing it and we'll make sure to credit your account within 3-5 business days once  approved. You'll be notified via the app as soon as the process is complete. Thank you for your patience.
                 </div>
   
             </td>
