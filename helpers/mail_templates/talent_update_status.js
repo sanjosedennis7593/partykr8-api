@@ -46,13 +46,13 @@ const TALENT_UPDATE_STATUS = ({
 
   <br>
   
-  <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:left;color:#333333">
+  <div class="body-text" style="font-family:Helvetica, Arial, sans-serif;font-size:14px;line-height:20px;text-align:justify;color:#333333">
 
     Dear ${`${user.firstname} ${user.lastname}`},
     <br><br>
 
     ${status === 'approved' ? `
-    Your booked PartyKr8 talent/partner has accepted your request to be your guest performer/supplier in the event/party that you created in PartyKr8 Application. 
+    Your booked PartyKr8 talent/partner has accepted your request to be your guest performer/supplier in the event/party you created in PartyKr8 Application. 
     <br/> <br/>
     Event Details: <br/>
     Event name:  ${event.title} <br/>
@@ -61,7 +61,7 @@ const TALENT_UPDATE_STATUS = ({
     Time: ${event.start_time} - ${event.end_time} <br/>
     Booked PartyKr8 Partner: ${talentName} <br/>
     Booked Prefessional Fee: PHP ${eventTalentInfo.amount_paid}<br/> <br/>
-    You may now coordinate the details directly to partene/talent name using the PartyKr8 Application messaging service inside the app to discuss in details your requirement based on the booking rate you made. <br/> 
+    You may now coordinate the details directly to partner/talent name using the PartyKr8 Application messaging service inside the app to discuss in details your requirement based on the booking rate you made. <br/> 
     Please be reminded that your direct interaction with PartyKr8 professional partners are governed by the terms and conditions that  you have agreed upon downloading and  by using the application. You are also protected under the privacy policy stamement of PartyKr8 Application. <br/> <br/>
     Thank you so much for using PartyKr8 Application, have a blast in your event!
 
