@@ -61,7 +61,7 @@ const TALENT_UPDATE_STATUS = ({
     Time: ${event.start_time} - ${event.end_time} <br/>
     Booked PartyKr8 Partner: ${talentName} <br/>
     Booked Professional Fee: PHP ${eventTalentInfo.amount_paid}<br/> <br/>
-    You can now pay through the PartyKr8 application. Once payment is processed, you will have access to the contact details of [talent name]. It is important to review the terms and conditions and privacy policy before using the app to ensure a smooth and protected experience.
+    You can now pay through the PartyKr8 application. Once payment is processed, you will have access to the contact details of ${talentName}. It is important to review the terms and conditions and privacy policy before using the app to ensure a smooth and protected experience.
 
     <br/> <br/>
     Thank you so much for using PartyKr8 Application, have a blast in your event!
