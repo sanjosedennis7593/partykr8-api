@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import styles from './styles';
 
+import { footer } from './footer';
+
 
 const background = {
     birthday: `background-image: url(https://www.pngkey.com/png/full/947-9471251_background-for-birthday-banner-png.png);background-repeat: no-repeat; background-size: 100% ;`,
@@ -341,12 +343,12 @@ const EVENT_INVITE_MESSAGE = ({
                                         style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;padding-left:24px;padding-right:24px">
                                         <br><br>
                                         You are receiving this email because ${user.firstname} ${user.lastname} invited you to the event.
-                                        <br><br>
-
-                                        PartyKr8, Inc.
+   
                                         <br><br>
                                     </td>
                                 </tr>
+
+                                ${footer}
 
                             </table>
 `}

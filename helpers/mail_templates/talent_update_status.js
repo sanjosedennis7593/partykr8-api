@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
 import styles from './styles';
 
+import { footer } from './footer';
+
 const TALENT_UPDATE_STATUS = ({
     talent,
     talentName,
@@ -69,23 +71,16 @@ const TALENT_UPDATE_STATUS = ({
     <br/> <br/>
     Enjoy life,
     ` : ``}
-    <br><br>
+    <br><br><br>
 
     
     PARTYKR8 TEAM
 
   </div>
   
-            </td>
+  </td>
           </tr>
-          <tr>
-            <td class="container-padding footer-text" align="left" style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;color:#aaaaaa;padding-left:24px;padding-right:24px">
-              <br><br>
-                PartyKr8, Inc.
-            
-              <br><br>
-            </td>
-          </tr>
+        ${footer}
         </table>
   
       </td>

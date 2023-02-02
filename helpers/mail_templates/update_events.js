@@ -1,6 +1,9 @@
 import { format } from 'date-fns';
 import styles from './styles';
 
+
+import { footer } from './footer';
+
 const UPDATE_EVENT_MESSAGE = ({
     title,
     location,
@@ -41,10 +44,10 @@ const UPDATE_EVENT_MESSAGE = ({
         <br>
   
         <!-- 600px container (white background) -->
-        <table border="0" width="600" cellpadding="0" cellspacing="0" class="container" style="width:600px;max-width:600px">
+        <table border="0" width="600" cellpadding="0" cellspacing="0" class="container" style="background-color:#ffffff;width:600px;max-width:600px">
  
           <tr>
-            <td class="container-padding content" align="left" style="padding-left:24px;padding-right:24px;padding-top:12px;padding-bottom:12px;background-color:#ffffff">
+            <td class="container-padding content" align="left" style="padding-left:24px;padding-right:24px;padding-top:12px;padding-bottom:12px;">
               <br>
               <br>
   
@@ -66,14 +69,7 @@ const UPDATE_EVENT_MESSAGE = ({
   
             </td>
           </tr>
-          <tr>
-            <td class="container-padding footer-text" align="left" style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:16px;color:#aaaaaa;padding-left:24px;padding-right:24px">
-              <br><br>
-                  PartyKr8, Inc.
-            
-              <br><br>
-            </td>
-          </tr>
+          ${footer}
         </table>
   
       </td>
