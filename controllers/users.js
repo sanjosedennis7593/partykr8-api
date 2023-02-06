@@ -7,6 +7,16 @@ import { encryptPassword, comparePassword } from '../helpers/password';
 import { uploadFile } from '../helpers/upload';
 import { ROLES } from '../config/constants';
 
+const Events = new Table(db.events);
+
+const Talent = new Table(db.talents);
+const TalentEventType = new Table(db.talent_event_type);
+const TalentUpdateRequest = new Table(db.talent_update_request);
+const TalentRatings = new Table(db.talent_ratings);
+const TalentPhotos = new Table(db.talent_photos);
+const TalentValidIds = new Table(db.talent_valid_ids);
+
+const UserArchive = new Table(db.user_archive);
 const User = new Table(db.users);
 const UserRatings = new Table(db.user_ratings);
 
@@ -387,6 +397,135 @@ const SetUserPassword = async (req, res, next) => {
     }
 }
 
+const GetUserArchive = async (req, res, next) => {
+    try {
+
+        const users = await UserArchive.GET_ALL({
+            where: {
+                user_id: id
+            }
+        });
+
+        return res.status(201).json({
+            users
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+}
+
+
+const UserDelete = async (req, res, next) => {
+    try {
+        const { user } = req;
+  
+        let payload = {
+            ...user
+        };
+
+        const events = await Events.GET_ALL({
+            where: {
+                user_id: user.id
+            },
+            include: [
+                {
+                    model: db.event_guests
+                },
+                {
+                    model: db.talent_ratings
+                },
+                {
+                    model: db.event_refund
+                },
+                {
+                    model: db.event_payments,
+                    include: [
+                        {
+                            model: db.event_payment_details
+                        }
+                    ]
+                },
+
+                {
+                    model: db.event_talents
+                },
+            ]
+
+        });
+
+        const talent = await Talent.GET({
+            where: {
+                user_id: user.id
+            },
+            include: [
+                {
+                    model: db.talent_valid_ids,
+                },
+                {
+                    model: db.talent_event_type
+                },
+                {
+                    model: db.talent_photos
+                },
+                {
+                    model: db.talent_ratings
+                },
+                {
+                    model: db.talent_update_request
+                }
+            ]
+        });
+
+        delete payload.password;
+
+        UserArchive.CREATE({
+            user: JSON.stringify(payload),
+            events: JSON.stringify(events),
+            talents: JSON.stringify(talent),
+        });
+
+
+        await Events.DELETE(
+            {
+                user_id: user.id
+            }
+        );
+
+
+        await Talent.DELETE(
+            {
+                user_id: user.id
+            }
+        );
+
+
+        await User.DELETE(
+            {
+                id: user.id
+            }
+        );
+
+
+        return res.status(200).json({
+            message: 'Account has been deleted successfully!'
+        });
+
+    }
+    catch (err) {
+        console.log('Error', err)
+        return res.status(400).json({
+            error: err.code,
+            message: err.message,
+        });
+    }
+}
+
 
 export {
     GetUser,
@@ -397,5 +536,7 @@ export {
     UpdateUserAvatar,
     CreateUserRatings,
     GetUserRatings,
-    SetUserPassword
+    SetUserPassword,
+    UserDelete,
+    GetUserArchive
 };

@@ -9,7 +9,9 @@ import {
     UpdateUserStatus,
     GetUserRatings,
     CreateUserRatings,
-    SetUserPassword
+    SetUserPassword,
+    GetUserArchive,
+    UserDelete
 
 } from '../controllers/users';
 
@@ -27,5 +29,8 @@ router.put('/status/update', UpdateUserStatus);
 router.put('/avatar/update', fileRequest.single('profile_photo'), UpdateUserAvatar);
 router.post('/ratings/create', CreateUserRatings);
 router.post('/password/set', ...SetPasswordValidator, SetUserPassword);
+
+router.get('/archive', GetUserArchive);
+router.delete('/delete', UserDelete);
 
 module.exports = router;

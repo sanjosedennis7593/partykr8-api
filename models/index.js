@@ -22,6 +22,8 @@ models.talent_event_type = require("./talent_event_type")(db.connection, db.libr
 models.features = require("./features")(db.connection, db.library);
 models.faq = require("./faq")(db.connection, db.library);
 
+models.user_archive = require("./user_archive")(db.connection, db.library);
+
 models.Sequelize = db.library;
 models.sequelize = db.connection;
 
