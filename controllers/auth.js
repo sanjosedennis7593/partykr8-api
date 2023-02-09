@@ -569,6 +569,88 @@ const SetUserPassword = async (req, res, next) => {
 
 }
 
+const AppleSignIn = async (req, res, next) => {
+    try {
+
+        const { apple_id, email, firstname, lastname } = req.body;
+
+        let user = await User.GET({
+            where: {
+                email
+            },
+            include: [
+                {
+                    model: db.talents,
+                    include: TALENT_DATA
+
+                }
+            ]
+        });
+
+        if (user && user.dataValues) {
+
+            if (!user.dataValues.apple_id) {
+
+                await User.UPDATE(
+                    {
+                        email
+                    },
+                    {
+                        apple_id
+                    }
+                );
+            }
+
+
+            const token = jwt.sign({
+                id: user.dataValues.id,
+                email: user.dataValues.email,
+                role: user.dataValues.role
+            }, JWT_SECRET);
+
+            
+
+            return res.json({
+                user: {
+                    ...user.dataValues,
+                    is_password_empty: !user.dataValues.password? true : false
+                },
+                token
+            });
+
+        }
+        else {
+            const userPayload = {
+                email,
+                firstname: firstname,
+                lastname: lastname,
+                type: ROLES.user,
+                apple_id
+            };
+
+            const newUser = await User.CREATE(userPayload)
+
+            const token = jwt.sign({
+                id: newUser.id,
+                email: newUser.email,
+                role: newUser.role
+            }, JWT_SECRET);
+
+            return res.json({
+                user: {
+                    ...(newUser ? newUser.dataValues : {}),
+                    is_password_empty: true
+                },
+                token
+            });
+        }
+    } catch (err) {
+
+        return res.status(400).json({
+            message:'Invalid Login'
+        });
+    }
+}
 export {
     SignInController,
     SignUpController,
@@ -578,5 +660,6 @@ export {
     GoogleSignInCallback,
     ResetPassword,
     GetSecurityQuestion,
-    SetUserPassword
+    SetUserPassword,
+    AppleSignIn
 }

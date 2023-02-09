@@ -400,11 +400,7 @@ const SetUserPassword = async (req, res, next) => {
 const GetUserArchive = async (req, res, next) => {
     try {
 
-        const users = await UserArchive.GET_ALL({
-            where: {
-                user_id: id
-            }
-        });
+        const users = await UserArchive.GET_ALL();
 
         return res.status(201).json({
             users

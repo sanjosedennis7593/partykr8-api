@@ -17,6 +17,9 @@ module.exports = (sequelize, Sequelize) => {
     google_id: {
       type: Sequelize.STRING,
     },
+    apple_id: {
+      type: Sequelize.STRING,
+    },
     role: {
       type: Sequelize.STRING,
       defaultValue: "user",

@@ -9,7 +9,8 @@ import {
     SignInController, 
     SignUpController, 
     ResetPassword ,
-    GetSecurityQuestion
+    GetSecurityQuestion,
+    AppleSignIn
 } from '../controllers/auth';
 
 import { fileRequest } from '../helpers/upload';
@@ -22,6 +23,7 @@ router.post('/signup', fileRequest.single('profile_photo'), SignupValidator, Sig
 router.post('/signin/facebook', FacebookSignIn);
 // router.get('/signin/facebook/callback', FacebookSignInCallback);
 router.post('/signin/google', GoogleSignIn);
+router.post('/signin/apple', AppleSignIn);
 router.get('/signin/google/callback', GoogleSignInCallback);
 router.post('/forgot/password', ...ResetPasswordValidator, ResetPassword);
 router.post('/security_question', GetSecurityQuestion);
