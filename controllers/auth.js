@@ -576,7 +576,7 @@ const AppleSignIn = async (req, res, next) => {
 
         let user = await User.GET({
             where: {
-                email
+                [Op.or]: [{ email: email }, { apple_id: apple_id }]
             },
             include: [
                 {
