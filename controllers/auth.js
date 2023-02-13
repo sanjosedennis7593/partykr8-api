@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import { validationResult } from 'express-validator';
+import sequelize, { Op } from 'sequelize';
+
 import { JWT_SECRET } from '../config/jwt';
 import { ROLES } from '../config/constants';
 import Table from '../helpers/database';
