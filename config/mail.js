@@ -7,8 +7,10 @@ const PAYMENT_SMTP_USER = process.env.PAYMENT_SMTP_USER;
 const PAYMENT_SMTP_PASS = process.env.PAYMENT_SMTP_PASS;
 
 
+console.log('SMTP_USER', SMTP_USER)
 let mailClient = nodemailer.createTransport({
     service: 'gmail',
+    secure: true,
     auth: {
         user: SMTP_USER,
         pass: SMTP_PASS,
@@ -18,6 +20,7 @@ let mailClient = nodemailer.createTransport({
 
 let paymentMailClient = nodemailer.createTransport({
     service: 'gmail',
+    secure: true,
     auth: {
         user: PAYMENT_SMTP_USER,
         pass: PAYMENT_SMTP_PASS,
