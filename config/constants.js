@@ -43,6 +43,8 @@ const TALENT_TYPES = {
     dj_equipment: 'DJ Equipment',
     mobile_bar: 'Mobile Bar',
     table_and_chairs: 'Table and Chairs',
+    photographer: 'Photographer',
+    videographer: 'Videographer'
 };
 
 
