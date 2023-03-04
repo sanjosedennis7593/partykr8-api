@@ -108,11 +108,21 @@ const FacebookSignIn = async (req, res, next) => {
 
         const { facebook_id = '', email = '', firstname, lastname, avatar_url } = req.body;
 
+        let whereQueries = {};
 
+        if(facebook_id) {
+            whereQueries = {
+                facebook_id: facebook_id
+            }
+        }
+        if(email) {
+            whereQueries = {
+                ...whereQueries,
+                email: email
+            } 
+        }
         let user = await User.GET({
-            where: {
-                [Op.or]: [ { facebook_id: facebook_id }, { email: email }]
-            },
+            where: queries,
             include: [
                 {
                     model: db.talents,
