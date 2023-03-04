@@ -106,11 +106,12 @@ const SignInController = (req, res, next) => {
 const FacebookSignIn = async (req, res, next) => {
     try {
 
-        const { facebook_id, email, firstname, lastname, avatar_url } = req.body;
+        const { facebook_id = '', email = '', firstname, lastname, avatar_url } = req.body;
+
 
         let user = await User.GET({
             where: {
-                [Op.or]: [{ email: email }, { facebook_id: facebook_id }]
+                [Op.or]: [ { facebook_id: facebook_id }, { email: email }]
             },
             include: [
                 {
