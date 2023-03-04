@@ -34,7 +34,7 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING
     },
     avatar_url: {
-      type: Sequelize.STRING,
+      type: Sequelize.TEXT('long'),
     },
     phone_number: {
       type: Sequelize.STRING,

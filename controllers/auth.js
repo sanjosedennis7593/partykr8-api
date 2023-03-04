@@ -110,7 +110,7 @@ const FacebookSignIn = async (req, res, next) => {
 
         let user = await User.GET({
             where: {
-                email
+                [Op.or]: [{ email: email }, { facebook_id: facebook_id }]
             },
             include: [
                 {
