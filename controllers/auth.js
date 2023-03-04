@@ -122,7 +122,7 @@ const FacebookSignIn = async (req, res, next) => {
             } 
         }
         let user = await User.GET({
-            where: queries,
+            where: whereQueries,
             include: [
                 {
                     model: db.talents,
