@@ -44,7 +44,10 @@ const TALENT_TYPES = {
     mobile_bar: 'Mobile Bar',
     table_and_chairs: 'Table and Chairs',
     photographer: 'Photographer',
-    videographer: 'Videographer'
+    videographer: 'Videographer',
+    souvenir_supplier: 'Souvenir Supplies',
+    venue: 'Venue',
+    caterer: 'Caterer'
 };
 
 
