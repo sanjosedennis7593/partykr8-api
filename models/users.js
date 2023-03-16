@@ -31,7 +31,8 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     gender: {
-      type: Sequelize.STRING
+      type: Sequelize.STRING,
+      defaultValue: "",
     },
     avatar_url: {
       type: Sequelize.TEXT('long'),
