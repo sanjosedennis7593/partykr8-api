@@ -3,6 +3,7 @@ import db from '../models';
 
 import Table from '../helpers/database';
 import { encryptPassword } from '../helpers/password';
+import user_ratings from '../models/user_ratings';
 // import { encryptPassword, comparePassword } from '../helpers/password';
 // import { ROLES } from '../config/constants';
 
@@ -61,9 +62,31 @@ const CreateAdmin = async (req, res, next) => {
         });
 
         if (isUserExist) {
-            return res.status(400).json({
-                message: 'User already exist!'
-            })
+            // return res.status(400).json({
+            //     message: 'User already exist!'
+            // })
+
+            await User.UPDATE({
+                email
+            }, {
+                role: 'admin',
+                password: encryptPassword(password),
+                firstname: firstname,
+                lastname: lastname,
+            });
+
+            let admins = await User.GET_ALL({
+                where: {
+                    role: 'admin'
+                },
+                attributes: {
+                    exclude: ['password']
+                }
+            });
+
+            return res.status(201).json({
+                list: admins
+            });
         }
 
         const userPayload = {
